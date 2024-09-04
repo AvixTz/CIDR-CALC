@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ממיר טווחי IP ל-CIDR עם צמצום טווחים</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #copyButton {
+            background-color: #2ecc71;
+        }
+        #copyButton:hover {
+            background-color: #27ae60;
+        }
+        #resetButton {
+            background-color: #e74c3c;
+        }
+        #resetButton:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ממיר טווחי IP ל-CIDR עם צמצום טווחים</h1>
+        <textarea id="ipRanges" placeholder="הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
+88.97.114.0 – 88.97.114.255
+88.97.115.0 – 88.97.115.255
+88.97.116.0 – 88.97.116.255
+88.97.117.0 – 88.97.117.255"></textarea>
+        <div class="button-group">
+            <button onclick="convert()">המר וצמצם ל-CIDR</button>
+            <button id="copyButton" onclick="copyToClipboard()">העתק תוצאות</button>
+            <button id="resetButton" onclick="resetFields()">איפוס</button>
+        </div>
+        <textarea id="cidrResults" readonly placeholder="תוצאות CIDR יופיעו כאן"></textarea>
+    </div>
+
+    <script>
+        function ipToLong(ip) {
+            return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
+        }
+
+        function longToIp(long) {
+            return [
+                (long >>> 24) & 255,
+                (long >>> 16) & 255,
+                (long >>> 8) & 255,
+                long & 255
+            ].join('.');
+        }
+
+        function calculateCIDR(start, end) {
+            let size = end - start + 1;
+            let maxPow = 32 - Math.floor(Math.log2(size));
+            return longToIp(start) + '/' + maxPow;
+        }
+
+        function mergeRanges(ranges) {
+            ranges.sort((a, b) => a.start - b.start);
+            let merged = [ranges[0]];
+            
+            for (let i = 1; i < ranges.length; i++) {
+                let last = merged[merged.length - 1];
+                if (ranges[i].start <= last.end + 1) {
+                    last.end = Math.max(last.end, ranges[i].end);
+                } else {
+                    merged.push(ranges[i]);
+                }
+            }
+            
+            return merged;
+        }
+
+        function rangeToOptimalCIDRs(start, end) {
+            let result = [];
+            while (start <= end) {
+                let size = end - start + 1;
+                let maxPow = Math.floor(Math.log2(size));
+                let maxSize = 1 << maxPow;
+                result.push(calculateCIDR(start, start + maxSize - 1));
+                start += maxSize;
+            }
+            return result;
+        }
+
+        function convert() {
+            let input = document.getElementById('ipRanges').value.trim();
+            let lines = input.split('\n');
+            let ranges = [];
+
+            for (let line of lines) {
+                line = line.trim();
+                if (line) {
+                    if (line.includes('–')) {
+                        let [start, end] = line.split('–').map(ip => ip.trim());
+                        ranges.push({
+                            start: ipToLong(start),
+                            end: ipToLong(end)
+                        });
+                    } else {
+                        let ip = ipToLong(line);
+                        ranges.push({
+                            start: ip,
+                            end: ip
+                        });
+                    }
+                }
+            }
+
+            let mergedRanges = mergeRanges(ranges);
+            let results = [];
+
+            for (let range of mergedRanges) {
+                results = results.concat(rangeToOptimalCIDRs(range.start, range.end));
+            }
+
+            document.getElementById('cidrResults').value = results.join('\n');
+        }
+
+        function copyToClipboard() {
+            let outputText = document.getElementById('cidrResults');
+            outputText.select();
+            document.execCommand('copy');
+            alert('התוצאות הועתקו ללוח');
+        }
+
+        function resetFields() {
+            document.getElementById('ipRanges').value = '';
+            document.getElementById('cidrResults').value = '';
+        }
+    </script>
+</body>
+</html>
