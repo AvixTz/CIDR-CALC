@@ -18,8 +18,8 @@
         .container {
             background-color: white;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            padding: 30px;
             width: 100%;
             max-width: 600px;
         }
@@ -27,37 +27,68 @@
             color: #3498db;
             text-align: center;
             margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: bold;
         }
         textarea {
             width: 100%;
             height: 200px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 13px;
+            font-size: 14px;
             resize: vertical;
+            box-sizing: border-box;
         }
         .button-container {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         button {
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 50px;
             color: white;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
             flex-grow: 1;
             margin: 0 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        button:first-child { margin-right: 0; }
-        button:last-child { margin-left: 0; }
-        #convertBtn { background-color: #3498db; }
-        #copyBtn { background-color: #2ecc71; }
-        #resetBtn { background-color: #e74c3c; }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button#convertBtn {
+            background-color: #3498db;
+        }
+        button#convertBtn:hover {
+            background-color: #2980b9;
+        }
+        button#copyBtn {
+            background-color: #2ecc71;
+        }
+        button#copyBtn:hover {
+            background-color: #27ae60;
+        }
+        button#resetBtn {
+            background-color: #e74c3c;
+        }
+        button#resetBtn:hover {
+            background-color: #c0392b;
+        }
         .status {
             text-align: left;
             color: #7f8c8d;
@@ -69,6 +100,7 @@
 <body>
     <div class="container">
         <h2>ממיר טווחי IP ל-CIDR עם צמצום טווחים</h2>
+        <label for="ipRanges">הכנס טווחי IP:</label>
         <textarea id="ipRanges" placeholder="הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
 88.97.114.0 – 88.97.114.255
 88.97.115.0 – 88.97.115.255
