@@ -89,6 +89,12 @@
         button#resetBtn:hover {
             background-color: #c0392b;
         }
+        button#exportBtn {
+            background-color: #f39c12;
+        }
+        button#exportBtn:hover {
+            background-color: #e67e22;
+        }
         .status {
             text-align: left;
             color: #7f8c8d;
@@ -110,6 +116,7 @@
             <button id="convertBtn" onclick="convert()">המר וצמצם ל-CIDR</button>
             <button id="copyBtn" onclick="copyToClipboard()">העתק תוצאות</button>
             <button id="resetBtn" onclick="resetFields()">איפוס</button>
+            <button id="exportBtn" onclick="exportToFile()">יצוא לקובץ</button>
         </div>
         <textarea id="cidrResults" readonly placeholder="תוצאות CIDR יופיעו כאן"></textarea>
         <div class="status">Ready</div>
@@ -207,6 +214,19 @@
         function resetFields() {
             document.getElementById('ipRanges').value = '';
             document.getElementById('cidrResults').value = '';
+        }
+
+        function exportToFile() {
+            let cidrResults = document.getElementById('cidrResults').value;
+            if (cidrResults) {
+                let blob = new Blob([cidrResults], { type: 'text/plain' });
+                let link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'IPBL.txt';
+                link.click();
+            } else {
+                alert('אין תוצאות ליצוא');
+            }
         }
     </script>
 </body>
