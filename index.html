@@ -3,126 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ממיר טווחי IP ל-CIDR עם צמצום טווחים</title>
+    <title>כלי עיצוב וניהול מידע 📊</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
+        
+        body { 
+            font-family: 'Rubik', sans-serif;
             background: linear-gradient(135deg, #3498db, #2ecc71);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            padding: 30px;
-            width: 100%;
-            max-width: 600px;
+        
+        .main-container {
+            max-width: 50%;
+            margin: 0 auto;
         }
-        h2 {
-            color: #3498db;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.8em;
+        
+        @media (max-width: 1200px) {
+            .main-container {
+                max-width: 75%;
+            }
         }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 15px;
-            font-weight: bold;
+
+        @media (max-width: 768px) {
+            .main-container {
+                max-width: 90%;
+            }
         }
-        textarea {
-            width: 100%;
-            height: 200px;
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 12px;
-            border: none;
-            border-radius: 50px;
-            color: white;
-            cursor: pointer;
-            font-size: 15px;
-            flex-grow: 1;
-            margin: 0 5px;
+        
+        .action-btn {
+            animation: glowing 3s infinite;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        button:hover {
+
+        .action-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
         }
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        @keyframes glowing {
+            0% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
+            50% { box-shadow: 0 4px 25px rgba(37, 99, 235, 0.4); }
+            100% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
         }
-        button#convertBtn {
-            background-color: #3498db;
+        
+        .content-box {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            padding: 1.5rem;
+            margin-top: 1rem;
         }
-        button#convertBtn:hover {
-            background-color: #2980b9;
+
+        .title-box {
+            position: absolute;
+            top: -1rem;
+            right: 1rem;
+            background-color: rgba(59, 130, 246, 0.1);
+            padding: 0.25rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            z-index: 1;
         }
-        button#copyBtn {
-            background-color: #2ecc71;
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        button#copyBtn:hover {
-            background-color: #27ae60;
+        
+        .tab:hover {
+            background-color: rgba(59, 130, 246, 0.1);
         }
-        button#resetBtn {
-            background-color: #e74c3c;
-        }
-        button#resetBtn:hover {
-            background-color: #c0392b;
-        }
-        button#exportBtn {
-            background-color: #f39c12;
-        }
-        button#exportBtn:hover {
-            background-color: #e67e22;
-        }
-        .status {
-            text-align: left;
-            color: #7f8c8d;
-            font-size: 12px;
-            margin-top: 10px;
+        
+        .tab.active {
+            background-color: white;
+            border-bottom: 2px solid white;
+            color: #3b82f6;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>ממיר טווחי IP ל-CIDR עם צמצום טווחים</h2>
-        <label for="ipRanges">הכנס טווחי IP:</label>
-        <textarea id="ipRanges" placeholder="הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
+    <div class="main-container mx-auto py-8 px-4">
+        <!-- Header Section -->
+        <h1 class="text-3xl font-bold text-center text-white mb-4">כלי עיצוב וניהול מידע 📊</h1>
+        <div class="max-w-3xl mx-auto mb-6 text-center">
+            <p class="text-lg text-white mb-4">
+                כלים חכמים שמסייעים בארגון ועיצוב מידע לפי הפורמט הנדרש בעבודתכם 🛠️
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                <div class="bg-blue-50 p-3 rounded-lg">
+                    <p class="font-bold text-blue-800">המרת כתובות IP 🔄</p>
+                    <p class="text-sm text-gray-600">המרה וארגון טווחי IP לפורמט CIDR</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded-lg">
+                    <p class="font-bold text-green-800">עיצוב מספרים 🔢</p>
+                    <p class="text-sm text-gray-600">המרת רשימת מספרים לפורמט מופרד בפסיקים</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="flex flex-wrap space-x-1 space-x-reverse mb-0">
+            <div class="tab active" onclick="openTab('ipTab')">המרת IP ל-CIDR</div>
+            <div class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
+        </div>
+        
+        <!-- Main Content Box -->
+        <div class="content-box">
+            <!-- IP Converter Tab -->
+            <div id="ipTab" class="tab-content active">
+                <div class="title-box">המרת טווחי IP 🔄</div>
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <label for="ipRanges" class="block mb-2 text-sm font-bold text-gray-700">הכנס טווחי IP:</label>
+                    <textarea id="ipRanges" placeholder="הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
 88.97.114.0 – 88.97.114.255
 88.97.115.0 – 88.97.115.255
 88.97.116.0 – 88.97.116.255
-88.97.117.0 – 88.97.117.255"></textarea>
-        <div class="button-container">
-            <button id="convertBtn" onclick="convert()">המר וצמצם ל-CIDR</button>
-            <button id="copyBtn" onclick="copyToClipboard()">העתק תוצאות</button>
-            <button id="resetBtn" onclick="resetFields()">איפוס</button>
-            <button id="exportBtn" onclick="exportToFile()">יצוא לקובץ</button>
+88.97.117.0 – 88.97.117.255" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                        <button id="convertBtn" onclick="convert()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                            המר וצמצם ל-CIDR 🔄
+                        </button>
+                        <button id="copyBtn" onclick="copyToClipboard('cidrResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetBtn" onclick="resetFields('ipRanges', 'cidrResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                            איפוס 🔄
+                        </button>
+                        <button id="exportBtn" onclick="exportToFile('cidrResults', 'IPBL.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                            יצוא לקובץ 💾
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="cidrResults" class="block mb-2 text-sm font-bold text-gray-700">תוצאות CIDR:</label>
+                        <textarea id="cidrResults" readonly placeholder="תוצאות CIDR יופיעו כאן" class="w-full p-3 border rounded-lg bg-gray-50 text-sm h-48"></textarea>
+                    </div>
+                    
+                    <div class="text-xs text-gray-500 mt-2" id="ipStatus">Ready</div>
+                </div>
+            </div>
+            
+            <!-- Number Formatter Tab -->
+            <div id="numberTab" class="tab-content hidden">
+                <div class="title-box">עיצוב מספרים 🔢</div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <label for="numberInput" class="block mb-2 text-sm font-bold text-gray-700">הכנס מספרים:</label>
+                    <textarea id="numberInput" placeholder="הכנס מספרים כאן, כל מספר בשורה נפרדת או מופרדים ברווחים:
+65456
+245872
+9878
+65467
+או:
+65456 245872 9878 65467" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                        <button id="formatBtn" onclick="formatNumbers()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                            עצב מספרים 🔢
+                        </button>
+                        <button id="copyFormatBtn" onclick="copyToClipboard('formattedResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetFormatBtn" onclick="resetFields('numberInput', 'formattedResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                            איפוס 🔄
+                        </button>
+                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults', 'FormattedNumbers.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                            יצוא לקובץ 💾
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="formattedResults" class="block mb-2 text-sm font-bold text-gray-700">תוצאות מעוצבות:</label>
+                        <textarea id="formattedResults" readonly placeholder="מספרים מעוצבים יופיעו כאן" class="w-full p-3 border rounded-lg bg-gray-50 text-sm h-48"></textarea>
+                    </div>
+                    
+                    <div class="text-xs text-gray-500 mt-2" id="numberStatus">Ready</div>
+                </div>
+            </div>
         </div>
-        <textarea id="cidrResults" readonly placeholder="תוצאות CIDR יופיעו כאן"></textarea>
-        <div class="status">Ready</div>
+               
+        <!-- About Section -->
+        <div class="content-box mt-6">
+            <div class="title-box">אודות הכלי 📌</div>
+            <div class="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg">
+                    <p class="text-sm text-blue-800 font-medium">אל תעבדו כמו חמורים! 🚀</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Tab functionality
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+            const selectedTab = document.getElementById(tabName);
+            selectedTab.classList.remove('hidden');
+            selectedTab.classList.add('active');
+        }
+        
+        // IP conversion functions
         function ipToLong(ip) {
             return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
         }
@@ -171,6 +270,7 @@
         }
 
         function convert() {
+            document.getElementById('ipStatus').textContent = 'Processing...';
             let ipRanges = document.getElementById('ipRanges').value.trim();
             let lines = ipRanges.split('\n');
             let ranges = [];
@@ -202,30 +302,86 @@
             }
 
             document.getElementById('cidrResults').value = results.join('\n');
+            document.getElementById('ipStatus').textContent = 'Conversion complete';
         }
 
-        function copyToClipboard() {
-            let cidrResults = document.getElementById('cidrResults');
-            cidrResults.select();
+        // Number formatting function
+        function formatNumbers() {
+            document.getElementById('numberStatus').textContent = 'Processing...';
+            let numberInput = document.getElementById('numberInput').value.trim();
+            
+            // First, replace all newlines with spaces
+            numberInput = numberInput.replace(/\n/g, ' ');
+            
+            // Then, replace multiple spaces with a single space and split
+            let numbers = numberInput.replace(/\s+/g, ' ').split(' ');
+            
+            // Filter out any empty strings
+            numbers = numbers.filter(num => num.trim() !== '');
+            
+            // Join with comma and space
+            let formatted = numbers.join(', ');
+            
+            document.getElementById('formattedResults').value = formatted;
+            document.getElementById('numberStatus').textContent = 'Formatting complete';
+        }
+
+        // General utility functions
+        function copyToClipboard(elementId) {
+            let element = document.getElementById(elementId);
+            element.select();
             document.execCommand('copy');
-            alert('התוצאות הועתקו ללוח');
+            
+            // Show feedback
+            const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
+            const originalText = document.getElementById(status).textContent;
+            document.getElementById(status).textContent = 'Copied to clipboard!';
+            
+            setTimeout(() => {
+                document.getElementById(status).textContent = originalText;
+            }, 2000);
         }
 
-        function resetFields() {
-            document.getElementById('ipRanges').value = '';
-            document.getElementById('cidrResults').value = '';
+        function resetFields(inputId, outputId) {
+            document.getElementById(inputId).value = '';
+            document.getElementById(outputId).value = '';
+            
+            // Show feedback
+            const status = inputId === 'ipRanges' ? 'ipStatus' : 'numberStatus';
+            const originalText = document.getElementById(status).textContent;
+            document.getElementById(status).textContent = 'Fields reset';
+            
+            setTimeout(() => {
+                document.getElementById(status).textContent = originalText;
+            }, 2000);
         }
 
-        function exportToFile() {
-            let cidrResults = document.getElementById('cidrResults').value;
-            if (cidrResults) {
-                let blob = new Blob([cidrResults], { type: 'text/plain' });
+        function exportToFile(elementId, fileName) {
+            let content = document.getElementById(elementId).value;
+            if (content) {
+                let blob = new Blob([content], { type: 'text/plain' });
                 let link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'IPBL.txt';
+                link.download = fileName;
                 link.click();
+                
+                // Show feedback
+                const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
+                const originalText = document.getElementById(status).textContent;
+                document.getElementById(status).textContent = 'File exported';
+                
+                setTimeout(() => {
+                    document.getElementById(status).textContent = originalText;
+                }, 2000);
             } else {
-                alert('אין תוצאות ליצוא');
+                // Show error feedback
+                const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
+                const originalText = document.getElementById(status).textContent;
+                document.getElementById(status).textContent = 'No content to export';
+                
+                setTimeout(() => {
+                    document.getElementById(status).textContent = originalText;
+                }, 2000);
             }
         }
     </script>
