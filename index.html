@@ -138,10 +138,10 @@
                         <button id="copyBtn" onclick="copyToClipboard('cidrResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
                             העתק תוצאות 📋
                         </button>
-                        <button id="resetBtn" onclick="resetFields('ipRanges', 'cidrResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                        <button id="resetBtn" onclick="resetFields('ipRanges','cidrResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
                             איפוס 🔄
                         </button>
-                        <button id="exportBtn" onclick="exportToFile('cidrResults', 'IPBL.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                        <button id="exportBtn" onclick="exportToFile('cidrResults','IPBL.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
                             יצוא לקובץ 💾
                         </button>
                     </div>
@@ -175,10 +175,10 @@
                         <button id="copyFormatBtn" onclick="copyToClipboard('formattedResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
                             העתק תוצאות 📋
                         </button>
-                        <button id="resetFormatBtn" onclick="resetFields('numberInput', 'formattedResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                        <button id="resetFormatBtn" onclick="resetFields('numberInput','formattedResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
                             איפוס 🔄
                         </button>
-                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults', 'FormattedNumbers.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults','FormattedNumbers.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
                             יצוא לקובץ 💾
                         </button>
                     </div>
@@ -320,7 +320,7 @@
             numbers = numbers.filter(num => num.trim() !== '');
             
             // Join with comma and space
-            let formatted = numbers.join(', ');
+            let formatted = numbers.join(',');
             
             document.getElementById('formattedResults').value = formatted;
             document.getElementById('numberStatus').textContent = 'Formatting complete';
