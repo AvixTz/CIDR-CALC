@@ -159,7 +159,21 @@
             <div id="numberTab" class="tab-content hidden">
                 <div class="title-box">עיצוב מספרים 🔢</div>
                 <div class="bg-green-50 rounded-lg p-4">
-                    <label for="numberInput" class="block mb-2 text-sm font-bold text-gray-700">הכנס מספרים:</label>
+                    <!-- שורת כותרת עם בחירת מפריד באותה שורה -->
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="numberInput" class="text-sm font-bold text-gray-700">הכנס מספרים:</label>
+                        <div class="flex items-center">
+                            <label for="separatorSelect" class="text-sm font-bold text-gray-700 ml-2">בחר מפריד:</label>
+                            <select id="separatorSelect" class="mr-2 p-1 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm">
+                                <option value="," selected>,</option>
+                                <option value="/">/</option>
+                                <option value=";">;</option>
+                                <option value="|">|</option>
+                                <option value=" ">רווח</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <textarea id="numberInput" placeholder="הכנס מספרים כאן, כל מספר בשורה נפרדת או מופרדים ברווחים:
 65456
 245872
@@ -305,10 +319,13 @@
             document.getElementById('ipStatus').textContent = 'Conversion complete';
         }
 
-        // Number formatting function
+        // Number formatting function - עדכון הפונקציה לתמיכה במפריד שנבחר
         function formatNumbers() {
             document.getElementById('numberStatus').textContent = 'Processing...';
             let numberInput = document.getElementById('numberInput').value.trim();
+            
+            // קבל את המפריד שנבחר
+            let selectedSeparator = document.getElementById('separatorSelect').value;
             
             // First, replace all newlines with spaces
             numberInput = numberInput.replace(/\n/g, ' ');
@@ -319,8 +336,8 @@
             // Filter out any empty strings
             numbers = numbers.filter(num => num.trim() !== '');
             
-            // Join with comma and space
-            let formatted = numbers.join(',');
+            // Join with the selected separator
+            let formatted = numbers.join(selectedSeparator);
             
             document.getElementById('formattedResults').value = formatted;
             document.getElementById('numberStatus').textContent = 'Formatting complete';
