@@ -129,7 +129,9 @@
 88.97.114.0 – 88.97.114.255
 88.97.115.0 – 88.97.115.255
 88.97.116.0 – 88.97.116.255
-88.97.117.0 – 88.97.117.255" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
+88.97.117.0 – 88.97.117.255
+
+המערכת תסנן אוטומטית שורות טקסט וכתובות לא תקינות" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
                         <button id="convertBtn" onclick="convert()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
@@ -235,6 +237,53 @@
             selectedTab.classList.add('active');
         }
         
+        // IP validation function - חדש!
+        function isValidIP(ip) {
+            // בדיקה שזו כתובת IP תקינה
+            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            
+            // בדיקה שהכתובת לא מתחילה ב-0.0.0
+            if (ip.startsWith('0.0.0.')) {
+                return false;
+            }
+            
+            return ipRegex.test(ip);
+        }
+
+        // Check if line contains valid IP - חדש!
+        function isIPLine(line) {
+            // ניקוי רווחים מיותרים
+            line = line.trim();
+            
+            // בדיקה אם השורה ריקה
+            if (!line) return false;
+            
+            // בדיקה אם זו שורת טקסט (מכילה אותיות שאינן חלק מכתובת IP)
+            // מסיר את כל המספרים, נקודות, מקפים ורווחים ובודק אם נשאר משהו
+            if (/[a-zA-Z&]/.test(line.replace(/[0-9.\-–\s]/g, ''))) {
+                return false;
+            }
+            
+            // בדיקה אם זה טווח IP (עם מקף רגיל או ארוך)
+            if (line.includes('–') || line.includes('-')) {
+                const parts = line.split(/[–\-]/).map(s => s.trim());
+                if (parts.length === 2) {
+                    return isValidIP(parts[0]) && isValidIP(parts[1]);
+                }
+                return false;
+            }
+            
+            // בדיקה אם זה CIDR (לדוגמה: 192.168.1.0/24)
+            if (line.includes('/')) {
+                const [ip, cidr] = line.split('/');
+                const cidrNum = parseInt(cidr);
+                return isValidIP(ip.trim()) && !isNaN(cidrNum) && cidrNum >= 0 && cidrNum <= 32;
+            }
+            
+            // בדיקה אם זו כתובת IP בודדת
+            return isValidIP(line);
+        }
+        
         // IP conversion functions
         function ipToLong(ip) {
             return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
@@ -256,6 +305,8 @@
         }
 
         function mergeRanges(ranges) {
+            if (ranges.length === 0) return [];
+            
             ranges.sort((a, b) => a.start - b.start);
             let merged = [ranges[0]];
             
@@ -283,29 +334,69 @@
             return result;
         }
 
+        // Updated convert function - מעודכן!
         function convert() {
-            document.getElementById('ipStatus').textContent = 'Processing...';
+            document.getElementById('ipStatus').textContent = 'מעבד...';
             let ipRanges = document.getElementById('ipRanges').value.trim();
             let lines = ipRanges.split('\n');
             let ranges = [];
+            let invalidLines = [];
+            let processedCount = 0;
 
             for (let line of lines) {
                 line = line.trim();
-                if (line) {
-                    if (line.includes('–')) {
-                        let [start, end] = line.split('–').map(ip => ip.trim());
-                        ranges.push({
-                            start: ipToLong(start),
-                            end: ipToLong(end)
-                        });
-                    } else {
-                        let ip = ipToLong(line);
-                        ranges.push({
-                            start: ip,
-                            end: ip
-                        });
+                
+                // סינון שורות לא רלוונטיות
+                if (!isIPLine(line)) {
+                    if (line) { // שמירת שורות לא תקינות שאינן ריקות
+                        invalidLines.push(line);
                     }
+                    continue;
                 }
+                
+                processedCount++;
+                
+                // עיבוד שורות IP תקינות
+                if (line.includes('–') || line.includes('-')) {
+                    // טיפול בטווח IP
+                    let [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
+                    ranges.push({
+                        start: ipToLong(start),
+                        end: ipToLong(end)
+                    });
+                } else if (line.includes('/')) {
+                    // טיפול ב-CIDR
+                    const [ip, cidrStr] = line.split('/');
+                    const cidr = parseInt(cidrStr);
+                    const ipLong = ipToLong(ip.trim());
+                    const mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
+                    const network = ipLong & mask;
+                    const broadcast = network | (~mask >>> 0);
+                    
+                    ranges.push({
+                        start: network,
+                        end: broadcast
+                    });
+                } else {
+                    // כתובת IP בודדת
+                    let ip = ipToLong(line);
+                    ranges.push({
+                        start: ip,
+                        end: ip
+                    });
+                }
+            }
+
+            // הצגת מידע על שורות שסוננו (אופציונלי - אפשר להסיר)
+            if (invalidLines.length > 0) {
+                console.log('שורות שסוננו:', invalidLines);
+            }
+
+            // בדיקה אם יש טווחים לעיבוד
+            if (ranges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו כתובות IP תקינות';
+                return;
             }
 
             let mergedRanges = mergeRanges(ranges);
@@ -316,7 +407,8 @@
             }
 
             document.getElementById('cidrResults').value = results.join('\n');
-            document.getElementById('ipStatus').textContent = 'Conversion complete';
+            document.getElementById('ipStatus').textContent = 
+                `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
         }
 
         // Number formatting function - עדכון הפונקציה לתמיכה במפריד שנבחר
@@ -352,7 +444,7 @@
             // Show feedback
             const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
             const originalText = document.getElementById(status).textContent;
-            document.getElementById(status).textContent = 'Copied to clipboard!';
+            document.getElementById(status).textContent = 'הועתק ללוח! 📋';
             
             setTimeout(() => {
                 document.getElementById(status).textContent = originalText;
@@ -366,10 +458,10 @@
             // Show feedback
             const status = inputId === 'ipRanges' ? 'ipStatus' : 'numberStatus';
             const originalText = document.getElementById(status).textContent;
-            document.getElementById(status).textContent = 'Fields reset';
+            document.getElementById(status).textContent = 'אופס! 🔄';
             
             setTimeout(() => {
-                document.getElementById(status).textContent = originalText;
+                document.getElementById(status).textContent = 'Ready';
             }, 2000);
         }
 
@@ -385,7 +477,7 @@
                 // Show feedback
                 const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
                 const originalText = document.getElementById(status).textContent;
-                document.getElementById(status).textContent = 'File exported';
+                document.getElementById(status).textContent = 'הקובץ יוצא! 💾';
                 
                 setTimeout(() => {
                     document.getElementById(status).textContent = originalText;
@@ -394,7 +486,7 @@
                 // Show error feedback
                 const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
                 const originalText = document.getElementById(status).textContent;
-                document.getElementById(status).textContent = 'No content to export';
+                document.getElementById(status).textContent = 'אין תוכן לייצוא ❌';
                 
                 setTimeout(() => {
                     document.getElementById(status).textContent = originalText;
