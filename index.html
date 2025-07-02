@@ -100,7 +100,7 @@
             <p class="text-lg text-white mb-4">
                 כלים חכמים שמסייעים בארגון ועיצוב מידע לפי הפורמט הנדרש בעבודתכם 🛠️
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
                 <div class="bg-blue-50 p-3 rounded-lg">
                     <p class="font-bold text-blue-800">המרת כתובות IP 🔄</p>
                     <p class="text-sm text-gray-600">המרה וארגון טווחי IP לפורמט CIDR</p>
@@ -109,6 +109,10 @@
                     <p class="font-bold text-green-800">עיצוב מספרים 🔢</p>
                     <p class="text-sm text-gray-600">המרת רשימת מספרים לפורמט מופרד בפסיקים</p>
                 </div>
+                <div class="bg-purple-50 p-3 rounded-lg">
+                    <p class="font-bold text-purple-800">חילוץ ID מקמפיינים 🎯</p>
+                    <p class="text-sm text-gray-600">חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט</p>
+                </div>
             </div>
         </div>
 
@@ -116,6 +120,7 @@
         <div class="flex flex-wrap space-x-1 space-x-reverse mb-0">
             <div class="tab active" onclick="openTab('ipTab')">המרת IP ל-CIDR</div>
             <div class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
+            <div class="tab" onclick="openTab('campaignTab')">חילוץ ID מקמפיינים</div>
         </div>
         
         <!-- Main Content Box -->
@@ -207,14 +212,46 @@
                     <div class="text-xs text-gray-500 mt-2" id="numberStatus">Ready</div>
                 </div>
             </div>
+
+            <!-- Campaign ID Extractor Tab -->
+            <div id="campaignTab" class="tab-content hidden">
+                <div class="title-box">חילוץ ID מקמפיינים 🎯</div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <label for="campaignInput" class="block mb-2 text-sm font-bold text-gray-700">הדבק מידע מהמערכת:</label>
+                    <textarea id="campaignInput" placeholder="הדבק כאן את המידע שהועתק מהמערכת שלך...
+המערכת תחלץ אוטומטית מזהי קמפיינים (4-8 ספרות) מהטקסט" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white text-sm h-48"></textarea>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                        <button id="extractBtn" onclick="extractCampaignIDs()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                            חלץ מזהים 🎯
+                        </button>
+                        <button id="copyCampaignBtn" onclick="copyToClipboard('campaignResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetCampaignBtn" onclick="resetFields('campaignInput','campaignResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                            איפוס 🔄
+                        </button>
+                        <button id="exportCampaignBtn" onclick="exportToFile('campaignResults','CampaignIDs.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                            יצוא לקובץ 💾
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="campaignResults" class="block mb-2 text-sm font-bold text-gray-700">מזהי קמפיינים שנמצאו:</label>
+                        <textarea id="campaignResults" readonly placeholder="מזהי קמפיינים יופיעו כאן" class="w-full p-3 border rounded-lg bg-gray-50 text-sm h-48"></textarea>
+                    </div>
+                    
+                    <div class="text-xs text-gray-500 mt-2" id="campaignStatus">Ready</div>
+                </div>
+            </div>
         </div>
                
         <!-- About Section -->
         <div class="content-box mt-6">
             <div class="title-box">אודות הכלי 📌</div>
             <div class="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg">
-                    <p class="text-sm text-blue-800 font-medium">אל תעבדו כמו חמורים! 🚀</p>
-                </div>
+                <p class="text-sm text-blue-800 font-medium">אל תעבדו כמו חמורים! 🚀</p>
+                <p class="text-xs text-gray-600 mt-2">כלי מאוחד לעיבוד מידע: המרת IP, עיצוב מספרים וחילוץ מזהי קמפיינים</p>
             </div>
         </div>
     </div>
@@ -237,12 +274,10 @@
             selectedTab.classList.add('active');
         }
         
-        // IP validation function - חדש!
+        // IP validation function
         function isValidIP(ip) {
-            // בדיקה שזו כתובת IP תקינה
             const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
             
-            // בדיקה שהכתובת לא מתחילה ב-0.0.0
             if (ip.startsWith('0.0.0.')) {
                 return false;
             }
@@ -250,21 +285,16 @@
             return ipRegex.test(ip);
         }
 
-        // Check if line contains valid IP - חדש!
+        // Check if line contains valid IP
         function isIPLine(line) {
-            // ניקוי רווחים מיותרים
             line = line.trim();
             
-            // בדיקה אם השורה ריקה
             if (!line) return false;
             
-            // בדיקה אם זו שורת טקסט (מכילה אותיות שאינן חלק מכתובת IP)
-            // מסיר את כל המספרים, נקודות, מקפים ורווחים ובודק אם נשאר משהו
             if (/[a-zA-Z&]/.test(line.replace(/[0-9.\-–\s]/g, ''))) {
                 return false;
             }
             
-            // בדיקה אם זה טווח IP (עם מקף רגיל או ארוך)
             if (line.includes('–') || line.includes('-')) {
                 const parts = line.split(/[–\-]/).map(s => s.trim());
                 if (parts.length === 2) {
@@ -273,14 +303,12 @@
                 return false;
             }
             
-            // בדיקה אם זה CIDR (לדוגמה: 192.168.1.0/24)
             if (line.includes('/')) {
                 const [ip, cidr] = line.split('/');
                 const cidrNum = parseInt(cidr);
                 return isValidIP(ip.trim()) && !isNaN(cidrNum) && cidrNum >= 0 && cidrNum <= 32;
             }
             
-            // בדיקה אם זו כתובת IP בודדת
             return isValidIP(line);
         }
         
@@ -334,7 +362,7 @@
             return result;
         }
 
-        // Updated convert function - מעודכן!
+        // Convert IP ranges to CIDR
         function convert() {
             document.getElementById('ipStatus').textContent = 'מעבד...';
             let ipRanges = document.getElementById('ipRanges').value.trim();
@@ -346,9 +374,8 @@
             for (let line of lines) {
                 line = line.trim();
                 
-                // סינון שורות לא רלוונטיות
                 if (!isIPLine(line)) {
-                    if (line) { // שמירת שורות לא תקינות שאינן ריקות
+                    if (line) {
                         invalidLines.push(line);
                     }
                     continue;
@@ -356,16 +383,13 @@
                 
                 processedCount++;
                 
-                // עיבוד שורות IP תקינות
                 if (line.includes('–') || line.includes('-')) {
-                    // טיפול בטווח IP
                     let [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
                     ranges.push({
                         start: ipToLong(start),
                         end: ipToLong(end)
                     });
                 } else if (line.includes('/')) {
-                    // טיפול ב-CIDR
                     const [ip, cidrStr] = line.split('/');
                     const cidr = parseInt(cidrStr);
                     const ipLong = ipToLong(ip.trim());
@@ -378,7 +402,6 @@
                         end: broadcast
                     });
                 } else {
-                    // כתובת IP בודדת
                     let ip = ipToLong(line);
                     ranges.push({
                         start: ip,
@@ -387,12 +410,10 @@
                 }
             }
 
-            // הצגת מידע על שורות שסוננו (אופציונלי - אפשר להסיר)
             if (invalidLines.length > 0) {
                 console.log('שורות שסוננו:', invalidLines);
             }
 
-            // בדיקה אם יש טווחים לעיבוד
             if (ranges.length === 0) {
                 document.getElementById('cidrResults').value = '';
                 document.getElementById('ipStatus').textContent = 'לא נמצאו כתובות IP תקינות';
@@ -411,28 +432,42 @@
                 `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
         }
 
-        // Number formatting function - עדכון הפונקציה לתמיכה במפריד שנבחר
+        // Number formatting function
         function formatNumbers() {
-            document.getElementById('numberStatus').textContent = 'Processing...';
+            document.getElementById('numberStatus').textContent = 'מעבד...';
             let numberInput = document.getElementById('numberInput').value.trim();
             
-            // קבל את המפריד שנבחר
             let selectedSeparator = document.getElementById('separatorSelect').value;
             
-            // First, replace all newlines with spaces
             numberInput = numberInput.replace(/\n/g, ' ');
             
-            // Then, replace multiple spaces with a single space and split
             let numbers = numberInput.replace(/\s+/g, ' ').split(' ');
             
-            // Filter out any empty strings
             numbers = numbers.filter(num => num.trim() !== '');
             
-            // Join with the selected separator
             let formatted = numbers.join(selectedSeparator);
             
             document.getElementById('formattedResults').value = formatted;
-            document.getElementById('numberStatus').textContent = 'Formatting complete';
+            document.getElementById('numberStatus').textContent = 'עיצוב הושלם ✅';
+        }
+
+        // Campaign ID extraction function - משופר ל-4-8 ספרות
+        function extractCampaignIDs() {
+            document.getElementById('campaignStatus').textContent = 'מחלץ מזהים...';
+            const inputText = document.getElementById("campaignInput").value;
+            const lines = inputText.split("\n");
+            
+            // שיפור: דפוס עבור 4-8 ספרות במקום רק 5
+            const idPattern = /^\d{4,8}$/;
+            const ids = lines.filter(line => idPattern.test(line.trim()));
+            
+            if (ids.length > 0) {
+                document.getElementById("campaignResults").value = ids.join("\n");
+                document.getElementById('campaignStatus').textContent = `נמצאו ${ids.length} מזהי קמפיינים ✅`;
+            } else {
+                document.getElementById("campaignResults").value = "";
+                document.getElementById('campaignStatus').textContent = 'לא נמצאו מזהי קמפיינים (4-8 ספרות) ❌';
+            }
         }
 
         // General utility functions
@@ -441,8 +476,13 @@
             element.select();
             document.execCommand('copy');
             
-            // Show feedback
-            const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
+            const statusMap = {
+                'cidrResults': 'ipStatus',
+                'formattedResults': 'numberStatus',
+                'campaignResults': 'campaignStatus'
+            };
+            
+            const status = statusMap[elementId];
             const originalText = document.getElementById(status).textContent;
             document.getElementById(status).textContent = 'הועתק ללוח! 📋';
             
@@ -455,8 +495,13 @@
             document.getElementById(inputId).value = '';
             document.getElementById(outputId).value = '';
             
-            // Show feedback
-            const status = inputId === 'ipRanges' ? 'ipStatus' : 'numberStatus';
+            const statusMap = {
+                'ipRanges': 'ipStatus',
+                'numberInput': 'numberStatus',
+                'campaignInput': 'campaignStatus'
+            };
+            
+            const status = statusMap[inputId];
             const originalText = document.getElementById(status).textContent;
             document.getElementById(status).textContent = 'אופס! 🔄';
             
@@ -474,8 +519,13 @@
                 link.download = fileName;
                 link.click();
                 
-                // Show feedback
-                const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
+                const statusMap = {
+                    'cidrResults': 'ipStatus',
+                    'formattedResults': 'numberStatus',
+                    'campaignResults': 'campaignStatus'
+                };
+                
+                const status = statusMap[elementId];
                 const originalText = document.getElementById(status).textContent;
                 document.getElementById(status).textContent = 'הקובץ יוצא! 💾';
                 
@@ -483,8 +533,13 @@
                     document.getElementById(status).textContent = originalText;
                 }, 2000);
             } else {
-                // Show error feedback
-                const status = elementId === 'cidrResults' ? 'ipStatus' : 'numberStatus';
+                const statusMap = {
+                    'cidrResults': 'ipStatus',
+                    'formattedResults': 'numberStatus',
+                    'campaignResults': 'campaignStatus'
+                };
+                
+                const status = statusMap[elementId];
                 const originalText = document.getElementById(status).textContent;
                 document.getElementById(status).textContent = 'אין תוכן לייצוא ❌';
                 
