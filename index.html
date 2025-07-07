@@ -138,6 +138,12 @@
 
 המערכת תסנן אוטומטית שורות טקסט וכתובות לא תקינות" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
                     
+                    <!-- אפשרות איחוד טווחים - פשוטה -->
+                    <div class="flex items-center mt-3 mb-3">
+                        <input type="checkbox" id="mergeRanges" checked class="ml-2">
+                        <label for="mergeRanges" class="text-sm text-gray-700">איחוד טווחי IP חופפים וסמוכים</label>
+                    </div>
+                    
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
                         <button id="convertBtn" onclick="convert()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
                             המר וצמצם ל-CIDR 🔄
@@ -366,6 +372,7 @@
         function convert() {
             document.getElementById('ipStatus').textContent = 'מעבד...';
             let ipRanges = document.getElementById('ipRanges').value.trim();
+            let shouldMerge = document.getElementById('mergeRanges').checked;
             let lines = ipRanges.split('\n');
             let ranges = [];
             let invalidLines = [];
@@ -420,16 +427,30 @@
                 return;
             }
 
-            let mergedRanges = mergeRanges(ranges);
+            let originalRangeCount = ranges.length;
+            let processedRanges = shouldMerge ? mergeRanges(ranges) : ranges;
+            let mergedRangeCount = processedRanges.length;
             let results = [];
 
-            for (let range of mergedRanges) {
+            for (let range of processedRanges) {
                 results = results.concat(rangeToOptimalCIDRs(range.start, range.end));
             }
 
             document.getElementById('cidrResults').value = results.join('\n');
-            document.getElementById('ipStatus').textContent = 
-                `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
+            
+            // הודעת סטטוס מפורטת
+            let statusMessage = `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
+            
+            if (shouldMerge && originalRangeCount > mergedRangeCount) {
+                let reducedCount = originalRangeCount - mergedRangeCount;
+                statusMessage += ` | צומצמו ${reducedCount} טווחים (${originalRangeCount}→${mergedRangeCount})`;
+            } else if (shouldMerge) {
+                statusMessage += ` | לא נמצאו טווחים לאיחוד`;
+            } else {
+                statusMessage += ` | ללא איחוד טווחים`;
+            }
+            
+            document.getElementById('ipStatus').textContent = statusMessage;
         }
 
         // Number formatting function
