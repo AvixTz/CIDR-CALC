@@ -15,7 +15,7 @@
         }
         
         .main-container {
-            max-width: 75%;
+            max-width: 70%;
             margin: 0 auto;
         }
         
@@ -27,7 +27,7 @@
 
         @media (max-width: 768px) {
             .main-container {
-                max-width: 80%;
+                max-width: 70%;
             }
         }
         
@@ -99,6 +99,13 @@
             border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
+        .mode-controls {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .radio-group {
             display: flex;
             gap: 1rem;
@@ -116,11 +123,10 @@
         }
 
         .split-options {
-            background-color: rgba(147, 51, 234, 0.05);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(147, 51, 234, 0.2);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .split-controls {
@@ -168,17 +174,41 @@
             <div id="ipTab" class="tab-content active">
                 <div class="title-box">המרת כתובות IP 🔄</div>
                 <div class="bg-blue-50 rounded-lg p-4">
-                    <!-- Mode Selector -->
+                    <!-- Mode Selector עם אפשרויות פיצול באותה שורה -->
                     <div class="mode-selector">
                         <div class="text-sm font-bold text-gray-700 mb-2">בחר סוג המרה:</div>
-                        <div class="radio-group">
-                            <div class="radio-option">
-                                <input type="radio" id="ipToCidr" name="conversionMode" value="ipToCidr" checked onchange="updateConversionMode()">
-                                <label for="ipToCidr" class="text-sm text-gray-700">טווחי IP → CIDR</label>
+                        <div class="mode-controls">
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="ipToCidr" name="conversionMode" value="ipToCidr" checked onchange="updateConversionMode()">
+                                    <label for="ipToCidr" class="text-sm text-gray-700">טווחי IP → CIDR</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="cidrToIp" name="conversionMode" value="cidrToIp" onchange="updateConversionMode()">
+                                    <label for="cidrToIp" class="text-sm text-gray-700">CIDR → טווחי IP</label>
+                                </div>
                             </div>
-                            <div class="radio-option">
-                                <input type="radio" id="cidrToIp" name="conversionMode" value="cidrToIp" onchange="updateConversionMode()">
-                                <label for="cidrToIp" class="text-sm text-gray-700">CIDR → טווחי IP</label>
+                            
+                            <!-- אפשרויות פיצול באותה שורה -->
+                            <div class="split-options" id="splitOptionsInline" style="display: none;">
+                                <div class="text-sm font-bold text-gray-700">אפשרויות פיצול:</div>
+                                <div class="split-controls">
+                                    <div class="radio-option">
+                                        <input type="checkbox" id="enableSplit" onchange="toggleSplitControls()">
+                                        <label for="enableSplit" class="text-sm text-gray-700">פצל רשתות גדולות</label>
+                                    </div>
+                                    <div id="splitControls" style="display: none;">
+                                        <label for="maxCidr" class="text-sm text-gray-700 ml-2">מקסימום CIDR:</label>
+                                        <select id="maxCidr" class="p-1 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm">
+                                            <option value="16">16 (65,536 IP)</option>
+                                            <option value="20" selected>20 (4,096 IP)</option>
+                                            <option value="22">22 (1,024 IP)</option>
+                                            <option value="24">24 (256 IP)</option>
+                                            <option value="26">26 (64 IP)</option>
+                                            <option value="28">28 (16 IP)</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -192,37 +222,12 @@
                         <label for="mergeRanges" class="text-sm text-gray-700">איחוד טווחי IP חופפים וסמוכים</label>
                     </div>
 
-                    <!-- אפשרויות פיצול - לכיוון CIDR->IP -->
-                    <div class="split-options" id="splitOptions" style="display: none;">
-                        <div class="text-sm font-bold text-gray-700 mb-2">אפשרויות פיצול רשתות גדולות:</div>
-                        <div class="split-controls">
-                            <div class="radio-option">
-                                <input type="checkbox" id="enableSplit" onchange="toggleSplitControls()">
-                                <label for="enableSplit" class="text-sm text-gray-700">פצל רשתות גדולות</label>
-                            </div>
-                            <div id="splitControls" style="display: none;">
-                                <label for="maxCidr" class="text-sm text-gray-700 ml-2">מקסימום CIDR:</label>
-                                <select id="maxCidr" class="p-1 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm">
-                                    <option value="16">16 (65,536 IP)</option>
-                                    <option value="20" selected>20 (4,096 IP)</option>
-                                    <option value="22">22 (1,024 IP)</option>
-                                    <option value="24">24 (256 IP)</option>
-                                    <option value="26">26 (64 IP)</option>
-                                    <option value="28">28 (16 IP)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="text-xs text-gray-500 mt-2">
-                            פיצול מאפשר לקבל מספר תת-רשתות קטנות יותר במקום טווח ענק אחד
-                        </div>
-                    </div>
-
                     <!-- אפשרות איחוד במצב CIDR->IP -->
                     <div class="flex items-center mt-3 mb-3" id="mergeOptionCidr" style="display: none;">
                         <input type="checkbox" id="mergeRangesCidr" class="ml-2">
                         <label for="mergeRangesCidr" class="text-sm text-gray-700">איחוד טווחי IP חופפים וסמוכים לאחר ההמרה</label>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
                         <button id="convertBtn" onclick="performConversion()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
                             <span id="convertBtnText">המר וצמצם ל-CIDR 🔄</span>
@@ -233,9 +238,23 @@
                         <button id="resetBtn" onclick="resetFields('ipRanges','cidrResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
                             איפוס 🔄
                         </button>
-                        <button id="exportBtn" onclick="exportToFile('cidrResults','IPBL.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
-                            יצוא לקובץ 💾
-                        </button>
+                        <div class="relative">
+                            <button id="exportBtn" onclick="exportToFile('cidrResults')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium w-full">
+                                יצוא לקובץ 💾
+                            </button>
+                            <!-- בחירת פורמט הורדה -->
+                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 flex items-center gap-2 text-xs bg-yellow-50 p-1 rounded border whitespace-nowrap">
+                                <span class="text-gray-700">פורמט:</span>
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="radio" id="downloadTxt" name="downloadFormat" value="txt" checked>
+                                    <span class="text-gray-700">TXT</span>
+                                </label>
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="radio" id="downloadCsv" name="downloadFormat" value="csv">
+                                    <span class="text-gray-700">CSV</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="mt-4">
@@ -284,7 +303,7 @@
                         <button id="resetFormatBtn" onclick="resetFields('numberInput','formattedResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
                             איפוס 🔄
                         </button>
-                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults','FormattedNumbers.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults', 'FormattedNumbers.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
                             יצוא לקובץ 💾
                         </button>
                     </div>
@@ -357,7 +376,7 @@
             const convertBtnText = document.getElementById('convertBtnText');
             const textarea = document.getElementById('ipRanges');
             const mergeOption = document.getElementById('mergeOption');
-            const splitOptions = document.getElementById('splitOptions');
+            const splitOptionsInline = document.getElementById('splitOptionsInline');
             const mergeOptionCidr = document.getElementById('mergeOptionCidr');
             
             if (mode === 'ipToCidr') {
@@ -372,7 +391,7 @@
 
 המערכת תסנן אוטומטית שורות טקסט וכתובות לא תקינות`;
                 mergeOption.style.display = 'flex';
-                splitOptions.style.display = 'none';
+                splitOptionsInline.style.display = 'none';
                 mergeOptionCidr.style.display = 'none';
             } else {
                 inputLabel.textContent = 'הכנס CIDR:';
@@ -387,7 +406,7 @@
 המערכת תמיר כל CIDR לטווח IP עם מקף
 רשתות גדולות יכולות להתפצל לתת-רשתות קטנות יותר`;
                 mergeOption.style.display = 'none';
-                splitOptions.style.display = 'block';
+                splitOptionsInline.style.display = 'flex';
                 mergeOptionCidr.style.display = 'flex';
             }
             
@@ -534,307 +553,302 @@
 
         function mergeRanges(ranges) {
             if (ranges.length === 0) return [];
-	ranges.sort((a, b) => a.start - b.start);
-let merged = [ranges[0]];
-        for (let i = 1; i < ranges.length; i++) {
-            let last = merged[merged.length - 1];
-            if (ranges[i].start <= last.end + 1) {
-                last.end = Math.max(last.end, ranges[i].end);
-            } else {
-                merged.push(ranges[i]);
-            }
-        }
-        
-        return merged;
-    }
-
-    // Merge IP ranges from string format
-    function mergeIPRanges(rangeStrings) {
-        const ranges = rangeStrings.map(rangeStr => {
-            const [start, end] = rangeStr.split(' – ');
-            return {
-                start: ipToLong(start),
-                end: ipToLong(end)
-            };
-        });
-
-        const merged = mergeRanges(ranges);
-        return merged.map(range => `${longToIp(range.start)} – ${longToIp(range.end)}`);
-    }
-
-    function rangeToOptimalCIDRs(start, end) {
-        let result = [];
-        while (start <= end) {
-            let size = end - start + 1;
-            let maxPow = Math.floor(Math.log2(size));
-            let maxSize = 1 << maxPow;
-            result.push(calculateCIDR(start, start + maxSize - 1));
-            start += maxSize;
-        }
-        return result;
-    }
-
-    // Main conversion function
-    function performConversion() {
-        const mode = document.querySelector('input[name="conversionMode"]:checked').value;
-        
-        if (mode === 'ipToCidr') {
-            convertIPToCIDR();
-        } else {
-            convertCIDRToIP();
-        }
-    }
-
-    // Convert IP ranges to CIDR (original function)
-    function convertIPToCIDR() {
-        document.getElementById('ipStatus').textContent = 'מעבד...';
-        let ipRanges = document.getElementById('ipRanges').value.trim();
-        let shouldMerge = document.getElementById('mergeRanges').checked;
-        let lines = ipRanges.split('\n');
-        let ranges = [];
-        let invalidLines = [];
-        let processedCount = 0;
-
-        for (let line of lines) {
-            line = line.trim();
-            
-            if (!isIPLine(line)) {
-                if (line) {
-                    invalidLines.push(line);
+            ranges.sort((a, b) => a.start - b.start);
+            let merged = [ranges[0]];
+            for (let i = 1; i < ranges.length; i++) {
+                let last = merged[merged.length - 1];
+                if (ranges[i].start <= last.end + 1) {
+                    last.end = Math.max(last.end, ranges[i].end);
+                } else {
+                    merged.push(ranges[i]);
                 }
-                continue;
             }
             
-            processedCount++;
-            
-            if (line.includes('–') || line.includes('-')) {
-                let [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
-                ranges.push({
+            return merged;
+        }
+
+        // Merge IP ranges from string format
+        function mergeIPRanges(rangeStrings) {
+            const ranges = rangeStrings.map(rangeStr => {
+                const [start, end] = rangeStr.split(' – ');
+                return {
                     start: ipToLong(start),
                     end: ipToLong(end)
-                });
-            } else if (line.includes('/')) {
-                const [ip, cidrStr] = line.split('/');
-                const cidr = parseInt(cidrStr);
-                const ipLong = ipToLong(ip.trim());
-                const mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
-                const network = ipLong & mask;
-                const broadcast = network | (~mask >>> 0);
-                
-                ranges.push({
-                    start: network,
-                    end: broadcast
-                });
+                };
+            });
+
+            const merged = mergeRanges(ranges);
+            return merged.map(range => `${longToIp(range.start)} – ${longToIp(range.end)}`);
+        }
+
+        function rangeToOptimalCIDRs(start, end) {
+            let result = [];
+            while (start <= end) {
+                let size = end - start + 1;
+                let maxPow = Math.floor(Math.log2(size));
+                let maxSize = 1 << maxPow;
+                result.push(calculateCIDR(start, start + maxSize - 1));
+                start += maxSize;
+            }
+            return result;
+        }
+
+        // Main conversion function
+        function performConversion() {
+            const mode = document.querySelector('input[name="conversionMode"]:checked').value;
+            
+            if (mode === 'ipToCidr') {
+                convertIPToCIDR();
             } else {
-                let ip = ipToLong(line);
-                ranges.push({
-                    start: ip,
-                    end: ip
-                });
+                convertCIDRToIP();
             }
         }
 
-        if (invalidLines.length > 0) {
-            console.log('שורות שסוננו:', invalidLines);
-        }
+        // Convert IP ranges to CIDR (original function)
+        function convertIPToCIDR() {
+            document.getElementById('ipStatus').textContent = 'מעבד...';
+            let ipRanges = document.getElementById('ipRanges').value.trim();
+            let shouldMerge = document.getElementById('mergeRanges').checked;
+            let lines = ipRanges.split('\n');
+            let ranges = [];
+            let invalidLines = [];
+            let processedCount = 0;
 
-        if (ranges.length === 0) {
-            document.getElementById('cidrResults').value = '';
-            document.getElementById('ipStatus').textContent = 'לא נמצאו כתובות IP תקינות';
-            return;
-        }
-
-        let originalRangeCount = ranges.length;
-        let processedRanges = shouldMerge ? mergeRanges(ranges) : ranges;
-        let mergedRangeCount = processedRanges.length;
-        let results = [];
-
-        for (let range of processedRanges) {
-            results = results.concat(rangeToOptimalCIDRs(range.start, range.end));
-        }
-
-        document.getElementById('cidrResults').value = results.join('\n');
-        
-        // הודעת סטטוס מפורטת
-        let statusMessage = `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
-        
-        if (shouldMerge && originalRangeCount > mergedRangeCount) {
-            let reducedCount = originalRangeCount - mergedRangeCount;
-            statusMessage += ` | צומצמו ${reducedCount} טווחים (${originalRangeCount}→${mergedRangeCount})`;
-        } else if (shouldMerge) {
-            statusMessage += ` | לא נמצאו טווחים לאיחוד`;
-        } else {
-            statusMessage += ` | ללא איחוד טווחים`;
-        }
-        
-        document.getElementById('ipStatus').textContent = statusMessage;
-    }
-
-    // Convert CIDR to IP ranges (enhanced with split functionality)
-    function convertCIDRToIP() {
-        document.getElementById('ipStatus').textContent = 'מעבד...';
-        let cidrInput = document.getElementById('ipRanges').value.trim();
-        let lines = cidrInput.split('\n');
-        let results = [];
-        let invalidLines = [];
-        let processedCount = 0;
-        let splitCount = 0;
-
-        const enableSplit = document.getElementById('enableSplit').checked;
-        const maxCidr = document.getElementById('maxCidr').value;
-
-        for (let line of lines) {
-            line = line.trim();
-            
-            if (!line) continue;
-            
-            if (!isValidCIDR(line)) {
-                invalidLines.push(line);
-                continue;
-            }
-            
-            try {
-                if (enableSplit) {
-                    const splitResults = splitCIDR(line, maxCidr);
-                    results = results.concat(splitResults);
-                    if (splitResults.length > 1) {
-                        splitCount++;
+            for (let line of lines) {
+                line = line.trim();
+                
+                if (!isIPLine(line)) {
+                    if (line) {
+                        invalidLines.push(line);
                     }
-                } else {
-                    const range = cidrToRange(line);
-                    results.push(`${range.start} – ${range.end}`);
+                    continue;
                 }
+                
                 processedCount++;
-            } catch (error) {
-                invalidLines.push(line);
+                
+                if (line.includes('–') || line.includes('-')) {
+                    let [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
+                    ranges.push({
+                        start: ipToLong(start),
+                        end: ipToLong(end)
+                    });
+                } else if (line.includes('/')) {
+                    const [ip, cidrStr] = line.split('/');
+                    const cidr = parseInt(cidrStr);
+                    const ipLong = ipToLong(ip.trim());
+                    const mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
+                    const network = ipLong & mask;
+                    const broadcast = network | (~mask >>> 0);
+                    
+                    ranges.push({
+                        start: network,
+                        end: broadcast
+                    });
+                } else {
+                    let ip = ipToLong(line);
+                    ranges.push({
+                        start: ip,
+                        end: ip
+                    });
+                }
+            }
+
+            if (invalidLines.length > 0) {
+                console.log('שורות שסוננו:', invalidLines);
+            }
+
+            if (ranges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו כתובות IP תקינות';
+                return;
+            }
+
+            let originalRangeCount = ranges.length;
+            let processedRanges = shouldMerge ? mergeRanges(ranges) : ranges;
+            let mergedRangeCount = processedRanges.length;
+            let results = [];
+
+            for (let range of processedRanges) {
+                results = results.concat(rangeToOptimalCIDRs(range.start, range.end));
+            }
+
+            document.getElementById('cidrResults').value = results.join('\n');
+            
+            // הודעת סטטוס מפורטת
+            let statusMessage = `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
+            
+            if (shouldMerge && originalRangeCount > mergedRangeCount) {
+                let reducedCount = originalRangeCount - mergedRangeCount;
+                statusMessage += ` | צומצמו ${reducedCount} טווחים (${originalRangeCount}→${mergedRangeCount})`;
+            } else if (shouldMerge) {
+                statusMessage += ` | לא נמצאו טווחים לאיחוד`;
+            } else {
+                statusMessage += ` | ללא איחוד טווחים`;
+            }
+            
+            document.getElementById('ipStatus').textContent = statusMessage;
+        }
+
+        // Convert CIDR to IP ranges (enhanced with split functionality)
+        function convertCIDRToIP() {
+            document.getElementById('ipStatus').textContent = 'מעבד...';
+            let cidrInput = document.getElementById('ipRanges').value.trim();
+            let lines = cidrInput.split('\n');
+            let results = [];
+            let invalidLines = [];
+            let processedCount = 0;
+            let splitCount = 0;
+
+            const enableSplit = document.getElementById('enableSplit').checked;
+            const maxCidr = document.getElementById('maxCidr').value;
+
+            for (let line of lines) {
+                line = line.trim();
+                
+                if (!line) continue;
+                
+                if (!isValidCIDR(line)) {
+                    invalidLines.push(line);
+                    continue;
+                }
+                
+                try {
+                    if (enableSplit) {
+                        const splitResults = splitCIDR(line, maxCidr);
+                        results = results.concat(splitResults);
+                        if (splitResults.length > 1) {
+                            splitCount++;
+                        }
+                    } else {
+                        const range = cidrToRange(line);
+                        results.push(`${range.start} – ${range.end}`);
+                    }
+                    processedCount++;
+                } catch (error) {
+                    invalidLines.push(line);
+                }
+            }
+
+            if (invalidLines.length > 0) {
+                console.log('שורות לא תקינות:', invalidLines);
+            }
+
+            if (results.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו CIDR תקינים';
+                return;
+            }
+
+            // אפשרות איחוד לאחר המרה
+            const shouldMergeCidr = document.getElementById('mergeRangesCidr').checked;
+            let finalResults = results;
+            let mergedCount = 0;
+
+            if (shouldMergeCidr) {
+                const originalCount = results.length;
+                finalResults = mergeIPRanges(results);
+                mergedCount = originalCount - finalResults.length;
+            }
+
+            document.getElementById('cidrResults').value = finalResults.join('\n');
+            
+            let statusMessage = `המרה הושלמה ✅ | ${processedCount} CIDR הומרו`;
+            
+            if (enableSplit && splitCount > 0) {
+                statusMessage += ` | ${splitCount} רשתות גדולות פוצלו`;
+            }
+            
+            if (shouldMergeCidr && mergedCount > 0) {
+                statusMessage += ` | ${mergedCount} טווחים אוחדו`;
+            }
+            
+            statusMessage += ` | ${invalidLines.length} שורות לא תקינות סוננו`;
+            
+            document.getElementById('ipStatus').textContent = statusMessage;
+        }
+
+        // Number formatting function
+        function formatNumbers() {
+            document.getElementById('numberStatus').textContent = 'מעבד...';
+            let numberInput = document.getElementById('numberInput').value.trim();
+            
+            let selectedSeparator = document.getElementById('separatorSelect').value;
+            
+            numberInput = numberInput.replace(/\n/g, ' ');
+            
+            let numbers = numberInput.replace(/\s+/g, ' ').split(' ');
+            
+            numbers = numbers.filter(num => num.trim() !== '');
+            
+            let formatted = numbers.join(selectedSeparator);
+            
+            document.getElementById('formattedResults').value = formatted;
+            document.getElementById('numberStatus').textContent = 'עיצוב הושלם ✅';
+        }
+
+        // Campaign ID extraction function - משופר ל-4-8 ספרות
+        function extractCampaignIDs() {
+            document.getElementById('campaignStatus').textContent = 'מחלץ מזהים...';
+            const inputText = document.getElementById("campaignInput").value;
+            const lines = inputText.split("\n");
+            
+            // שיפור: דפוס עבור 4-8 ספרות במקום רק 5
+            const idPattern = /^\d{4,8}$/;
+            const ids = lines.filter(line => idPattern.test(line.trim()));
+            
+            if (ids.length > 0) {
+                document.getElementById("campaignResults").value = ids.join("\n");
+                document.getElementById('campaignStatus').textContent = `נמצאו ${ids.length} מזהי קמפיינים ✅`;
+            } else {
+                document.getElementById("campaignResults").value = "";
+                document.getElementById('campaignStatus').textContent = 'לא נמצאו מזהי קמפיינים (4-8 ספרות) ❌';
             }
         }
 
-        if (invalidLines.length > 0) {
-            console.log('שורות לא תקינות:', invalidLines);
-        }
+        // פונקציה לייצוא עם בחירת פורמט
+        function exportToFile(elementId, defaultFileName = null) {            
+            let content = document.getElementById(elementId).value;
+            
+            if (!content) {
+                showExportStatus(elementId, 'אין תוכן לייצוא ❌');
+                return;
+            }
 
-        if (results.length === 0) {
-            document.getElementById('cidrResults').value = '';
-            document.getElementById('ipStatus').textContent = 'לא נמצאו CIDR תקינים';
-            return;
-        }
-
-        // אפשרות איחוד לאחר המרה
-        const shouldMergeCidr = document.getElementById('mergeRangesCidr').checked;
-        let finalResults = results;
-        let mergedCount = 0;
-
-        if (shouldMergeCidr) {
-            const originalCount = results.length;
-            finalResults = mergeIPRanges(results);
-            mergedCount = originalCount - finalResults.length;
-        }
-
-        document.getElementById('cidrResults').value = finalResults.join('\n');
-        
-        let statusMessage = `המרה הושלמה ✅ | ${processedCount} CIDR הומרו`;
-        
-        if (enableSplit && splitCount > 0) {
-            statusMessage += ` | ${splitCount} רשתות גדולות פוצלו`;
-        }
-        
-        if (shouldMergeCidr && mergedCount > 0) {
-            statusMessage += ` | ${mergedCount} טווחים אוחדו`;
-        }
-        
-        statusMessage += ` | ${invalidLines.length} שורות לא תקינות סוננו`;
-        
-        document.getElementById('ipStatus').textContent = statusMessage;
-    }
-
-    // Number formatting function
-    function formatNumbers() {
-        document.getElementById('numberStatus').textContent = 'מעבד...';
-        let numberInput = document.getElementById('numberInput').value.trim();
-        
-        let selectedSeparator = document.getElementById('separatorSelect').value;
-        
-        numberInput = numberInput.replace(/\n/g, ' ');
-        
-        let numbers = numberInput.replace(/\s+/g, ' ').split(' ');
-        
-        numbers = numbers.filter(num => num.trim() !== '');
-        
-        let formatted = numbers.join(selectedSeparator);
-        
-        document.getElementById('formattedResults').value = formatted;
-        document.getElementById('numberStatus').textContent = 'עיצוב הושלם ✅';
-    }
-
-    // Campaign ID extraction function - משופר ל-4-8 ספרות
-    function extractCampaignIDs() {
-        document.getElementById('campaignStatus').textContent = 'מחלץ מזהים...';
-        const inputText = document.getElementById("campaignInput").value;
-        const lines = inputText.split("\n");
-        
-        // שיפור: דפוס עבור 4-8 ספרות במקום רק 5
-        const idPattern = /^\d{4,8}$/;
-        const ids = lines.filter(line => idPattern.test(line.trim()));
-        
-        if (ids.length > 0) {
-            document.getElementById("campaignResults").value = ids.join("\n");
-            document.getElementById('campaignStatus').textContent = `נמצאו ${ids.length} מזהי קמפיינים ✅`;
-        } else {
-            document.getElementById("campaignResults").value = "";
-            document.getElementById('campaignStatus').textContent = 'לא נמצאו מזהי קמפיינים (4-8 ספרות) ❌';
-        }
-    }
-
-    // General utility functions
-    function copyToClipboard(elementId) {
-        let element = document.getElementById(elementId);
-        element.select();
-        document.execCommand('copy');
-        
-        const statusMap = {
-            'cidrResults': 'ipStatus',
-            'formattedResults': 'numberStatus',
-            'campaignResults': 'campaignStatus'
-        };
-        
-        const status = statusMap[elementId];
-        const originalText = document.getElementById(status).textContent;
-        document.getElementById(status).textContent = 'הועתק ללוח! 📋';
-        
-        setTimeout(() => {
-            document.getElementById(status).textContent = originalText;
-        }, 2000);
-    }
-
-    function resetFields(inputId, outputId) {
-        document.getElementById(inputId).value = '';
-        document.getElementById(outputId).value = '';
-        
-        const statusMap = {
-            'ipRanges': 'ipStatus',
-            'numberInput': 'numberStatus',
-            'campaignInput': 'campaignStatus'
-        };
-        
-        const status = statusMap[inputId];
-        const originalText = document.getElementById(status).textContent;
-        document.getElementById(status).textContent = 'אופס! 🔄';
-        
-        setTimeout(() => {
-            document.getElementById(status).textContent = 'Ready';
-        }, 2000);
-    }
-
-    function exportToFile(elementId, fileName) {
-        let content = document.getElementById(elementId).value;
-        if (content) {
-            let blob = new Blob([content], { type: 'text/plain' });
+            let fileName, blob;
+            
+            // בדיקה אם זה אזור ה-IP ויש אפשרות בחירת פורמט
+            if (elementId === 'cidrResults') {
+                const downloadFormatElement = document.querySelector('input[name="downloadFormat"]:checked');
+                const downloadFormat = downloadFormatElement ? downloadFormatElement.value : 'txt';
+                
+                if (downloadFormat === 'csv') {
+                    // יצוא CSV לטווחי IP
+                    const csvContent = convertToCSV(content);
+                    fileName = 'IPRanges.csv';
+                    blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+                } else {
+                    // יצוא TXT רגיל
+                    fileName = 'IPBL.txt';
+                    blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                }
+            } else {
+                // יצוא רגיל לשאר התכנים
+                fileName = defaultFileName || 'export.txt';
+                blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            }
+            
             let link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = fileName;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
             
+            showExportStatus(elementId, `הקובץ יוצא! 💾 (${fileName})`);
+        }
+
+        // פונקציה להצגת סטטוס ייצוא
+        function showExportStatus(elementId, message) {
             const statusMap = {
                 'cidrResults': 'ipStatus',
                 'formattedResults': 'numberStatus',
@@ -842,13 +856,56 @@ let merged = [ranges[0]];
             };
             
             const status = statusMap[elementId];
-            const originalText = document.getElementById(status).textContent;
-            document.getElementById(status).textContent = 'הקובץ יוצא! 💾';
+            if (!status) return;
+            
+            const statusElement = document.getElementById(status);
+            const originalText = statusElement.textContent;
+            statusElement.textContent = message;
             
             setTimeout(() => {
-                document.getElementById(status).textContent = originalText;
-            }, 2000);
-        } else {
+                statusElement.textContent = originalText;
+            }, 3000);
+        }
+
+        // פונקציה להמרת תוכן ל-CSV
+        function convertToCSV(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            let csvRows = [];
+            
+            for (let line of lines) {
+                line = line.trim();
+                
+                // אם זה CIDR - המר לטווח
+                if (line.includes('/')) {
+                    try {
+                        const range = cidrToRange(line);
+                        csvRows.push(`${range.start},${range.end}`);
+                    } catch (error) {
+                        console.log('שגיאה בהמרת CIDR:', line);
+                    }
+                }
+                // אם זה כבר טווח עם מקף
+                else if (line.includes('–') || line.includes('-')) {
+                    const [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
+                    if (isValidIP(start) && isValidIP(end)) {
+                        csvRows.push(`${start},${end}`);
+                    }
+                }
+                // אם זה IP יחיד
+                else if (isValidIP(line)) {
+                    csvRows.push(`${line},${line}`);
+                }
+            }
+            
+            return csvRows.join('\n');
+        }
+
+        // General utility functions
+        function copyToClipboard(elementId) {
+            let element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
             const statusMap = {
                 'cidrResults': 'ipStatus',
                 'formattedResults': 'numberStatus',
@@ -857,18 +914,36 @@ let merged = [ranges[0]];
             
             const status = statusMap[elementId];
             const originalText = document.getElementById(status).textContent;
-            document.getElementById(status).textContent = 'אין תוכן לייצוא ❌';
+            document.getElementById(status).textContent = 'הועתק ללוח! 📋';
             
             setTimeout(() => {
                 document.getElementById(status).textContent = originalText;
             }, 2000);
         }
-    }
 
-    // Initialize placeholder text on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        updateConversionMode();
-    });
-</script>
+        function resetFields(inputId, outputId) {
+            document.getElementById(inputId).value = '';
+            document.getElementById(outputId).value = '';
+            
+            const statusMap = {
+                'ipRanges': 'ipStatus',
+                'numberInput': 'numberStatus',
+                'campaignInput': 'campaignStatus'
+            };
+            
+            const status = statusMap[inputId];
+            const originalText = document.getElementById(status).textContent;
+            document.getElementById(status).textContent = 'אופס! 🔄';
+            
+            setTimeout(() => {
+                document.getElementById(status).textContent = 'Ready';
+            }, 2000);
+        }
+
+        // Initialize placeholder text on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateConversionMode();
+        });
+    </script>
 </body>
 </html>
