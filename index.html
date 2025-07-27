@@ -15,19 +15,19 @@
         }
         
         .main-container {
-            max-width: 70%;
+            max-width: 75%;
             margin: 0 auto;
         }
         
         @media (max-width: 1200px) {
             .main-container {
-                max-width: 75%;
+                max-width: 85%;
             }
         }
 
         @media (max-width: 768px) {
             .main-container {
-                max-width: 70%;
+                max-width: 90%;
             }
         }
         
@@ -138,34 +138,41 @@
     </style>
 </head>
 <body>
-    <div class="main-container mx-auto py-8 px-4">
+    <div class="main-container mx-auto py-8 px-4">        
         <!-- Header Section -->
-        <h1 class="text-3xl font-bold text-center text-white mb-4">כלי עיצוב וניהול מידע 📊</h1>
+        <h1 id="mainTitle" class="text-3xl font-bold text-center text-white mb-4">כלי עיצוב וניהול מידע 📊</h1>
         <div class="max-w-3xl mx-auto mb-6 text-center">
-            <p class="text-lg text-white mb-4">
+            <p id="mainDesc" class="text-lg text-white mb-4">
                 כלים חכמים שמסייעים בארגון ועיצוב מידע לפי הפורמט הנדרש בעבודתכם 🛠️
             </p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
                 <div class="bg-blue-50 p-3 rounded-lg">
-                    <p class="font-bold text-blue-800">המרת כתובות IP 🔄</p>
-                    <p class="text-sm text-gray-600">המרה דו-כיוונית: IP ↔ CIDR + פיצול חכם</p>
+                    <p id="ipToolTitle" class="font-bold text-blue-800">המרת כתובות IP 🔄</p>
+                    <p id="ipToolDesc" class="text-sm text-gray-600">המרה דו-כיוונית: IP ↔ CIDR + פיצול חכם</p>
                 </div>
                 <div class="bg-green-50 p-3 rounded-lg">
-                    <p class="font-bold text-green-800">עיצוב מספרים 🔢</p>
-                    <p class="text-sm text-gray-600">המרת רשימת מספרים לפורמט מופרד בפסיקים</p>
+                    <p id="numberToolTitle" class="font-bold text-green-800">עיצוב מספרים 🔢</p>
+                    <p id="numberToolDesc" class="text-sm text-gray-600">המרת רשימת מספרים לפורמט מופרד בפסיקים</p>
                 </div>
                 <div class="bg-purple-50 p-3 rounded-lg">
-                    <p class="font-bold text-purple-800">חילוץ ID מקמפיינים 🎯</p>
-                    <p class="text-sm text-gray-600">חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט</p>
+                    <p id="campaignToolTitle" class="font-bold text-purple-800">חילוץ ID מקמפיינים 🎯</p>
+                    <p id="campaignToolDesc" class="text-sm text-gray-600">חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט</p>
                 </div>
             </div>
         </div>
 
-        <!-- Tabs Navigation -->
-        <div class="flex flex-wrap space-x-1 space-x-reverse mb-0">
-            <div class="tab active" onclick="openTab('ipTab')">המרת IP ↔ CIDR</div>
-            <div class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
-            <div class="tab" onclick="openTab('campaignTab')">חילוץ ID מקמפיינים</div>
+        <!-- Tabs Navigation with Language Toggle -->
+        <div class="flex flex-wrap justify-between items-center mb-0">
+            <div class="flex space-x-1 space-x-reverse">
+                <div id="ipTabBtn" class="tab active" onclick="openTab('ipTab')">המרת IP ↔ CIDR</div>
+                <div id="numberTabBtn" class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
+                <div id="campaignTabBtn" class="tab" onclick="openTab('campaignTab')">חילוץ ID מקמפיינים</div>
+            </div>
+            <div>
+                <button id="langToggle" onclick="toggleLanguage()" class="px-3 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600 transition-colors font-medium">
+                    🌐 English
+                </button>
+            </div>
         </div>
         
         <!-- Main Content Box -->
@@ -176,29 +183,29 @@
                 <div class="bg-blue-50 rounded-lg p-4">
                     <!-- Mode Selector עם אפשרויות פיצול באותה שורה -->
                     <div class="mode-selector">
-                        <div class="text-sm font-bold text-gray-700 mb-2">בחר סוג המרה:</div>
+                        <div class="text-sm font-bold text-gray-700 mb-2" id="conversionModeLabel">בחר סוג המרה:</div>
                         <div class="mode-controls">
                             <div class="radio-group">
                                 <div class="radio-option">
                                     <input type="radio" id="ipToCidr" name="conversionMode" value="ipToCidr" checked onchange="updateConversionMode()">
-                                    <label for="ipToCidr" class="text-sm text-gray-700">טווחי IP → CIDR</label>
+                                    <label for="ipToCidr" class="text-sm text-gray-700" id="ipToCidrLabel">טווחי IP → CIDR</label>
                                 </div>
                                 <div class="radio-option">
                                     <input type="radio" id="cidrToIp" name="conversionMode" value="cidrToIp" onchange="updateConversionMode()">
-                                    <label for="cidrToIp" class="text-sm text-gray-700">CIDR → טווחי IP</label>
+                                    <label for="cidrToIp" class="text-sm text-gray-700" id="cidrToIpLabel">CIDR → טווחי IP</label>
                                 </div>
                             </div>
                             
                             <!-- אפשרויות פיצול באותה שורה -->
                             <div class="split-options" id="splitOptionsInline" style="display: none;">
-                                <div class="text-sm font-bold text-gray-700">אפשרויות פיצול:</div>
+                                <div class="text-sm font-bold text-gray-700" id="splitOptionsLabel">אפשרויות פיצול:</div>
                                 <div class="split-controls">
                                     <div class="radio-option">
                                         <input type="checkbox" id="enableSplit" onchange="toggleSplitControls()">
-                                        <label for="enableSplit" class="text-sm text-gray-700">פצל רשתות גדולות</label>
+                                        <label for="enableSplit" class="text-sm text-gray-700" id="enableSplitLabel">פצל רשתות גדולות</label>
                                     </div>
                                     <div id="splitControls" style="display: none;">
-                                        <label for="maxCidr" class="text-sm text-gray-700 ml-2">מקסימום CIDR:</label>
+                                        <label for="maxCidr" class="text-sm text-gray-700 ml-2" id="maxCidrLabel">מקסימום CIDR:</label>
                                         <select id="maxCidr" class="p-1 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm">
                                             <option value="16">16 (65,536 IP)</option>
                                             <option value="20" selected>20 (4,096 IP)</option>
@@ -219,13 +226,13 @@
                     <!-- אפשרויות איחוד טווחים - לכיוון IP->CIDR -->
                     <div class="flex items-center mt-3 mb-3" id="mergeOption">
                         <input type="checkbox" id="mergeRanges" checked class="ml-2">
-                        <label for="mergeRanges" class="text-sm text-gray-700">איחוד טווחי IP חופפים וסמוכים</label>
+                        <label for="mergeRanges" class="text-sm text-gray-700" id="mergeRangesLabel">איחוד טווחי IP חופפים וסמוכים</label>
                     </div>
 
                     <!-- אפשרות איחוד במצב CIDR->IP -->
                     <div class="flex items-center mt-3 mb-3" id="mergeOptionCidr" style="display: none;">
                         <input type="checkbox" id="mergeRangesCidr" class="ml-2">
-                        <label for="mergeRangesCidr" class="text-sm text-gray-700">איחוד טווחי IP חופפים וסמוכים לאחר ההמרה</label>
+                        <label for="mergeRangesCidr" class="text-sm text-gray-700" id="mergeRangesCidrLabel">איחוד טווחי IP חופפים וסמוכים לאחר ההמרה</label>
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
@@ -243,7 +250,7 @@
                                 יצוא לקובץ 💾
                             </button>
                             <!-- בחירת פורמט הורדה -->
-                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 flex items-center gap-2 text-xs bg-yellow-50 p-1 rounded border whitespace-nowrap">
+                            <div class="absolute top-full right-0 mt-1 flex items-center gap-2 text-xs bg-yellow-50 p-1 rounded border whitespace-nowrap">
                                 <span class="text-gray-700">פורמט:</span>
                                 <label class="flex items-center gap-1 cursor-pointer">
                                     <input type="radio" id="downloadTxt" name="downloadFormat" value="txt" checked>
@@ -361,6 +368,147 @@
     </div>
 
     <script>
+        // Language toggle functionality
+        let currentLang = 'he';
+        
+        const translations = {
+            he: {
+                langToggle: '🌐 English',
+                mainTitle: 'כלי עיצוב וניהול מידע 📊',
+                mainDesc: 'כלים חכמים שמסייעים בארגון ועיצוב מידע לפי הפורמט הנדרש בעבודתכם 🛠️',
+                ipToolTitle: 'המרת כתובות IP 🔄',
+                ipToolDesc: 'המרה דו-כיוונית: IP ↔ CIDR + פיצול חכם',
+                numberToolTitle: 'עיצוב מספרים 🔢',
+                numberToolDesc: 'המרת רשימת מספרים לפורמט מופרד בפסיקים',
+                campaignToolTitle: 'חילוץ ID מקמפיינים 🎯',
+                campaignToolDesc: 'חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט',
+                ipTabBtn: 'המרת IP ↔ CIDR',
+                numberTabBtn: 'עיצוב מספרים',
+                campaignTabBtn: 'חילוץ ID מקמפיינים',
+                ipConversionMode: 'בחר סוג המרה:',
+                ipToCidrLabel: 'טווחי IP → CIDR',
+                cidrToIpLabel: 'CIDR → טווחי IP',
+                splitOptionsLabel: 'אפשרויות פיצול:',
+                enableSplitLabel: 'פצל רשתות גדולות',
+                maxCidrLabel: 'מקסימום CIDR:',
+                convertBtn: 'המר וצמצם ל-CIDR 🔄',
+                convertBtnCidr: 'המר ל-טווחי IP 🔄',
+                copyBtn: 'העתק תוצאות 📋',
+                resetBtn: 'איפוס 🔄',
+                exportBtn: 'יצוא לקובץ 💾',
+                formatLabel: 'פורמט:',
+                mergeRangesLabel: 'איחוד טווחי IP חופפים וסמוכים',
+                mergeRangesCidrLabel: 'איחוד טווחי IP חופפים וסמוכים לאחר ההמרה'
+            },
+            en: {
+                langToggle: '🌐 עברית',
+                mainTitle: 'Data Design & Management Tools 📊',
+                mainDesc: 'Smart tools that help organize and format data according to your work requirements 🛠️',
+                ipToolTitle: 'IP Address Conversion 🔄',
+                ipToolDesc: 'Bidirectional conversion: IP ↔ CIDR + smart splitting',
+                numberToolTitle: 'Number Formatting 🔢',
+                numberToolDesc: 'Convert number lists to comma-separated format',
+                campaignToolTitle: 'Campaign ID Extraction 🎯',
+                campaignToolDesc: 'Extract campaign IDs (4-8 digits) from text',
+                ipTabBtn: 'IP ↔ CIDR Conversion',
+                numberTabBtn: 'Number Formatting',
+                campaignTabBtn: 'Campaign ID Extraction',
+                ipConversionMode: 'Select conversion type:',
+                ipToCidrLabel: 'IP Ranges → CIDR',
+                cidrToIpLabel: 'CIDR → IP Ranges',
+                splitOptionsLabel: 'Split options:',
+                enableSplitLabel: 'Split large networks',
+                maxCidrLabel: 'Maximum CIDR:',
+                convertBtn: 'Convert & Optimize to CIDR 🔄',
+                convertBtnCidr: 'Convert to IP Ranges 🔄',
+                copyBtn: 'Copy Results 📋',
+                resetBtn: 'Reset 🔄',
+                exportBtn: 'Export File 💾',
+                formatLabel: 'Format:',
+                mergeRangesLabel: 'Merge overlapping and adjacent IP ranges',
+                mergeRangesCidrLabel: 'Merge overlapping and adjacent IP ranges after conversion'
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'he' ? 'en' : 'he';
+            const isHebrew = currentLang === 'he';
+            
+            // Toggle direction and language attributes
+            document.documentElement.setAttribute('dir', isHebrew ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
+            
+            // Update all text elements
+            const t = translations[currentLang];
+            document.getElementById('langToggle').textContent = t.langToggle;
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('mainDesc').textContent = t.mainDesc;
+            document.getElementById('ipToolTitle').textContent = t.ipToolTitle;
+            document.getElementById('ipToolDesc').textContent = t.ipToolDesc;
+            document.getElementById('numberToolTitle').textContent = t.numberToolTitle;
+            document.getElementById('numberToolDesc').textContent = t.numberToolDesc;
+            document.getElementById('campaignToolTitle').textContent = t.campaignToolTitle;
+            document.getElementById('campaignToolDesc').textContent = t.campaignToolDesc;
+            document.getElementById('ipTabBtn').textContent = t.ipTabBtn;
+            document.getElementById('numberTabBtn').textContent = t.numberTabBtn;
+            document.getElementById('campaignTabBtn').textContent = t.campaignTabBtn;
+            
+            // Update IP tab elements
+            document.getElementById('conversionModeLabel').textContent = t.ipConversionMode;
+            document.getElementById('ipToCidrLabel').textContent = t.ipToCidrLabel;
+            document.getElementById('cidrToIpLabel').textContent = t.cidrToIpLabel;
+            document.getElementById('splitOptionsLabel').textContent = t.splitOptionsLabel;
+            document.getElementById('enableSplitLabel').textContent = t.enableSplitLabel;
+            document.getElementById('maxCidrLabel').textContent = t.maxCidrLabel;
+            document.getElementById('mergeRangesLabel').textContent = t.mergeRangesLabel;
+            document.getElementById('mergeRangesCidrLabel').textContent = t.mergeRangesCidrLabel;
+            
+            // Update buttons
+            const convertBtnText = document.getElementById('convertBtnText');
+            if (convertBtnText) {
+                const mode = document.querySelector('input[name="conversionMode"]:checked')?.value;
+                convertBtnText.textContent = mode === 'ipToCidr' ? t.convertBtn : t.convertBtnCidr;
+            }
+            
+            const copyBtn = document.getElementById('copyBtn');
+            if (copyBtn) copyBtn.textContent = t.copyBtn;
+            
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) resetBtn.textContent = t.resetBtn;
+            
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) exportBtn.textContent = t.exportBtn;
+            
+            // Update format label - find the span that contains format text
+            const formatSpans = document.querySelectorAll('span');
+            formatSpans.forEach(span => {
+                if (span.textContent.includes('פורמט') || span.textContent.includes('Format')) {
+                    span.textContent = t.formatLabel;
+                }
+            });
+            
+            // Update conversion mode after language change
+            updateConversionMode();
+            
+            // Toggle Tailwind classes for RTL/LTR
+            const body = document.body;
+            const tabsContainer = document.querySelector('.flex.space-x-1.space-x-reverse');
+            
+            if (isHebrew) {
+                body.classList.add('rtl');
+                body.classList.remove('ltr');
+                if (tabsContainer) {
+                    tabsContainer.classList.add('space-x-reverse');
+                }
+            } else {
+                body.classList.remove('rtl');
+                body.classList.add('ltr');
+                if (tabsContainer) {
+                    tabsContainer.classList.remove('space-x-reverse');
+                }
+            }
+        }
+
         // Toggle split controls visibility
         function toggleSplitControls() {
             const enableSplit = document.getElementById('enableSplit').checked;
@@ -379,32 +527,51 @@
             const splitOptionsInline = document.getElementById('splitOptionsInline');
             const mergeOptionCidr = document.getElementById('mergeOptionCidr');
             
+            const t = translations[currentLang];
+            
             if (mode === 'ipToCidr') {
-                inputLabel.textContent = 'הכנס טווחי IP:';
-                outputLabel.textContent = 'תוצאות CIDR:';
-                convertBtnText.textContent = 'המר וצמצם ל-CIDR 🔄';
-                textarea.placeholder = `הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
+                inputLabel.textContent = currentLang === 'he' ? 'הכנס טווחי IP:' : 'Enter IP Ranges:';
+                outputLabel.textContent = currentLang === 'he' ? 'תוצאות CIDR:' : 'CIDR Results:';
+                convertBtnText.textContent = t.convertBtn;
+                textarea.placeholder = currentLang === 'he' ? 
+                    `הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
 88.97.114.0 – 88.97.114.255
 88.97.115.0 – 88.97.115.255
 88.97.116.0 – 88.97.116.255
 88.97.117.0 – 88.97.117.255
 
-המערכת תסנן אוטומטית שורות טקסט וכתובות לא תקינות`;
+המערכת תסנן אוטומטית שורות טקסט וכתובות לא תקינות` :
+                    `Enter IP ranges here, each range on a separate line:
+88.97.114.0 – 88.97.114.255
+88.97.115.0 – 88.97.115.255
+88.97.116.0 – 88.97.116.255
+88.97.117.0 – 88.97.117.255
+
+The system will automatically filter text lines and invalid addresses`;
                 mergeOption.style.display = 'flex';
                 splitOptionsInline.style.display = 'none';
                 mergeOptionCidr.style.display = 'none';
             } else {
-                inputLabel.textContent = 'הכנס CIDR:';
-                outputLabel.textContent = 'תוצאות טווחי IP:';
-                convertBtnText.textContent = 'המר ל-טווחי IP 🔄';
-                textarea.placeholder = `הכנס CIDR כאן, כל CIDR בשורה נפרדת:
+                inputLabel.textContent = currentLang === 'he' ? 'הכנס CIDR:' : 'Enter CIDR:';
+                outputLabel.textContent = currentLang === 'he' ? 'תוצאות טווחי IP:' : 'IP Range Results:';
+                convertBtnText.textContent = t.convertBtnCidr;
+                textarea.placeholder = currentLang === 'he' ?
+                    `הכנס CIDR כאן, כל CIDR בשורה נפרדת:
 192.168.1.0/24
 10.0.0.0/16
 172.16.0.0/12
 88.97.114.0/24
 
 המערכת תמיר כל CIDR לטווח IP עם מקף
-רשתות גדולות יכולות להתפצל לתת-רשתות קטנות יותר`;
+רשתות גדולות יכולות להתפצל לתת-רשתות קטנות יותר` :
+                    `Enter CIDR here, each CIDR on a separate line:
+192.168.1.0/24
+10.0.0.0/16
+172.16.0.0/12
+88.97.114.0/24
+
+The system will convert each CIDR to IP range with dash
+Large networks can be split into smaller subnets`;
                 mergeOption.style.display = 'none';
                 splitOptionsInline.style.display = 'flex';
                 mergeOptionCidr.style.display = 'flex';
