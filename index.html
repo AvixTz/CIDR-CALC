@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>כלי עיצוב וניהול מידע 📊</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Tesseract.js ל-OCR בצד לקוח -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
         
@@ -135,6 +138,37 @@
             align-items: center;
             flex-wrap: wrap;
         }
+
+        /* עיצוב ללשונית ה-OCR מהתמונות */
+        .image-drop-zone {
+            border: 2px dashed rgba(129, 140, 248, 0.7);
+            background-color: rgba(239, 246, 255, 0.8);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #4b5563;
+            transition: all 0.2s ease;
+        }
+
+        .image-drop-zone.dragover {
+            background-color: rgba(224, 231, 255, 1);
+            border-color: rgba(79, 70, 229, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(129, 140, 248, 0.35);
+        }
+
+        .image-preview {
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            max-height: 220px;
+            object-fit: contain;
+            width: 100%;
+        }
+
+        .textarea-mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
     </style>
 </head>
 <body>
@@ -145,7 +179,7 @@
             <p id="mainDesc" class="text-lg text-white mb-4">
                 כלים חכמים שמסייעים בארגון ועיצוב מידע לפי הפורמט הנדרש בעבודתכם 🛠️
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
                 <div class="bg-blue-50 p-3 rounded-lg">
                     <p id="ipToolTitle" class="font-bold text-blue-800">המרת כתובות IP 🔄</p>
                     <p id="ipToolDesc" class="text-sm text-gray-600">המרה דו-כיוונית: IP ↔ CIDR + פיצול חכם</p>
@@ -158,6 +192,10 @@
                     <p id="campaignToolTitle" class="font-bold text-purple-800">חילוץ ID מקמפיינים 🎯</p>
                     <p id="campaignToolDesc" class="text-sm text-gray-600">חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט</p>
                 </div>
+                <div class="bg-indigo-50 p-3 rounded-lg">
+                    <p id="imageToolTitle" class="font-bold text-indigo-800">חילוץ ID מתמונות 📷</p>
+                    <p id="imageToolDesc" class="text-sm text-gray-600">OCR מצילומי מסך והמרתם לרשימת IDs</p>
+                </div>
             </div>
         </div>
 
@@ -167,6 +205,7 @@
                 <div id="ipTabBtn" class="tab active" onclick="openTab('ipTab')">המרת IP ↔ CIDR</div>
                 <div id="numberTabBtn" class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
                 <div id="campaignTabBtn" class="tab" onclick="openTab('campaignTab')">חילוץ ID מקמפיינים</div>
+                <div id="imageTabBtn" class="tab" onclick="openTab('imageTab')">חילוץ ID מתמונות</div>
             </div>
             <div>
                 <button id="langToggle" onclick="toggleLanguage()" class="px-3 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600 transition-colors font-medium">
@@ -181,7 +220,7 @@
             <div id="ipTab" class="tab-content active">
                 <div class="title-box">המרת כתובות IP 🔄</div>
                 <div class="bg-blue-50 rounded-lg p-4">
-                    <!-- Mode Selector עם אפשרויות פיצול באותה שורה -->
+                    <!-- Mode Selector -->
                     <div class="mode-selector">
                         <div class="text-sm font-bold text-gray-700 mb-2" id="conversionModeLabel">בחר סוג המרה:</div>
                         <div class="mode-controls">
@@ -196,7 +235,6 @@
                                 </div>
                             </div>
                             
-                            <!-- אפשרויות פיצול באותה שורה -->
                             <div class="split-options" id="splitOptionsInline" style="display: none;">
                                 <div class="text-sm font-bold text-gray-700" id="splitOptionsLabel">אפשרויות פיצול:</div>
                                 <div class="split-controls">
@@ -223,13 +261,11 @@
                     <label for="ipRanges" class="block mb-2 text-sm font-bold text-gray-700" id="inputLabel">הכנס טווחי IP:</label>
                     <textarea id="ipRanges" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
                     
-                    <!-- אפשרויות איחוד טווחים - לכיוון IP->CIDR -->
                     <div class="flex items-center mt-3 mb-3" id="mergeOption">
                         <input type="checkbox" id="mergeRanges" checked class="ml-2">
                         <label for="mergeRanges" class="text-sm text-gray-700" id="mergeRangesLabel">איחוד טווחי IP חופפים וסמוכים</label>
                     </div>
 
-                    <!-- אפשרות איחוד במצב CIDR->IP -->
                     <div class="flex items-center mt-3 mb-3" id="mergeOptionCidr" style="display: none;">
                         <input type="checkbox" id="mergeRangesCidr" class="ml-2">
                         <label for="mergeRangesCidr" class="text-sm text-gray-700" id="mergeRangesCidrLabel">איחוד טווחי IP חופפים וסמוכים לאחר ההמרה</label>
@@ -249,7 +285,6 @@
                             <button id="exportBtn" onclick="exportToFile('cidrResults')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium w-full">
                                 יצוא לקובץ 💾
                             </button>
-                            <!-- בחירת פורמט הורדה -->
                             <div class="absolute top-full right-0 mt-1 flex items-center gap-2 text-xs bg-yellow-50 p-1 rounded border whitespace-nowrap">
                                 <span class="text-gray-700">פורמט:</span>
                                 <label class="flex items-center gap-1 cursor-pointer">
@@ -277,7 +312,6 @@
             <div id="numberTab" class="tab-content hidden">
                 <div class="title-box">עיצוב מספרים 🔢</div>
                 <div class="bg-green-50 rounded-lg p-4">
-                    <!-- שורת כותרת עם בחירת מפריד באותה שורה -->
                     <div class="flex justify-between items-center mb-2">
                         <label for="numberInput" class="text-sm font-bold text-gray-700">הכנס מספרים:</label>
                         <div class="flex items-center">
@@ -355,6 +389,53 @@
                     <div class="text-xs text-gray-500 mt-2" id="campaignStatus">Ready</div>
                 </div>
             </div>
+
+            <!-- Image ID Extractor Tab (OCR) -->
+            <div id="imageTab" class="tab-content hidden">
+                <div class="title-box">חילוץ ID מתמונות 📷</div>
+                <div class="bg-indigo-50 rounded-lg p-4">
+                    <label class="block mb-2 text-sm font-bold text-gray-700">העלה / גרור / הדבק צילום מסך:</label>
+                    <p class="text-xs text-gray-600 mb-2">
+                        ניתן לבחור קובץ, לגרור אותו לאזור, או להדביק צילום מסך ישירות בעזרת <span class="font-semibold">Ctrl+V</span>.
+                    </p>
+
+                    <div class="flex flex-col md:flex-row md:items-center md:space-x-reverse md:space-x-4 space-y-2 md:space-y-0 mb-3">
+                        <input type="file" id="imageFileInput" accept="image/*" class="text-sm">
+                        <div id="imageDropZone" class="image-drop-zone">
+                            גררו לכאן צילום מסך מהרשת / המערכת, או הדביקו בעזרת Ctrl+V.
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-gray-500 mb-3" id="imageStatus">Ready</div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <p class="text-sm font-bold text-gray-700 mb-1">תצוגת תמונה + טקסט גולמי:</p>
+                            <img id="imagePreview" src="" alt="" class="image-preview mb-2 hidden">
+                            <textarea id="imageRawText" class="w-full p-2 border rounded-lg bg-white textarea-mono text-xs h-40 focus:ring-2 focus:ring-indigo-400 focus:outline-none" placeholder="הטקסט שה-OCR זיהה יופיע כאן..."></textarea>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-700 mb-1">IDs שחולצו:</p>
+                            <textarea id="imageIds" class="w-full p-2 border rounded-lg bg-gray-50 textarea-mono text-sm h-40" readonly placeholder="המזהים שזוהו יופיעו כאן, כל ID בשורה נפרדת..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                        <button id="imageRunBtn" onclick="runImageOCR()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium" disabled>
+                            הרץ OCR וחלץ IDs 🔍
+                        </button>
+                        <button id="imageCopyBtn" onclick="copyToClipboard('imageIds')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium" disabled>
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="imageResetBtn" onclick="resetImageTab()" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                            איפוס 🔄
+                        </button>
+                        <button id="imageExportBtn" onclick="exportToFile('imageIds','ImageIDs.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                            יצוא לקובץ 💾
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
                
         <!-- About Section -->
@@ -362,7 +443,7 @@
             <div class="title-box">אודות הכלי 📌</div>
             <div class="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg">
                 <p class="text-sm text-blue-800 font-medium">אל תעבדו כמו חמורים! 🚀</p>
-                <p class="text-xs text-gray-600 mt-2">כלי מאוחד לעיבוד מידע: המרת IP דו-כיוונית + פיצול חכם, עיצוב מספרים וחילוץ מזהי קמפיינים</p>
+                <p class="text-xs text-gray-600 mt-2">כלי מאוחד לעיבוד מידע: המרת IP דו-כיוונית + פיצול חכם, עיצוב מספרים, חילוץ מזהי קמפיינים וחילוץ IDs מצילומי מסך</p>
             </div>
         </div>
     </div>
@@ -382,9 +463,12 @@
                 numberToolDesc: 'המרת רשימת מספרים לפורמט מופרד בפסיקים',
                 campaignToolTitle: 'חילוץ ID מקמפיינים 🎯',
                 campaignToolDesc: 'חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט',
+                imageToolTitle: 'חילוץ ID מתמונות 📷',
+                imageToolDesc: 'OCR מצילומי מסך והמרתם לרשימת IDs',
                 ipTabBtn: 'המרת IP ↔ CIDR',
                 numberTabBtn: 'עיצוב מספרים',
                 campaignTabBtn: 'חילוץ ID מקמפיינים',
+                imageTabBtn: 'חילוץ ID מתמונות',
                 ipConversionMode: 'בחר סוג המרה:',
                 ipToCidrLabel: 'טווחי IP → CIDR',
                 cidrToIpLabel: 'CIDR → טווחי IP',
@@ -410,9 +494,12 @@
                 numberToolDesc: 'Convert number lists to comma-separated format',
                 campaignToolTitle: 'Campaign ID Extraction 🎯',
                 campaignToolDesc: 'Extract campaign IDs (4-8 digits) from text',
+                imageToolTitle: 'Image ID Extraction 📷',
+                imageToolDesc: 'OCR from screenshots into clean ID lists',
                 ipTabBtn: 'IP ↔ CIDR Conversion',
                 numberTabBtn: 'Number Formatting',
                 campaignTabBtn: 'Campaign ID Extraction',
+                imageTabBtn: 'Image ID Extraction',
                 ipConversionMode: 'Select conversion type:',
                 ipToCidrLabel: 'IP Ranges → CIDR',
                 cidrToIpLabel: 'CIDR → IP Ranges',
@@ -434,11 +521,9 @@
             currentLang = currentLang === 'he' ? 'en' : 'he';
             const isHebrew = currentLang === 'he';
             
-            // Toggle direction and language attributes
             document.documentElement.setAttribute('dir', isHebrew ? 'rtl' : 'ltr');
             document.documentElement.setAttribute('lang', currentLang);
             
-            // Update all text elements
             const t = translations[currentLang];
             document.getElementById('langToggle').textContent = t.langToggle;
             document.getElementById('mainTitle').textContent = t.mainTitle;
@@ -449,11 +534,13 @@
             document.getElementById('numberToolDesc').textContent = t.numberToolDesc;
             document.getElementById('campaignToolTitle').textContent = t.campaignToolTitle;
             document.getElementById('campaignToolDesc').textContent = t.campaignToolDesc;
+            document.getElementById('imageToolTitle').textContent = t.imageToolTitle;
+            document.getElementById('imageToolDesc').textContent = t.imageToolDesc;
             document.getElementById('ipTabBtn').textContent = t.ipTabBtn;
             document.getElementById('numberTabBtn').textContent = t.numberTabBtn;
             document.getElementById('campaignTabBtn').textContent = t.campaignTabBtn;
+            document.getElementById('imageTabBtn').textContent = t.imageTabBtn;
             
-            // Update IP tab elements
             document.getElementById('conversionModeLabel').textContent = t.ipConversionMode;
             document.getElementById('ipToCidrLabel').textContent = t.ipToCidrLabel;
             document.getElementById('cidrToIpLabel').textContent = t.cidrToIpLabel;
@@ -463,7 +550,6 @@
             document.getElementById('mergeRangesLabel').textContent = t.mergeRangesLabel;
             document.getElementById('mergeRangesCidrLabel').textContent = t.mergeRangesCidrLabel;
             
-            // Update buttons
             const convertBtnText = document.getElementById('convertBtnText');
             if (convertBtnText) {
                 const mode = document.querySelector('input[name="conversionMode"]:checked')?.value;
@@ -473,13 +559,12 @@
             const copyBtn = document.getElementById('copyBtn');
             if (copyBtn) copyBtn.textContent = t.copyBtn;
             
-            const resetBtn = document.getElementById('resetBtn');
-            if (resetBtn) resetBtn.textContent = t.resetBtn;
+            const resetBtnDom = document.getElementById('resetBtn');
+            if (resetBtnDom) resetBtnDom.textContent = t.resetBtn;
             
-            const exportBtn = document.getElementById('exportBtn');
-            if (exportBtn) exportBtn.textContent = t.exportBtn;
+            const exportBtnDom = document.getElementById('exportBtn');
+            if (exportBtnDom) exportBtnDom.textContent = t.exportBtn;
             
-            // Update format label - find the span that contains format text
             const formatSpans = document.querySelectorAll('span');
             formatSpans.forEach(span => {
                 if (span.textContent.includes('פורמט') || span.textContent.includes('Format')) {
@@ -487,10 +572,8 @@
                 }
             });
             
-            // Update conversion mode after language change
             updateConversionMode();
             
-            // Toggle Tailwind classes for RTL/LTR
             const body = document.body;
             const tabsContainer = document.querySelector('.flex.space-x-1.space-x-reverse');
             
@@ -509,14 +592,12 @@
             }
         }
 
-        // Toggle split controls visibility
         function toggleSplitControls() {
             const enableSplit = document.getElementById('enableSplit').checked;
             const splitControls = document.getElementById('splitControls');
             splitControls.style.display = enableSplit ? 'flex' : 'none';
         }
 
-        // Initialize conversion mode
         function updateConversionMode() {
             const mode = document.querySelector('input[name="conversionMode"]:checked').value;
             const inputLabel = document.getElementById('inputLabel');
@@ -577,11 +658,9 @@ Large networks can be split into smaller subnets`;
                 mergeOptionCidr.style.display = 'flex';
             }
             
-            // Clear fields when mode changes
             resetFields('ipRanges', 'cidrResults');
         }
 
-        // Tab functionality
         function openTab(tabName) {
             const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
@@ -598,36 +677,24 @@ Large networks can be split into smaller subnets`;
             selectedTab.classList.add('active');
         }
         
-        // IP validation function
         function isValidIP(ip) {
             const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-            
-            if (ip.startsWith('0.0.0.')) {
-                return false;
-            }
-            
+            if (ip.startsWith('0.0.0.')) return false;
             return ipRegex.test(ip);
         }
 
-        // CIDR validation function
         function isValidCIDR(cidr) {
             const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}\/([0-9]|[1-2][0-9]|3[0-2])$/;
             if (!cidrRegex.test(cidr)) return false;
-            
             const [ip, mask] = cidr.split('/');
             const maskNum = parseInt(mask);
             return isValidIP(ip) && maskNum >= 0 && maskNum <= 32;
         }
 
-        // Check if line contains valid IP
         function isIPLine(line) {
             line = line.trim();
-            
             if (!line) return false;
-            
-            if (/[a-zA-Z&]/.test(line.replace(/[0-9.\-–\s]/g, ''))) {
-                return false;
-            }
+            if (/[a-zA-Z&]/.test(line.replace(/[0-9.\-–\s]/g, ''))) return false;
             
             if (line.includes('–') || line.includes('-')) {
                 const parts = line.split(/[–\-]/).map(s => s.trim());
@@ -636,15 +703,10 @@ Large networks can be split into smaller subnets`;
                 }
                 return false;
             }
-            
-            if (line.includes('/')) {
-                return isValidCIDR(line);
-            }
-            
+            if (line.includes('/')) return isValidCIDR(line);
             return isValidIP(line);
         }
         
-        // IP conversion functions
         function ipToLong(ip) {
             return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
         }
@@ -664,21 +726,13 @@ Large networks can be split into smaller subnets`;
             return longToIp(start) + '/' + maxPow;
         }
 
-        // CIDR to IP range conversion
         function cidrToRange(cidrString) {
             const [ip, mask] = cidrString.split('/');
             const maskBits = parseInt(mask);
             const ipLong = ipToLong(ip.trim());
-            
-            // חישוב מסכת רשת
             const netMask = (0xFFFFFFFF << (32 - maskBits)) >>> 0;
-            
-            // כתובת רשת
             const networkLong = ipLong & netMask;
-            
-            // כתובת שידור
             const broadcastLong = networkLong | (~netMask >>> 0);
-            
             return {
                 start: longToIp(networkLong),
                 end: longToIp(broadcastLong),
@@ -687,34 +741,26 @@ Large networks can be split into smaller subnets`;
             };
         }
 
-        // Split large CIDR into smaller subnets
         function splitCIDR(cidrString, maxCidr) {
             const [ip, mask] = cidrString.split('/');
             const maskBits = parseInt(mask);
             const maxMaskBits = parseInt(maxCidr);
-            
-            // אם ה-CIDR כבר קטן מספיק, החזר כמו שהוא
             if (maskBits >= maxMaskBits) {
                 const range = cidrToRange(cidrString);
                 return [`${range.start} – ${range.end}`];
             }
-            
             const results = [];
             const ipLong = ipToLong(ip.trim());
             const netMask = (0xFFFFFFFF << (32 - maskBits)) >>> 0;
             const networkLong = ipLong & netMask;
-            
-            // חישוב מספר התת-רשתות
             const subnetSize = Math.pow(2, 32 - maxMaskBits);
             const totalSize = Math.pow(2, 32 - maskBits);
             const numSubnets = totalSize / subnetSize;
-            
             for (let i = 0; i < numSubnets; i++) {
                 const subnetStart = networkLong + (i * subnetSize);
                 const subnetEnd = subnetStart + subnetSize - 1;
                 results.push(`${longToIp(subnetStart)} – ${longToIp(subnetEnd)}`);
             }
-            
             return results;
         }
 
@@ -730,20 +776,14 @@ Large networks can be split into smaller subnets`;
                     merged.push(ranges[i]);
                 }
             }
-            
             return merged;
         }
 
-        // Merge IP ranges from string format
         function mergeIPRanges(rangeStrings) {
             const ranges = rangeStrings.map(rangeStr => {
                 const [start, end] = rangeStr.split(' – ');
-                return {
-                    start: ipToLong(start),
-                    end: ipToLong(end)
-                };
+                return { start: ipToLong(start), end: ipToLong(end) };
             });
-
             const merged = mergeRanges(ranges);
             return merged.map(range => `${longToIp(range.start)} – ${longToIp(range.end)}`);
         }
@@ -760,18 +800,12 @@ Large networks can be split into smaller subnets`;
             return result;
         }
 
-        // Main conversion function
         function performConversion() {
             const mode = document.querySelector('input[name="conversionMode"]:checked').value;
-            
-            if (mode === 'ipToCidr') {
-                convertIPToCIDR();
-            } else {
-                convertCIDRToIP();
-            }
+            if (mode === 'ipToCidr') convertIPToCIDR();
+            else convertCIDRToIP();
         }
 
-        // Convert IP ranges to CIDR (original function)
         function convertIPToCIDR() {
             document.getElementById('ipStatus').textContent = 'מעבד...';
             let ipRanges = document.getElementById('ipRanges').value.trim();
@@ -783,22 +817,14 @@ Large networks can be split into smaller subnets`;
 
             for (let line of lines) {
                 line = line.trim();
-                
                 if (!isIPLine(line)) {
-                    if (line) {
-                        invalidLines.push(line);
-                    }
+                    if (line) invalidLines.push(line);
                     continue;
                 }
-                
                 processedCount++;
-                
                 if (line.includes('–') || line.includes('-')) {
                     let [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
-                    ranges.push({
-                        start: ipToLong(start),
-                        end: ipToLong(end)
-                    });
+                    ranges.push({ start: ipToLong(start), end: ipToLong(end) });
                 } else if (line.includes('/')) {
                     const [ip, cidrStr] = line.split('/');
                     const cidr = parseInt(cidrStr);
@@ -806,22 +832,11 @@ Large networks can be split into smaller subnets`;
                     const mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
                     const network = ipLong & mask;
                     const broadcast = network | (~mask >>> 0);
-                    
-                    ranges.push({
-                        start: network,
-                        end: broadcast
-                    });
+                    ranges.push({ start: network, end: broadcast });
                 } else {
                     let ip = ipToLong(line);
-                    ranges.push({
-                        start: ip,
-                        end: ip
-                    });
+                    ranges.push({ start: ip, end: ip });
                 }
-            }
-
-            if (invalidLines.length > 0) {
-                console.log('שורות שסוננו:', invalidLines);
             }
 
             if (ranges.length === 0) {
@@ -841,9 +856,7 @@ Large networks can be split into smaller subnets`;
 
             document.getElementById('cidrResults').value = results.join('\n');
             
-            // הודעת סטטוס מפורטת
             let statusMessage = `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
-            
             if (shouldMerge && originalRangeCount > mergedRangeCount) {
                 let reducedCount = originalRangeCount - mergedRangeCount;
                 statusMessage += ` | צומצמו ${reducedCount} טווחים (${originalRangeCount}→${mergedRangeCount})`;
@@ -852,11 +865,9 @@ Large networks can be split into smaller subnets`;
             } else {
                 statusMessage += ` | ללא איחוד טווחים`;
             }
-            
             document.getElementById('ipStatus').textContent = statusMessage;
         }
 
-        // Convert CIDR to IP ranges (enhanced with split functionality)
         function convertCIDRToIP() {
             document.getElementById('ipStatus').textContent = 'מעבד...';
             let cidrInput = document.getElementById('ipRanges').value.trim();
@@ -871,33 +882,24 @@ Large networks can be split into smaller subnets`;
 
             for (let line of lines) {
                 line = line.trim();
-                
                 if (!line) continue;
-                
                 if (!isValidCIDR(line)) {
                     invalidLines.push(line);
                     continue;
                 }
-                
                 try {
                     if (enableSplit) {
                         const splitResults = splitCIDR(line, maxCidr);
                         results = results.concat(splitResults);
-                        if (splitResults.length > 1) {
-                            splitCount++;
-                        }
+                        if (splitResults.length > 1) splitCount++;
                     } else {
                         const range = cidrToRange(line);
                         results.push(`${range.start} – ${range.end}`);
                     }
                     processedCount++;
-                } catch (error) {
+                } catch {
                     invalidLines.push(line);
                 }
-            }
-
-            if (invalidLines.length > 0) {
-                console.log('שורות לא תקינות:', invalidLines);
             }
 
             if (results.length === 0) {
@@ -906,7 +908,6 @@ Large networks can be split into smaller subnets`;
                 return;
             }
 
-            // אפשרות איחוד לאחר המרה
             const shouldMergeCidr = document.getElementById('mergeRangesCidr').checked;
             let finalResults = results;
             let mergedCount = 0;
@@ -920,49 +921,30 @@ Large networks can be split into smaller subnets`;
             document.getElementById('cidrResults').value = finalResults.join('\n');
             
             let statusMessage = `המרה הושלמה ✅ | ${processedCount} CIDR הומרו`;
-            
-            if (enableSplit && splitCount > 0) {
-                statusMessage += ` | ${splitCount} רשתות גדולות פוצלו`;
-            }
-            
-            if (shouldMergeCidr && mergedCount > 0) {
-                statusMessage += ` | ${mergedCount} טווחים אוחדו`;
-            }
-            
+            if (enableSplit && splitCount > 0) statusMessage += ` | ${splitCount} רשתות גדולות פוצלו`;
+            if (shouldMergeCidr && mergedCount > 0) statusMessage += ` | ${mergedCount} טווחים אוחדו`;
             statusMessage += ` | ${invalidLines.length} שורות לא תקינות סוננו`;
-            
             document.getElementById('ipStatus').textContent = statusMessage;
         }
 
-        // Number formatting function
         function formatNumbers() {
             document.getElementById('numberStatus').textContent = 'מעבד...';
             let numberInput = document.getElementById('numberInput').value.trim();
-            
             let selectedSeparator = document.getElementById('separatorSelect').value;
-            
             numberInput = numberInput.replace(/\n/g, ' ');
-            
             let numbers = numberInput.replace(/\s+/g, ' ').split(' ');
-            
             numbers = numbers.filter(num => num.trim() !== '');
-            
             let formatted = numbers.join(selectedSeparator);
-            
             document.getElementById('formattedResults').value = formatted;
             document.getElementById('numberStatus').textContent = 'עיצוב הושלם ✅';
         }
 
-        // Campaign ID extraction function - משופר ל-4-8 ספרות
         function extractCampaignIDs() {
             document.getElementById('campaignStatus').textContent = 'מחלץ מזהים...';
             const inputText = document.getElementById("campaignInput").value;
             const lines = inputText.split("\n");
-            
-            // שיפור: דפוס עבור 4-8 ספרות במקום רק 5
             const idPattern = /^\d{4,8}$/;
             const ids = lines.filter(line => idPattern.test(line.trim()));
-            
             if (ids.length > 0) {
                 document.getElementById("campaignResults").value = ids.join("\n");
                 document.getElementById('campaignStatus').textContent = `נמצאו ${ids.length} מזהי קמפיינים ✅`;
@@ -972,34 +954,26 @@ Large networks can be split into smaller subnets`;
             }
         }
 
-        // פונקציה לייצוא עם בחירת פורמט
         function exportToFile(elementId, defaultFileName = null) {            
             let content = document.getElementById(elementId).value;
-            
             if (!content) {
                 showExportStatus(elementId, 'אין תוכן לייצוא ❌');
                 return;
             }
 
             let fileName, blob;
-            
-            // בדיקה אם זה אזור ה-IP ויש אפשרות בחירת פורמט
             if (elementId === 'cidrResults') {
                 const downloadFormatElement = document.querySelector('input[name="downloadFormat"]:checked');
                 const downloadFormat = downloadFormatElement ? downloadFormatElement.value : 'txt';
-                
                 if (downloadFormat === 'csv') {
-                    // יצוא CSV לטווחי IP
                     const csvContent = convertToCSV(content);
                     fileName = 'IPRanges.csv';
                     blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
                 } else {
-                    // יצוא TXT רגיל
                     fileName = 'IPBL.txt';
                     blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                 }
             } else {
-                // יצוא רגיל לשאר התכנים
                 fileName = defaultFileName || 'export.txt';
                 blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             }
@@ -1014,60 +988,41 @@ Large networks can be split into smaller subnets`;
             showExportStatus(elementId, `הקובץ יוצא! 💾 (${fileName})`);
         }
 
-        // פונקציה להצגת סטטוס ייצוא
         function showExportStatus(elementId, message) {
             const statusMap = {
                 'cidrResults': 'ipStatus',
                 'formattedResults': 'numberStatus',
-                'campaignResults': 'campaignStatus'
+                'campaignResults': 'campaignStatus',
+                'imageIds': 'imageStatus'
             };
-            
             const status = statusMap[elementId];
             if (!status) return;
-            
             const statusElement = document.getElementById(status);
             const originalText = statusElement.textContent;
             statusElement.textContent = message;
-            
-            setTimeout(() => {
-                statusElement.textContent = originalText;
-            }, 3000);
+            setTimeout(() => { statusElement.textContent = originalText; }, 3000);
         }
 
-        // פונקציה להמרת תוכן ל-CSV
         function convertToCSV(content) {
             const lines = content.split('\n').filter(line => line.trim());
             let csvRows = [];
-            
             for (let line of lines) {
                 line = line.trim();
-                
-                // אם זה CIDR - המר לטווח
                 if (line.includes('/')) {
                     try {
                         const range = cidrToRange(line);
                         csvRows.push(`${range.start},${range.end}`);
-                    } catch (error) {
-                        console.log('שגיאה בהמרת CIDR:', line);
-                    }
-                }
-                // אם זה כבר טווח עם מקף
-                else if (line.includes('–') || line.includes('-')) {
+                    } catch {}
+                } else if (line.includes('–') || line.includes('-')) {
                     const [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
-                    if (isValidIP(start) && isValidIP(end)) {
-                        csvRows.push(`${start},${end}`);
-                    }
-                }
-                // אם זה IP יחיד
-                else if (isValidIP(line)) {
+                    if (isValidIP(start) && isValidIP(end)) csvRows.push(`${start},${end}`);
+                } else if (isValidIP(line)) {
                     csvRows.push(`${line},${line}`);
                 }
             }
-            
             return csvRows.join('\n');
         }
 
-        // General utility functions
         function copyToClipboard(elementId) {
             let element = document.getElementById(elementId);
             element.select();
@@ -1076,13 +1031,13 @@ Large networks can be split into smaller subnets`;
             const statusMap = {
                 'cidrResults': 'ipStatus',
                 'formattedResults': 'numberStatus',
-                'campaignResults': 'campaignStatus'
+                'campaignResults': 'campaignStatus',
+                'imageIds': 'imageStatus'
             };
             
             const status = statusMap[elementId];
             const originalText = document.getElementById(status).textContent;
             document.getElementById(status).textContent = 'הועתק ללוח! 📋';
-            
             setTimeout(() => {
                 document.getElementById(status).textContent = originalText;
             }, 2000);
@@ -1101,13 +1056,152 @@ Large networks can be split into smaller subnets`;
             const status = statusMap[inputId];
             const originalText = document.getElementById(status).textContent;
             document.getElementById(status).textContent = 'אופס! 🔄';
-            
             setTimeout(() => {
                 document.getElementById(status).textContent = 'Ready';
             }, 2000);
         }
 
-        // Initialize placeholder text on page load
+        // ---------- לשונית OCR מתמונות ----------
+        let currentImageFile = null;
+        let currentImageIds = [];
+
+        const imageFileInput = document.getElementById('imageFileInput');
+        const imageDropZone = document.getElementById('imageDropZone');
+        const imagePreview = document.getElementById('imagePreview');
+        const imageRawText = document.getElementById('imageRawText');
+        const imageIds = document.getElementById('imageIds');
+        const imageRunBtn = document.getElementById('imageRunBtn');
+        const imageCopyBtn = document.getElementById('imageCopyBtn');
+        const imageStatus = document.getElementById('imageStatus');
+
+        function handleImageFile(file, source) {
+            if (!file || !file.type.startsWith('image/')) {
+                imageStatus.textContent = 'הקובץ אינו תמונה תקינה.';
+                return;
+            }
+            currentImageFile = file;
+            currentImageIds = [];
+            imageRawText.value = '';
+            imageIds.value = '';
+            imageCopyBtn.disabled = true;
+            imageRunBtn.disabled = false;
+            imageStatus.textContent = source === 'paste' ? 'תמונה הודבקה, לחץ על הרץ OCR.' : 'תמונה נטענה, לחץ על הרץ OCR.';
+            const reader = new FileReader();
+            reader.onload = ev => {
+                imagePreview.src = ev.target.result;
+                imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        imageFileInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            handleImageFile(file, 'file');
+        });
+
+        ['dragenter','dragover'].forEach(evName => {
+            imageDropZone.addEventListener(evName, e => {
+                e.preventDefault(); e.stopPropagation();
+                imageDropZone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave','drop'].forEach(evName => {
+            imageDropZone.addEventListener(evName, e => {
+                e.preventDefault(); e.stopPropagation();
+                imageDropZone.classList.remove('dragover');
+            });
+        });
+
+        imageDropZone.addEventListener('drop', e => {
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                imageFileInput.files = dt.files;
+                handleImageFile(file, 'drop');
+            }
+        });
+
+        document.addEventListener('paste', e => {
+            if (!e.clipboardData) return;
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    handleImageFile(file, 'paste');
+                    break;
+                }
+            }
+        });
+
+        async function runImageOCR() {
+            if (!currentImageFile) return;
+            imageRunBtn.disabled = true;
+            imageCopyBtn.disabled = true;
+            imageStatus.textContent = 'מריץ OCR...';
+            imageRawText.value = '';
+            imageIds.value = '';
+            currentImageIds = [];
+            try {
+                const result = await Tesseract.recognize(currentImageFile, 'eng', {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            const pct = Math.round((m.progress || 0) * 100);
+                            imageStatus.textContent = `מזהה טקסט... ${pct}%`;
+                        }
+                    }
+                });
+                const text = result?.data?.text || '';
+                imageRawText.value = text;
+                const ids = extractIdsFromText(text);
+                currentImageIds = ids;
+                if (!ids.length) {
+                    imageIds.value = '';
+                    imageStatus.textContent = 'לא נמצאו IDs בטקסט.';
+                    imageCopyBtn.disabled = true;
+                } else {
+                    imageIds.value = ids.join('\n');
+                    imageStatus.textContent = `סיום – זוהו ${ids.length} IDs.`;
+                    imageCopyBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                imageStatus.textContent = 'שגיאה בהרצת OCR – בדוק את הקובץ ונסה שוב.';
+            } finally {
+                imageRunBtn.disabled = !currentImageFile;
+            }
+        }
+
+        function extractIdsFromText(text) {
+            const ids = new Set();
+            if (!text) return [];
+            const withLabel = /id[:\)\]]?\s*(\d{4,})/gi;
+            let m;
+            while ((m = withLabel.exec(text)) !== null) {
+                ids.add(m[1]);
+            }
+            const plain = /\b(\d{5,})\b/g;
+            while ((m = plain.exec(text)) !== null) {
+                ids.add(m[1]);
+            }
+            return Array.from(ids);
+        }
+
+        function resetImageTab() {
+            currentImageFile = null;
+            currentImageIds = [];
+            imageFileInput.value = '';
+            imagePreview.src = '';
+            imagePreview.classList.add('hidden');
+            imageRawText.value = '';
+            imageIds.value = '';
+            imageRunBtn.disabled = true;
+            imageCopyBtn.disabled = true;
+            imageStatus.textContent = 'Ready';
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             updateConversionMode();
         });
