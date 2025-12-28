@@ -765,15 +765,21 @@
                     `הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
 88.97.114.0 – 88.97.114.255
 88.97.115.0 – 88.97.115.255
-88.97.116.0 – 88.97.116.255
-88.97.117.0 – 88.97.117.255
+
+או IP בודדים:
+12.75.36.0 (יזוהה אוטומטית כרשת /24)
+12.75.0.0 (יזוהה אוטומטית כרשת /16)
+192.168.1.5 (IP בודד)
 
 המערכת תסנן אוטומטית שורות טקסט וכתובות לא תקינות` :
                     `Enter IP ranges here, each range on a separate line:
 88.97.114.0 – 88.97.114.255
 88.97.115.0 – 88.97.115.255
-88.97.116.0 – 88.97.116.255
-88.97.117.0 – 88.97.117.255
+
+Or single IPs:
+12.75.36.0 (auto-detected as /24 network)
+12.75.0.0 (auto-detected as /16 network)
+192.168.1.5 (single IP)
 
 The system will automatically filter text lines and invalid addresses`;
                 mergeOption.style.display = 'flex';
@@ -981,8 +987,28 @@ Large networks can be split into smaller subnets`;
                     const broadcast = network | (~mask >>> 0);
                     ranges.push({ start: network, end: broadcast });
                 } else {
-                    let ip = ipToLong(line);
-                    ranges.push({ start: ip, end: ip });
+                    // IP בודד - בדוק אם מסתיים ב-0 או 0.0
+                    const parts = line.split('.');
+                    let ipLong = ipToLong(line);
+                    
+                    // אם מסתיים ב-0.0 (שני האוקטטים האחרונים הם 0) - טווח /16
+                    if (parts[2] === '0' && parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 16) >>> 0;
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        ranges.push({ start: network, end: broadcast });
+                    }
+                    // אם מסתיים ב-0 (רק האוקטט האחרון הוא 0) - טווח /24
+                    else if (parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 8) >>> 0;
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        ranges.push({ start: network, end: broadcast });
+                    }
+                    // אחרת - IP בודד
+                    else {
+                        ranges.push({ start: ipLong, end: ipLong });
+                    }
                 }
             }
 
