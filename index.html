@@ -5,103 +5,359 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>כלי עיצוב וניהול מידע 📊</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Tesseract.js ל-OCR בצד לקוח -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body { 
-            font-family: 'Rubik', sans-serif;
-            background: linear-gradient(135deg, #3498db, #2ecc71);
+            font-family: 'Heebo', 'Rubik', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
+            position: relative;
         }
         
         .main-container {
             max-width: 75%;
             margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
         
         @media (max-width: 1200px) {
-            .main-container {
-                max-width: 85%;
-            }
+            .main-container { max-width: 85%; }
         }
 
         @media (max-width: 768px) {
-            .main-container {
-                max-width: 90%;
-            }
-        }
-        
-        .action-btn {
-            animation: glowing 3s infinite;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
-            transition: all 0.3s ease;
+            .main-container { max-width: 90%; }
         }
 
-        .action-btn:hover {
+        /* Header */
+        .glass-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
         }
 
-        @keyframes glowing {
-            0% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
-            50% { box-shadow: 0 4px 25px rgba(37, 99, 235, 0.4); }
-            100% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
+        .feature-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .feature-desc {
+            font-size: 0.8rem;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            gap: 1rem;
+        }
+
+        .tabs-wrapper {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
+        .tab {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+        
+        .tab:hover {
+            color: #495057;
+            background: #f8f9fa;
+        }
+        
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .lang-toggle {
+            padding: 0.75rem 1.25rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .lang-toggle:hover {
+            background: #5a6268;
+        }
+
+        /* Content boxes */
         .content-box {
             position: relative;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
             background: white;
-            padding: 1.5rem;
-            margin-top: 1rem;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .title-box {
             position: absolute;
-            top: -1rem;
-            right: 1rem;
-            background-color: rgba(59, 130, 246, 0.1);
-            padding: 0.25rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.375rem;
-            font-weight: 500;
-            z-index: 1;
-        }
-        
-        .tab {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e5e7eb;
-            border-bottom: none;
-            border-radius: 0.5rem 0.5rem 0 0;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .tab:hover {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-        
-        .tab.active {
-            background-color: white;
-            border-bottom: 2px solid white;
-            color: #3b82f6;
+            top: -0.75rem;
+            right: 2rem;
+            background: #3b82f6;
+            padding: 0.375rem 1rem;
+            border-radius: 6px;
             font-weight: 600;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .inner-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
         }
 
         .mode-selector {
-            background-color: rgba(59, 130, 246, 0.05);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: white;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+            border: 1px solid #dee2e6;
         }
 
+        textarea, select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: white;
+            color: #495057;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            font-family: 'Heebo', sans-serif;
+        }
+
+        textarea::placeholder {
+            color: #adb5bd;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Buttons with varied colors */
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-convert {
+            background: #3b82f6;
+        }
+
+        .btn-convert:hover {
+            background: #2563eb;
+        }
+
+        .btn-copy {
+            background: #10b981;
+        }
+
+        .btn-copy:hover {
+            background: #059669;
+        }
+
+        .btn-reset {
+            background: #f59e0b;
+        }
+
+        .btn-reset:hover {
+            background: #d97706;
+        }
+
+        .btn-export {
+            background: #8b5cf6;
+        }
+
+        .btn-export:hover {
+            background: #7c3aed;
+        }
+
+        /* Labels and text */
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.875rem;
+        }
+
+        /* Status indicators */
+        .status-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Checkboxes and radios */
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        /* Button grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Utility classes */
+        .text-white { color: #495057; }
+        .text-sm { font-size: 0.8rem; }
+        .font-bold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .p-1 { padding: 0.25rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+
+        .w-full { width: 100%; }
+        .h-48 { height: 12rem; }
+        .h-40 { height: 10rem; }
+
+        .rounded-lg { border-radius: 8px; }
+        .cursor-pointer { cursor: pointer; }
+
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+
+        /* Export format selector */
+        .export-format {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            padding: 0.625rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-format label {
+            margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+
+        /* Mode controls */
         .mode-controls {
             display: flex;
             gap: 2rem;
@@ -111,7 +367,7 @@
 
         .radio-group {
             display: flex;
-            gap: 1rem;
+            gap: 1.25rem;
             flex-wrap: wrap;
         }
 
@@ -119,99 +375,171 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .radio-option input[type="radio"] {
-            margin: 0;
+            color: #495057;
         }
 
         .split-options {
             display: flex;
-            gap: 1rem;
+            gap: 1.25rem;
             align-items: center;
             flex-wrap: wrap;
         }
 
         .split-controls {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             align-items: center;
             flex-wrap: wrap;
         }
 
-        /* עיצוב ללשונית ה-OCR מהתמונות */
-        .image-drop-zone {
-            border: 2px dashed rgba(129, 140, 248, 0.7);
-            background-color: rgba(239, 246, 255, 0.8);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            text-align: center;
+        /* About section */
+        .about-box {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+        }
+
+        .about-title {
+            color: #2e7d32;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .about-text {
+            color: #1b5e20;
+            line-height: 1.5;
             font-size: 0.875rem;
-            color: #4b5563;
-            transition: all 0.2s ease;
         }
 
-        .image-drop-zone.dragover {
-            background-color: rgba(224, 231, 255, 1);
-            border-color: rgba(79, 70, 229, 1);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(129, 140, 248, 0.35);
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 1.25rem;
+            }
+
+            .content-box {
+                padding: 1.25rem;
+            }
+
+            .inner-content {
+                padding: 1rem;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tabs-wrapper {
+                width: 100%;
+            }
+
+            .tab {
+                flex: 1;
+                text-align: center;
+                padding: 0.625rem 0.75rem;
+                font-size: 0.8rem;
+            }
         }
 
-        .image-preview {
-            border-radius: 0.75rem;
-            border: 1px solid #e5e7eb;
-            max-height: 220px;
-            object-fit: contain;
-            width: 100%;
+        /* Tab transitions */
+        .tab-content {
+            animation: tabFade 0.3s ease-in-out;
+        }
+
+        @keyframes tabFade {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f3f5;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #868e96;
+        }
+
+        select option {
+            background: white;
+            color: #495057;
         }
 
         .textarea-mono {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
+
+        /* File input styling */
+        input[type="file"] {
+            color: #495057;
+            font-size: 0.8rem;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 1rem;
+            font-size: 0.8rem;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #2563eb;
+        }
     </style>
 </head>
 <body>
-    <div class="main-container mx-auto py-8 px-4">        
+    <div class="main-container py-8 px-4">        
         <!-- Header Section -->
-        <h1 id="mainTitle" class="text-3xl font-bold text-center text-white mb-4">כלי עיצוב וניהול מידע 📊</h1>
-        <div class="max-w-3xl mx-auto mb-6 text-center">
-            <p id="mainDesc" class="text-lg text-white mb-4">
-                כלים חכמים שמסייעים בארגון ועיצוב מידע לפי הפורמט הנדרש בעבודתכם 🛠️
+        <div class="glass-header">
+            <h1 id="mainTitle" class="main-title">כלי עיצוב וניהול מידע 📊</h1>
+            <p id="mainDesc" class="text-sm text-center mb-4" style="color: #6c757d;">
+                כלים חכמים לעיבוד וניהול מידע בצורה מהירה ויעילה
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
-                <div class="bg-blue-50 p-3 rounded-lg">
-                    <p id="ipToolTitle" class="font-bold text-blue-800">המרת כתובות IP 🔄</p>
-                    <p id="ipToolDesc" class="text-sm text-gray-600">המרה דו-כיוונית: IP ↔ CIDR + פיצול חכם</p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <p id="ipToolTitle" class="feature-title">המרת כתובות IP 🔄</p>
+                    <p id="ipToolDesc" class="feature-desc">המרה דו-כיוונית: IP ↔ CIDR + פיצול חכם</p>
                 </div>
-                <div class="bg-green-50 p-3 rounded-lg">
-                    <p id="numberToolTitle" class="font-bold text-green-800">עיצוב מספרים 🔢</p>
-                    <p id="numberToolDesc" class="text-sm text-gray-600">המרת רשימת מספרים לפורמט מופרד בפסיקים</p>
+                <div class="feature-card">
+                    <p id="numberToolTitle" class="feature-title">עיצוב מספרים 🔢</p>
+                    <p id="numberToolDesc" class="feature-desc">המרת רשימת מספרים לפורמט מופרד בפסיקים</p>
                 </div>
-                <div class="bg-purple-50 p-3 rounded-lg">
-                    <p id="campaignToolTitle" class="font-bold text-purple-800">חילוץ ID מקמפיינים 🎯</p>
-                    <p id="campaignToolDesc" class="text-sm text-gray-600">חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט</p>
-                </div>
-                <div class="bg-indigo-50 p-3 rounded-lg">
-                    <p id="imageToolTitle" class="font-bold text-indigo-800">חילוץ ID מתמונות 📷</p>
-                    <p id="imageToolDesc" class="text-sm text-gray-600">OCR מצילומי מסך והמרתם לרשימת IDs</p>
+                <div class="feature-card">
+                    <p id="campaignToolTitle" class="feature-title">חילוץ ID מקמפיינים 🎯</p>
+                    <p id="campaignToolDesc" class="feature-desc">חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט</p>
                 </div>
             </div>
         </div>
 
         <!-- Tabs Navigation with Language Toggle -->
-        <div class="flex flex-wrap justify-between items-center mb-0">
-            <div class="flex space-x-1 space-x-reverse">
+        <div class="tabs-container">
+            <div class="tabs-wrapper">
                 <div id="ipTabBtn" class="tab active" onclick="openTab('ipTab')">המרת IP ↔ CIDR</div>
                 <div id="numberTabBtn" class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
                 <div id="campaignTabBtn" class="tab" onclick="openTab('campaignTab')">חילוץ ID מקמפיינים</div>
-                <div id="imageTabBtn" class="tab" onclick="openTab('imageTab')">חילוץ ID מתמונות</div>
             </div>
-            <div>
-                <button id="langToggle" onclick="toggleLanguage()" class="px-3 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600 transition-colors font-medium">
-                    🌐 English
-                </button>
-            </div>
+            <button id="langToggle" onclick="toggleLanguage()" class="lang-toggle">
+                🌐 English
+            </button>
         </div>
         
         <!-- Main Content Box -->
@@ -219,32 +547,32 @@
             <!-- IP Converter Tab -->
             <div id="ipTab" class="tab-content active">
                 <div class="title-box">המרת כתובות IP 🔄</div>
-                <div class="bg-blue-50 rounded-lg p-4">
+                <div class="inner-content">
                     <!-- Mode Selector -->
                     <div class="mode-selector">
-                        <div class="text-sm font-bold text-gray-700 mb-2" id="conversionModeLabel">בחר סוג המרה:</div>
+                        <div class="text-sm font-bold text-white mb-3" id="conversionModeLabel">בחר סוג המרה:</div>
                         <div class="mode-controls">
                             <div class="radio-group">
                                 <div class="radio-option">
                                     <input type="radio" id="ipToCidr" name="conversionMode" value="ipToCidr" checked onchange="updateConversionMode()">
-                                    <label for="ipToCidr" class="text-sm text-gray-700" id="ipToCidrLabel">טווחי IP → CIDR</label>
+                                    <label for="ipToCidr" class="text-sm" id="ipToCidrLabel">טווחי IP → CIDR</label>
                                 </div>
                                 <div class="radio-option">
                                     <input type="radio" id="cidrToIp" name="conversionMode" value="cidrToIp" onchange="updateConversionMode()">
-                                    <label for="cidrToIp" class="text-sm text-gray-700" id="cidrToIpLabel">CIDR → טווחי IP</label>
+                                    <label for="cidrToIp" class="text-sm" id="cidrToIpLabel">CIDR → טווחי IP</label>
                                 </div>
                             </div>
                             
                             <div class="split-options" id="splitOptionsInline" style="display: none;">
-                                <div class="text-sm font-bold text-gray-700" id="splitOptionsLabel">אפשרויות פיצול:</div>
+                                <div class="text-sm font-bold text-white" id="splitOptionsLabel">אפשרויות פיצול:</div>
                                 <div class="split-controls">
                                     <div class="radio-option">
                                         <input type="checkbox" id="enableSplit" onchange="toggleSplitControls()">
-                                        <label for="enableSplit" class="text-sm text-gray-700" id="enableSplitLabel">פצל רשתות גדולות</label>
+                                        <label for="enableSplit" class="text-sm" id="enableSplitLabel">פצל רשתות גדולות</label>
                                     </div>
                                     <div id="splitControls" style="display: none;">
-                                        <label for="maxCidr" class="text-sm text-gray-700 ml-2" id="maxCidrLabel">מקסימום CIDR:</label>
-                                        <select id="maxCidr" class="p-1 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm">
+                                        <label for="maxCidr" class="text-sm text-white" style="display: inline; margin-left: 0.5rem;" id="maxCidrLabel">מקסימום CIDR:</label>
+                                        <select id="maxCidr" class="p-1" style="width: auto; display: inline-block;">
                                             <option value="16">16 (65,536 IP)</option>
                                             <option value="20" selected>20 (4,096 IP)</option>
                                             <option value="22">22 (1,024 IP)</option>
@@ -258,65 +586,65 @@
                         </div>
                     </div>
 
-                    <label for="ipRanges" class="block mb-2 text-sm font-bold text-gray-700" id="inputLabel">הכנס טווחי IP:</label>
-                    <textarea id="ipRanges" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
+                    <label for="ipRanges" id="inputLabel">הכנס טווחי IP:</label>
+                    <textarea id="ipRanges" class="h-48"></textarea>
                     
                     <div class="flex items-center mt-3 mb-3" id="mergeOption">
-                        <input type="checkbox" id="mergeRanges" checked class="ml-2">
-                        <label for="mergeRanges" class="text-sm text-gray-700" id="mergeRangesLabel">איחוד טווחי IP חופפים וסמוכים</label>
+                        <input type="checkbox" id="mergeRanges" checked>
+                        <label for="mergeRanges" class="text-sm text-white" style="margin-right: 0.5rem; margin-bottom: 0;" id="mergeRangesLabel">איחוד טווחי IP חופפים וסמוכים</label>
                     </div>
 
                     <div class="flex items-center mt-3 mb-3" id="mergeOptionCidr" style="display: none;">
-                        <input type="checkbox" id="mergeRangesCidr" class="ml-2">
-                        <label for="mergeRangesCidr" class="text-sm text-gray-700" id="mergeRangesCidrLabel">איחוד טווחי IP חופפים וסמוכים לאחר ההמרה</label>
+                        <input type="checkbox" id="mergeRangesCidr">
+                        <label for="mergeRangesCidr" class="text-sm text-white" style="margin-right: 0.5rem; margin-bottom: 0;" id="mergeRangesCidrLabel">איחוד טווחי IP חופפים וסמוכים לאחר ההמרה</label>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                        <button id="convertBtn" onclick="performConversion()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                    <div class="button-grid">
+                        <button id="convertBtn" onclick="performConversion()" class="action-btn btn-convert">
                             <span id="convertBtnText">המר וצמצם ל-CIDR 🔄</span>
                         </button>
-                        <button id="copyBtn" onclick="copyToClipboard('cidrResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
+                        <button id="copyBtn" onclick="copyToClipboard('cidrResults')" class="action-btn btn-copy">
                             העתק תוצאות 📋
                         </button>
-                        <button id="resetBtn" onclick="resetFields('ipRanges','cidrResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                        <button id="resetBtn" onclick="resetFields('ipRanges','cidrResults')" class="action-btn btn-reset">
                             איפוס 🔄
                         </button>
                         <div class="relative">
-                            <button id="exportBtn" onclick="exportToFile('cidrResults')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium w-full">
+                            <button id="exportBtn" onclick="exportToFile('cidrResults')" class="action-btn btn-export w-full">
                                 יצוא לקובץ 💾
                             </button>
-                            <div class="absolute top-full right-0 mt-1 flex items-center gap-2 text-xs bg-yellow-50 p-1 rounded border whitespace-nowrap">
-                                <span class="text-gray-700">פורמט:</span>
-                                <label class="flex items-center gap-1 cursor-pointer">
+                            <div class="export-format">
+                                <span class="text-white text-sm">פורמט:</span>
+                                <label class="radio-option">
                                     <input type="radio" id="downloadTxt" name="downloadFormat" value="txt" checked>
-                                    <span class="text-gray-700">TXT</span>
+                                    <span class="text-sm">TXT</span>
                                 </label>
-                                <label class="flex items-center gap-1 cursor-pointer">
+                                <label class="radio-option">
                                     <input type="radio" id="downloadCsv" name="downloadFormat" value="csv">
-                                    <span class="text-gray-700">CSV</span>
+                                    <span class="text-sm">CSV</span>
                                 </label>
                             </div>
                         </div>
                     </div>
                     
                     <div class="mt-4">
-                        <label for="cidrResults" class="block mb-2 text-sm font-bold text-gray-700" id="outputLabel">תוצאות CIDR:</label>
-                        <textarea id="cidrResults" readonly class="w-full p-3 border rounded-lg bg-gray-50 text-sm h-48"></textarea>
+                        <label for="cidrResults" id="outputLabel">תוצאות CIDR:</label>
+                        <textarea id="cidrResults" readonly class="h-48"></textarea>
                     </div>
                     
-                    <div class="text-xs text-gray-500 mt-2" id="ipStatus">Ready</div>
+                    <div class="status-text" id="ipStatus">Ready</div>
                 </div>
             </div>
             
             <!-- Number Formatter Tab -->
             <div id="numberTab" class="tab-content hidden">
                 <div class="title-box">עיצוב מספרים 🔢</div>
-                <div class="bg-green-50 rounded-lg p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="numberInput" class="text-sm font-bold text-gray-700">הכנס מספרים:</label>
-                        <div class="flex items-center">
-                            <label for="separatorSelect" class="text-sm font-bold text-gray-700 ml-2">בחר מפריד:</label>
-                            <select id="separatorSelect" class="mr-2 p-1 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm">
+                <div class="inner-content">
+                    <div class="flex justify-between items-center mb-3">
+                        <label for="numberInput">הכנס מספרים:</label>
+                        <div class="flex items-center gap-2">
+                            <label for="separatorSelect" class="text-sm font-bold text-white" style="margin-bottom: 0;">בחר מפריד:</label>
+                            <select id="separatorSelect" class="p-1" style="width: auto;">
                                 <option value="," selected>,</option>
                                 <option value="/">/</option>
                                 <option value=";">;</option>
@@ -332,108 +660,61 @@
 9878
 65467
 או:
-65456 245872 9878 65467" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm h-48"></textarea>
+65456 245872 9878 65467" class="h-48"></textarea>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                        <button id="formatBtn" onclick="formatNumbers()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                    <div class="button-grid">
+                        <button id="formatBtn" onclick="formatNumbers()" class="action-btn btn-convert">
                             עצב מספרים 🔢
                         </button>
-                        <button id="copyFormatBtn" onclick="copyToClipboard('formattedResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
+                        <button id="copyFormatBtn" onclick="copyToClipboard('formattedResults')" class="action-btn btn-copy">
                             העתק תוצאות 📋
                         </button>
-                        <button id="resetFormatBtn" onclick="resetFields('numberInput','formattedResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                        <button id="resetFormatBtn" onclick="resetFields('numberInput','formattedResults')" class="action-btn btn-reset">
                             איפוס 🔄
                         </button>
-                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults', 'FormattedNumbers.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults', 'FormattedNumbers.txt')" class="action-btn btn-export">
                             יצוא לקובץ 💾
                         </button>
                     </div>
                     
                     <div class="mt-4">
-                        <label for="formattedResults" class="block mb-2 text-sm font-bold text-gray-700">תוצאות מעוצבות:</label>
-                        <textarea id="formattedResults" readonly placeholder="מספרים מעוצבים יופיעו כאן" class="w-full p-3 border rounded-lg bg-gray-50 text-sm h-48"></textarea>
+                        <label for="formattedResults">תוצאות מעוצבות:</label>
+                        <textarea id="formattedResults" readonly placeholder="מספרים מעוצבים יופיעו כאן" class="h-48"></textarea>
                     </div>
                     
-                    <div class="text-xs text-gray-500 mt-2" id="numberStatus">Ready</div>
+                    <div class="status-text" id="numberStatus">Ready</div>
                 </div>
             </div>
 
             <!-- Campaign ID Extractor Tab -->
             <div id="campaignTab" class="tab-content hidden">
                 <div class="title-box">חילוץ ID מקמפיינים 🎯</div>
-                <div class="bg-purple-50 rounded-lg p-4">
-                    <label for="campaignInput" class="block mb-2 text-sm font-bold text-gray-700">הדבק מידע מהמערכת:</label>
+                <div class="inner-content">
+                    <label for="campaignInput">הדבק מידע מהמערכת:</label>
                     <textarea id="campaignInput" placeholder="הדבק כאן את המידע שהועתק מהמערכת שלך...
-המערכת תחלץ אוטומטית מזהי קמפיינים (4-8 ספרות) מהטקסט" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white text-sm h-48"></textarea>
+המערכת תחלץ אוטומטית מזהי קמפיינים (4-8 ספרות) מהטקסט" class="h-48"></textarea>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                        <button id="extractBtn" onclick="extractCampaignIDs()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                    <div class="button-grid">
+                        <button id="extractBtn" onclick="extractCampaignIDs()" class="action-btn btn-convert">
                             חלץ מזהים 🎯
                         </button>
-                        <button id="copyCampaignBtn" onclick="copyToClipboard('campaignResults')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
+                        <button id="copyCampaignBtn" onclick="copyToClipboard('campaignResults')" class="action-btn btn-copy">
                             העתק תוצאות 📋
                         </button>
-                        <button id="resetCampaignBtn" onclick="resetFields('campaignInput','campaignResults')" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
+                        <button id="resetCampaignBtn" onclick="resetFields('campaignInput','campaignResults')" class="action-btn btn-reset">
                             איפוס 🔄
                         </button>
-                        <button id="exportCampaignBtn" onclick="exportToFile('campaignResults','CampaignIDs.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
+                        <button id="exportCampaignBtn" onclick="exportToFile('campaignResults','CampaignIDs.txt')" class="action-btn btn-export">
                             יצוא לקובץ 💾
                         </button>
                     </div>
                     
                     <div class="mt-4">
-                        <label for="campaignResults" class="block mb-2 text-sm font-bold text-gray-700">מזהי קמפיינים שנמצאו:</label>
-                        <textarea id="campaignResults" readonly placeholder="מזהי קמפיינים יופיעו כאן" class="w-full p-3 border rounded-lg bg-gray-50 text-sm h-48"></textarea>
+                        <label for="campaignResults">מזהי קמפיינים שנמצאו:</label>
+                        <textarea id="campaignResults" readonly placeholder="מזהי קמפיינים יופיעו כאן" class="h-48"></textarea>
                     </div>
                     
-                    <div class="text-xs text-gray-500 mt-2" id="campaignStatus">Ready</div>
-                </div>
-            </div>
-
-            <!-- Image ID Extractor Tab (OCR) -->
-            <div id="imageTab" class="tab-content hidden">
-                <div class="title-box">חילוץ ID מתמונות 📷</div>
-                <div class="bg-indigo-50 rounded-lg p-4">
-                    <label class="block mb-2 text-sm font-bold text-gray-700">העלה / גרור / הדבק צילום מסך:</label>
-                    <p class="text-xs text-gray-600 mb-2">
-                        ניתן לבחור קובץ, לגרור אותו לאזור, או להדביק צילום מסך ישירות בעזרת <span class="font-semibold">Ctrl+V</span>.
-                    </p>
-
-                    <div class="flex flex-col md:flex-row md:items-center md:space-x-reverse md:space-x-4 space-y-2 md:space-y-0 mb-3">
-                        <input type="file" id="imageFileInput" accept="image/*" class="text-sm">
-                        <div id="imageDropZone" class="image-drop-zone">
-                            גררו לכאן צילום מסך מהרשת / המערכת, או הדביקו בעזרת Ctrl+V.
-                        </div>
-                    </div>
-
-                    <div class="text-xs text-gray-500 mb-3" id="imageStatus">Ready</div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <p class="text-sm font-bold text-gray-700 mb-1">תצוגת תמונה + טקסט גולמי:</p>
-                            <img id="imagePreview" src="" alt="" class="image-preview mb-2 hidden">
-                            <textarea id="imageRawText" class="w-full p-2 border rounded-lg bg-white textarea-mono text-xs h-40 focus:ring-2 focus:ring-indigo-400 focus:outline-none" placeholder="הטקסט שה-OCR זיהה יופיע כאן..."></textarea>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-gray-700 mb-1">IDs שחולצו:</p>
-                            <textarea id="imageIds" class="w-full p-2 border rounded-lg bg-gray-50 textarea-mono text-sm h-40" readonly placeholder="המזהים שזוהו יופיעו כאן, כל ID בשורה נפרדת..."></textarea>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                        <button id="imageRunBtn" onclick="runImageOCR()" class="action-btn px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium" disabled>
-                            הרץ OCR וחלץ IDs 🔍
-                        </button>
-                        <button id="imageCopyBtn" onclick="copyToClipboard('imageIds')" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium" disabled>
-                            העתק תוצאות 📋
-                        </button>
-                        <button id="imageResetBtn" onclick="resetImageTab()" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium">
-                            איפוס 🔄
-                        </button>
-                        <button id="imageExportBtn" onclick="exportToFile('imageIds','ImageIDs.txt')" class="px-4 py-2 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition-colors font-medium">
-                            יצוא לקובץ 💾
-                        </button>
-                    </div>
+                    <div class="status-text" id="campaignStatus">Ready</div>
                 </div>
             </div>
         </div>
@@ -441,9 +722,9 @@
         <!-- About Section -->
         <div class="content-box mt-6">
             <div class="title-box">אודות הכלי 📌</div>
-            <div class="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg">
-                <p class="text-sm text-blue-800 font-medium">אל תעבדו כמו חמורים! 🚀</p>
-                <p class="text-xs text-gray-600 mt-2">כלי מאוחד לעיבוד מידע: המרת IP דו-כיוונית + פיצול חכם, עיצוב מספרים, חילוץ מזהי קמפיינים וחילוץ IDs מצילומי מסך</p>
+            <div class="inner-content about-box">
+                <p class="about-title">אל תעבדו כמו חמורים! 🚀</p>
+                <p class="about-text">כלי מאוחד לעיבוד מידע: המרת IP דו-כיוונית + פיצול חכם, עיצוב מספרים וחילוץ מזהי קמפיינים</p>
             </div>
         </div>
     </div>
@@ -456,64 +737,58 @@
             he: {
                 langToggle: '🌐 English',
                 mainTitle: 'כלי עיצוב וניהול מידע 📊',
-                mainDesc: 'כלים חכמים שמסייעים בארגון ועיצוב מידע לפי הפורמט הנדרש בעבודתכם 🛠️',
+                mainDesc: 'כלים חכמים לעיבוד וניהול מידע בצורה מהירה ויעילה',
                 ipToolTitle: 'המרת כתובות IP 🔄',
                 ipToolDesc: 'המרה דו-כיוונית: IP ↔ CIDR + פיצול חכם',
                 numberToolTitle: 'עיצוב מספרים 🔢',
-                numberToolDesc: 'המרת רשימת מספרים לפורמט מופרד בפסיקים',
+                numberToolDesc: 'המרת רשימת מספרים לפורמט מופרד',
                 campaignToolTitle: 'חילוץ ID מקמפיינים 🎯',
-                campaignToolDesc: 'חילוץ מזהי קמפיינים (4-8 ספרות) מטקסט',
-                imageToolTitle: 'חילוץ ID מתמונות 📷',
-                imageToolDesc: 'OCR מצילומי מסך והמרתם לרשימת IDs',
+                campaignToolDesc: 'חילוץ מזהים (4-8 ספרות) מטקסט',
                 ipTabBtn: 'המרת IP ↔ CIDR',
                 numberTabBtn: 'עיצוב מספרים',
-                campaignTabBtn: 'חילוץ ID מקמפיינים',
-                imageTabBtn: 'חילוץ ID מתמונות',
+                campaignTabBtn: 'חילוץ ID',
                 ipConversionMode: 'בחר סוג המרה:',
                 ipToCidrLabel: 'טווחי IP → CIDR',
                 cidrToIpLabel: 'CIDR → טווחי IP',
                 splitOptionsLabel: 'אפשרויות פיצול:',
                 enableSplitLabel: 'פצל רשתות גדולות',
                 maxCidrLabel: 'מקסימום CIDR:',
-                convertBtn: 'המר וצמצם ל-CIDR 🔄',
-                convertBtnCidr: 'המר ל-טווחי IP 🔄',
-                copyBtn: 'העתק תוצאות 📋',
+                convertBtn: 'המר ל-CIDR 🔄',
+                convertBtnCidr: 'המר ל-IP 🔄',
+                copyBtn: 'העתק 📋',
                 resetBtn: 'איפוס 🔄',
-                exportBtn: 'יצוא לקובץ 💾',
+                exportBtn: 'יצוא 💾',
                 formatLabel: 'פורמט:',
-                mergeRangesLabel: 'איחוד טווחי IP חופפים וסמוכים',
-                mergeRangesCidrLabel: 'איחוד טווחי IP חופפים וסמוכים לאחר ההמרה'
+                mergeRangesLabel: 'איחוד טווחים חופפים',
+                mergeRangesCidrLabel: 'איחוד טווחים לאחר המרה'
             },
             en: {
                 langToggle: '🌐 עברית',
-                mainTitle: 'Data Design & Management Tools 📊',
-                mainDesc: 'Smart tools that help organize and format data according to your work requirements 🛠️',
-                ipToolTitle: 'IP Address Conversion 🔄',
-                ipToolDesc: 'Bidirectional conversion: IP ↔ CIDR + smart splitting',
-                numberToolTitle: 'Number Formatting 🔢',
-                numberToolDesc: 'Convert number lists to comma-separated format',
-                campaignToolTitle: 'Campaign ID Extraction 🎯',
-                campaignToolDesc: 'Extract campaign IDs (4-8 digits) from text',
-                imageToolTitle: 'Image ID Extraction 📷',
-                imageToolDesc: 'OCR from screenshots into clean ID lists',
-                ipTabBtn: 'IP ↔ CIDR Conversion',
-                numberTabBtn: 'Number Formatting',
-                campaignTabBtn: 'Campaign ID Extraction',
-                imageTabBtn: 'Image ID Extraction',
-                ipConversionMode: 'Select conversion type:',
+                mainTitle: 'Data Management Tools 📊',
+                mainDesc: 'Smart tools for quick and efficient data processing',
+                ipToolTitle: 'IP Conversion 🔄',
+                ipToolDesc: 'Bidirectional: IP ↔ CIDR + smart split',
+                numberToolTitle: 'Number Format 🔢',
+                numberToolDesc: 'Convert numbers to separated format',
+                campaignToolTitle: 'Campaign IDs 🎯',
+                campaignToolDesc: 'Extract IDs (4-8 digits) from text',
+                ipTabBtn: 'IP ↔ CIDR',
+                numberTabBtn: 'Number Format',
+                campaignTabBtn: 'Campaign IDs',
+                ipConversionMode: 'Select conversion:',
                 ipToCidrLabel: 'IP Ranges → CIDR',
                 cidrToIpLabel: 'CIDR → IP Ranges',
                 splitOptionsLabel: 'Split options:',
                 enableSplitLabel: 'Split large networks',
-                maxCidrLabel: 'Maximum CIDR:',
-                convertBtn: 'Convert & Optimize to CIDR 🔄',
-                convertBtnCidr: 'Convert to IP Ranges 🔄',
-                copyBtn: 'Copy Results 📋',
+                maxCidrLabel: 'Max CIDR:',
+                convertBtn: 'Convert to CIDR 🔄',
+                convertBtnCidr: 'Convert to IP 🔄',
+                copyBtn: 'Copy 📋',
                 resetBtn: 'Reset 🔄',
-                exportBtn: 'Export File 💾',
+                exportBtn: 'Export 💾',
                 formatLabel: 'Format:',
-                mergeRangesLabel: 'Merge overlapping and adjacent IP ranges',
-                mergeRangesCidrLabel: 'Merge overlapping and adjacent IP ranges after conversion'
+                mergeRangesLabel: 'Merge overlapping ranges',
+                mergeRangesCidrLabel: 'Merge ranges after conversion'
             }
         };
 
@@ -534,12 +809,9 @@
             document.getElementById('numberToolDesc').textContent = t.numberToolDesc;
             document.getElementById('campaignToolTitle').textContent = t.campaignToolTitle;
             document.getElementById('campaignToolDesc').textContent = t.campaignToolDesc;
-            document.getElementById('imageToolTitle').textContent = t.imageToolTitle;
-            document.getElementById('imageToolDesc').textContent = t.imageToolDesc;
             document.getElementById('ipTabBtn').textContent = t.ipTabBtn;
             document.getElementById('numberTabBtn').textContent = t.numberTabBtn;
             document.getElementById('campaignTabBtn').textContent = t.campaignTabBtn;
-            document.getElementById('imageTabBtn').textContent = t.imageTabBtn;
             
             document.getElementById('conversionModeLabel').textContent = t.ipConversionMode;
             document.getElementById('ipToCidrLabel').textContent = t.ipToCidrLabel;
@@ -556,40 +828,7 @@
                 convertBtnText.textContent = mode === 'ipToCidr' ? t.convertBtn : t.convertBtnCidr;
             }
             
-            const copyBtn = document.getElementById('copyBtn');
-            if (copyBtn) copyBtn.textContent = t.copyBtn;
-            
-            const resetBtnDom = document.getElementById('resetBtn');
-            if (resetBtnDom) resetBtnDom.textContent = t.resetBtn;
-            
-            const exportBtnDom = document.getElementById('exportBtn');
-            if (exportBtnDom) exportBtnDom.textContent = t.exportBtn;
-            
-            const formatSpans = document.querySelectorAll('span');
-            formatSpans.forEach(span => {
-                if (span.textContent.includes('פורמט') || span.textContent.includes('Format')) {
-                    span.textContent = t.formatLabel;
-                }
-            });
-            
             updateConversionMode();
-            
-            const body = document.body;
-            const tabsContainer = document.querySelector('.flex.space-x-1.space-x-reverse');
-            
-            if (isHebrew) {
-                body.classList.add('rtl');
-                body.classList.remove('ltr');
-                if (tabsContainer) {
-                    tabsContainer.classList.add('space-x-reverse');
-                }
-            } else {
-                body.classList.remove('rtl');
-                body.classList.add('ltr');
-                if (tabsContainer) {
-                    tabsContainer.classList.remove('space-x-reverse');
-                }
-            }
         }
 
         function toggleSplitControls() {
@@ -992,8 +1231,7 @@ Large networks can be split into smaller subnets`;
             const statusMap = {
                 'cidrResults': 'ipStatus',
                 'formattedResults': 'numberStatus',
-                'campaignResults': 'campaignStatus',
-                'imageIds': 'imageStatus'
+                'campaignResults': 'campaignStatus'
             };
             const status = statusMap[elementId];
             if (!status) return;
@@ -1031,8 +1269,7 @@ Large networks can be split into smaller subnets`;
             const statusMap = {
                 'cidrResults': 'ipStatus',
                 'formattedResults': 'numberStatus',
-                'campaignResults': 'campaignStatus',
-                'imageIds': 'imageStatus'
+                'campaignResults': 'campaignStatus'
             };
             
             const status = statusMap[elementId];
@@ -1059,147 +1296,6 @@ Large networks can be split into smaller subnets`;
             setTimeout(() => {
                 document.getElementById(status).textContent = 'Ready';
             }, 2000);
-        }
-
-        // ---------- לשונית OCR מתמונות ----------
-        let currentImageFile = null;
-        let currentImageIds = [];
-
-        const imageFileInput = document.getElementById('imageFileInput');
-        const imageDropZone = document.getElementById('imageDropZone');
-        const imagePreview = document.getElementById('imagePreview');
-        const imageRawText = document.getElementById('imageRawText');
-        const imageIds = document.getElementById('imageIds');
-        const imageRunBtn = document.getElementById('imageRunBtn');
-        const imageCopyBtn = document.getElementById('imageCopyBtn');
-        const imageStatus = document.getElementById('imageStatus');
-
-        function handleImageFile(file, source) {
-            if (!file || !file.type.startsWith('image/')) {
-                imageStatus.textContent = 'הקובץ אינו תמונה תקינה.';
-                return;
-            }
-            currentImageFile = file;
-            currentImageIds = [];
-            imageRawText.value = '';
-            imageIds.value = '';
-            imageCopyBtn.disabled = true;
-            imageRunBtn.disabled = false;
-            imageStatus.textContent = source === 'paste' ? 'תמונה הודבקה, לחץ על הרץ OCR.' : 'תמונה נטענה, לחץ על הרץ OCR.';
-            const reader = new FileReader();
-            reader.onload = ev => {
-                imagePreview.src = ev.target.result;
-                imagePreview.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        imageFileInput.addEventListener('change', e => {
-            const file = e.target.files[0];
-            handleImageFile(file, 'file');
-        });
-
-        ['dragenter','dragover'].forEach(evName => {
-            imageDropZone.addEventListener(evName, e => {
-                e.preventDefault(); e.stopPropagation();
-                imageDropZone.classList.add('dragover');
-            });
-        });
-
-        ['dragleave','drop'].forEach(evName => {
-            imageDropZone.addEventListener(evName, e => {
-                e.preventDefault(); e.stopPropagation();
-                imageDropZone.classList.remove('dragover');
-            });
-        });
-
-        imageDropZone.addEventListener('drop', e => {
-            const file = e.dataTransfer.files[0];
-            if (file) {
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                imageFileInput.files = dt.files;
-                handleImageFile(file, 'drop');
-            }
-        });
-
-        document.addEventListener('paste', e => {
-            if (!e.clipboardData) return;
-            const items = e.clipboardData.items;
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                if (item.kind === 'file' && item.type.startsWith('image/')) {
-                    const file = item.getAsFile();
-                    handleImageFile(file, 'paste');
-                    break;
-                }
-            }
-        });
-
-        async function runImageOCR() {
-            if (!currentImageFile) return;
-            imageRunBtn.disabled = true;
-            imageCopyBtn.disabled = true;
-            imageStatus.textContent = 'מריץ OCR...';
-            imageRawText.value = '';
-            imageIds.value = '';
-            currentImageIds = [];
-            try {
-                const result = await Tesseract.recognize(currentImageFile, 'eng', {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            const pct = Math.round((m.progress || 0) * 100);
-                            imageStatus.textContent = `מזהה טקסט... ${pct}%`;
-                        }
-                    }
-                });
-                const text = result?.data?.text || '';
-                imageRawText.value = text;
-                const ids = extractIdsFromText(text);
-                currentImageIds = ids;
-                if (!ids.length) {
-                    imageIds.value = '';
-                    imageStatus.textContent = 'לא נמצאו IDs בטקסט.';
-                    imageCopyBtn.disabled = true;
-                } else {
-                    imageIds.value = ids.join('\n');
-                    imageStatus.textContent = `סיום – זוהו ${ids.length} IDs.`;
-                    imageCopyBtn.disabled = false;
-                }
-            } catch (err) {
-                console.error(err);
-                imageStatus.textContent = 'שגיאה בהרצת OCR – בדוק את הקובץ ונסה שוב.';
-            } finally {
-                imageRunBtn.disabled = !currentImageFile;
-            }
-        }
-
-        function extractIdsFromText(text) {
-            const ids = new Set();
-            if (!text) return [];
-            const withLabel = /id[:\)\]]?\s*(\d{4,})/gi;
-            let m;
-            while ((m = withLabel.exec(text)) !== null) {
-                ids.add(m[1]);
-            }
-            const plain = /\b(\d{5,})\b/g;
-            while ((m = plain.exec(text)) !== null) {
-                ids.add(m[1]);
-            }
-            return Array.from(ids);
-        }
-
-        function resetImageTab() {
-            currentImageFile = null;
-            currentImageIds = [];
-            imageFileInput.value = '';
-            imagePreview.src = '';
-            imagePreview.classList.add('hidden');
-            imageRawText.value = '';
-            imageIds.value = '';
-            imageRunBtn.disabled = true;
-            imageCopyBtn.disabled = true;
-            imageStatus.textContent = 'Ready';
         }
 
         document.addEventListener('DOMContentLoaded', function() {
