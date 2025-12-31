@@ -359,6 +359,18 @@
             flex-wrap: wrap;
         }
 
+        /* Two column layout for subtract mode */
+        .two-column-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .input-column {
+            display: flex;
+            flex-direction: column;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .main-title {
@@ -386,6 +398,10 @@
                 text-align: center;
                 padding: 0.625rem 0.75rem;
                 font-size: 0.8rem;
+            }
+
+            .two-column-input {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -495,6 +511,10 @@
                                     <input type="radio" id="cidrToIp" name="conversionMode" value="cidrToIp" onchange="updateConversionMode()">
                                     <label for="cidrToIp" class="text-sm" id="cidrToIpLabel" style="margin-bottom: 0;">CIDR → טווחי IP</label>
                                 </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="subtractRanges" name="conversionMode" value="subtractRanges" onchange="updateConversionMode()">
+                                    <label for="subtractRanges" class="text-sm" id="subtractRangesLabel" style="margin-bottom: 0;">הורדת טווחים</label>
+                                </div>
                             </div>
                             
                             <div class="split-options" id="splitOptionsInline" style="display: none;">
@@ -531,8 +551,23 @@
                         </div>
                     </div>
 
-                    <label for="ipRanges" id="inputLabel">הכנס טווחי IP:</label>
-                    <textarea id="ipRanges" class="h-48"></textarea>
+                    <!-- Single input mode -->
+                    <div id="singleInputMode">
+                        <label for="ipRanges" id="inputLabel">הכנס טווחי IP:</label>
+                        <textarea id="ipRanges" class="h-48"></textarea>
+                    </div>
+
+                    <!-- Two column input mode for subtract -->
+                    <div id="twoColumnInputMode" class="two-column-input" style="display: none;">
+                        <div class="input-column">
+                            <label for="ipRangesOriginal" id="inputLabelOriginal">רשימה מקורית:</label>
+                            <textarea id="ipRangesOriginal" class="h-48"></textarea>
+                        </div>
+                        <div class="input-column">
+                            <label for="ipRangesToRemove" id="inputLabelRemove">טווחים להסרה:</label>
+                            <textarea id="ipRangesToRemove" class="h-48"></textarea>
+                        </div>
+                    </div>
 
                     <div class="button-grid">
                         <button id="convertBtn" onclick="performConversion()" class="action-btn btn-convert">
@@ -670,11 +705,13 @@
                 ipConversionMode: 'בחר סוג המרה:',
                 ipToCidrLabel: 'טווחי IP → CIDR',
                 cidrToIpLabel: 'CIDR → טווחי IP',
+                subtractRangesLabel: 'הורדת טווחים',
                 splitOptionsLabel: 'אפשרויות פיצול:',
                 enableSplitLabel: 'פצל רשתות גדולות',
                 maxCidrLabel: 'מקסימום CIDR:',
                 convertBtn: 'המר ל-CIDR 🔄',
                 convertBtnCidr: 'המר ל-IP 🔄',
+                convertBtnSubtract: 'הסר טווחים ➖',
                 copyBtn: 'העתק 📋',
                 resetBtn: 'איפוס 🔄',
                 exportBtn: 'יצוא 💾',
@@ -692,11 +729,13 @@
                 ipConversionMode: 'Select conversion:',
                 ipToCidrLabel: 'IP Ranges → CIDR',
                 cidrToIpLabel: 'CIDR → IP Ranges',
+                subtractRangesLabel: 'Subtract Ranges',
                 splitOptionsLabel: 'Split options:',
                 enableSplitLabel: 'Split large networks',
                 maxCidrLabel: 'Max CIDR:',
                 convertBtn: 'Convert to CIDR 🔄',
                 convertBtnCidr: 'Convert to IP 🔄',
+                convertBtnSubtract: 'Remove Ranges ➖',
                 copyBtn: 'Copy 📋',
                 resetBtn: 'Reset 🔄',
                 exportBtn: 'Export 💾',
@@ -724,6 +763,7 @@
             document.getElementById('conversionModeLabel').textContent = t.ipConversionMode;
             document.getElementById('ipToCidrLabel').textContent = t.ipToCidrLabel;
             document.getElementById('cidrToIpLabel').textContent = t.cidrToIpLabel;
+            document.getElementById('subtractRangesLabel').textContent = t.subtractRangesLabel;
             document.getElementById('splitOptionsLabel').textContent = t.splitOptionsLabel;
             document.getElementById('enableSplitLabel').textContent = t.enableSplitLabel;
             document.getElementById('maxCidrLabel').textContent = t.maxCidrLabel;
@@ -733,7 +773,9 @@
             const convertBtnText = document.getElementById('convertBtnText');
             if (convertBtnText) {
                 const mode = document.querySelector('input[name="conversionMode"]:checked')?.value;
-                convertBtnText.textContent = mode === 'ipToCidr' ? t.convertBtn : t.convertBtnCidr;
+                if (mode === 'ipToCidr') convertBtnText.textContent = t.convertBtn;
+                else if (mode === 'cidrToIp') convertBtnText.textContent = t.convertBtnCidr;
+                else if (mode === 'subtractRanges') convertBtnText.textContent = t.convertBtnSubtract;
             }
             
             updateConversionMode();
@@ -754,10 +796,14 @@
             const mergeOption = document.getElementById('mergeOption');
             const splitOptionsInline = document.getElementById('splitOptionsInline');
             const mergeOptionCidr = document.getElementById('mergeOptionCidr');
+            const singleInputMode = document.getElementById('singleInputMode');
+            const twoColumnInputMode = document.getElementById('twoColumnInputMode');
             
             const t = translations[currentLang];
             
             if (mode === 'ipToCidr') {
+                singleInputMode.style.display = 'block';
+                twoColumnInputMode.style.display = 'none';
                 inputLabel.textContent = currentLang === 'he' ? 'הכנס טווחי IP:' : 'Enter IP Ranges:';
                 outputLabel.textContent = currentLang === 'he' ? 'תוצאות CIDR:' : 'CIDR Results:';
                 convertBtnText.textContent = t.convertBtn;
@@ -785,7 +831,9 @@ The system will automatically filter text lines and invalid addresses`;
                 mergeOption.style.display = 'flex';
                 splitOptionsInline.style.display = 'none';
                 mergeOptionCidr.style.display = 'none';
-            } else {
+            } else if (mode === 'cidrToIp') {
+                singleInputMode.style.display = 'block';
+                twoColumnInputMode.style.display = 'none';
                 inputLabel.textContent = currentLang === 'he' ? 'הכנס CIDR:' : 'Enter CIDR:';
                 outputLabel.textContent = currentLang === 'he' ? 'תוצאות טווחי IP:' : 'IP Range Results:';
                 convertBtnText.textContent = t.convertBtnCidr;
@@ -809,6 +857,49 @@ Large networks can be split into smaller subnets`;
                 mergeOption.style.display = 'none';
                 splitOptionsInline.style.display = 'flex';
                 mergeOptionCidr.style.display = 'flex';
+            } else if (mode === 'subtractRanges') {
+                singleInputMode.style.display = 'none';
+                twoColumnInputMode.style.display = 'grid';
+                outputLabel.textContent = currentLang === 'he' ? 'רשימה נקייה:' : 'Clean List:';
+                convertBtnText.textContent = t.convertBtnSubtract;
+                
+                const originalLabel = document.getElementById('inputLabelOriginal');
+                const removeLabel = document.getElementById('inputLabelRemove');
+                const originalTextarea = document.getElementById('ipRangesOriginal');
+                const removeTextarea = document.getElementById('ipRangesToRemove');
+                
+                originalLabel.textContent = currentLang === 'he' ? 'רשימה מקורית:' : 'Original List:';
+                removeLabel.textContent = currentLang === 'he' ? 'טווחים להסרה:' : 'Ranges to Remove:';
+                
+                originalTextarea.placeholder = currentLang === 'he' ?
+                    `הכנס את הרשימה המקורית שלך:
+109.40.240.0/23
+109.40.243.0/24
+47.64.48.0/22
+80.187.64.0/21
+...` :
+                    `Enter your original list:
+109.40.240.0/23
+109.40.243.0/24
+47.64.48.0/22
+80.187.64.0/21
+...`;
+                
+                removeTextarea.placeholder = currentLang === 'he' ?
+                    `הכנס את הטווחים להסרה:
+47.64.48.0/24
+80.187.65.0/23
+80.187.72.0/23
+...` :
+                    `Enter ranges to remove:
+47.64.48.0/24
+80.187.65.0/23
+80.187.72.0/23
+...`;
+                
+                mergeOption.style.display = 'none';
+                splitOptionsInline.style.display = 'none';
+                mergeOptionCidr.style.display = 'none';
             }
             
             resetFields('ipRanges', 'cidrResults');
@@ -953,10 +1044,142 @@ Large networks can be split into smaller subnets`;
             return result;
         }
 
+        function parseCIDROrRange(line) {
+            line = line.trim();
+            if (!line) return null;
+            
+            try {
+                if (line.includes('/')) {
+                    if (!isValidCIDR(line)) return null;
+                    const range = cidrToRange(line);
+                    return { start: range.startLong, end: range.endLong };
+                } else if (line.includes('–') || line.includes('-')) {
+                    const [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
+                    if (!isValidIP(start) || !isValidIP(end)) return null;
+                    return { start: ipToLong(start), end: ipToLong(end) };
+                } else if (isValidIP(line)) {
+                    const parts = line.split('.');
+                    let ipLong = ipToLong(line);
+                    
+                    if (parts[2] === '0' && parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 16) >>> 0;
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        return { start: network, end: broadcast };
+                    } else if (parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 8) >>> 0;
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        return { start: network, end: broadcast };
+                    } else {
+                        return { start: ipLong, end: ipLong };
+                    }
+                }
+            } catch (e) {
+                return null;
+            }
+            return null;
+        }
+
+        function subtractIPRanges() {
+            document.getElementById('ipStatus').textContent = 'מעבד החסרת טווחים...';
+            
+            const originalInput = document.getElementById('ipRangesOriginal').value.trim();
+            const removeInput = document.getElementById('ipRangesToRemove').value.trim();
+            
+            if (!originalInput || !removeInput) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'נא להזין גם רשימה מקורית וגם טווחים להסרה';
+                return;
+            }
+            
+            const originalLines = originalInput.split('\n');
+            const removeLines = removeInput.split('\n');
+            
+            let originalRanges = [];
+            let removeRanges = [];
+            let invalidOriginal = 0;
+            let invalidRemove = 0;
+            
+            for (let line of originalLines) {
+                const range = parseCIDROrRange(line);
+                if (range) originalRanges.push(range);
+                else if (line.trim()) invalidOriginal++;
+            }
+            
+            for (let line of removeLines) {
+                const range = parseCIDROrRange(line);
+                if (range) removeRanges.push(range);
+                else if (line.trim()) invalidRemove++;
+            }
+            
+            if (originalRanges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו טווחים תקינים ברשימה המקורית';
+                return;
+            }
+            
+            if (removeRanges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו טווחים תקינים להסרה';
+                return;
+            }
+            
+            const mergedOriginal = mergeRanges(originalRanges);
+            let resultRanges = [];
+            
+            for (let origRange of mergedOriginal) {
+                let currentRanges = [origRange];
+                
+                for (let removeRange of removeRanges) {
+                    let newRanges = [];
+                    
+                    for (let currentRange of currentRanges) {
+                        if (removeRange.end < currentRange.start || removeRange.start > currentRange.end) {
+                            newRanges.push(currentRange);
+                        } else if (removeRange.start <= currentRange.start && removeRange.end >= currentRange.end) {
+                            // הטווח הנוכחי נמחק לגמרי
+                        } else if (removeRange.start > currentRange.start && removeRange.end < currentRange.end) {
+                            newRanges.push({ start: currentRange.start, end: removeRange.start - 1 });
+                            newRanges.push({ start: removeRange.end + 1, end: currentRange.end });
+                        } else if (removeRange.start <= currentRange.start) {
+                            newRanges.push({ start: removeRange.end + 1, end: currentRange.end });
+                        } else {
+                            newRanges.push({ start: currentRange.start, end: removeRange.start - 1 });
+                        }
+                    }
+                    
+                    currentRanges = newRanges;
+                }
+                
+                resultRanges = resultRanges.concat(currentRanges);
+            }
+            
+            if (resultRanges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'כל הטווחים הוסרו - אין תוצאות';
+                return;
+            }
+            
+            let results = [];
+            for (let range of resultRanges) {
+                results = results.concat(rangeToOptimalCIDRs(range.start, range.end));
+            }
+            
+            document.getElementById('cidrResults').value = results.join('\n');
+            
+            let statusMessage = `החסרה הושלמה ✅ | ${mergedOriginal.length} טווחים מקוריים | ${removeRanges.length} טווחים הוסרו | ${resultRanges.length} טווחים בתוצאה`;
+            if (invalidOriginal > 0) statusMessage += ` | ${invalidOriginal} שורות לא תקינות במקור`;
+            if (invalidRemove > 0) statusMessage += ` | ${invalidRemove} שורות לא תקינות בהסרה`;
+            
+            document.getElementById('ipStatus').textContent = statusMessage;
+        }
+
         function performConversion() {
             const mode = document.querySelector('input[name="conversionMode"]:checked').value;
             if (mode === 'ipToCidr') convertIPToCIDR();
-            else convertCIDRToIP();
+            else if (mode === 'cidrToIp') convertCIDRToIP();
+            else if (mode === 'subtractRanges') subtractIPRanges();
         }
 
         function convertIPToCIDR() {
@@ -987,26 +1210,20 @@ Large networks can be split into smaller subnets`;
                     const broadcast = network | (~mask >>> 0);
                     ranges.push({ start: network, end: broadcast });
                 } else {
-                    // IP בודד - בדוק אם מסתיים ב-0 או 0.0
                     const parts = line.split('.');
                     let ipLong = ipToLong(line);
                     
-                    // אם מסתיים ב-0.0 (שני האוקטטים האחרונים הם 0) - טווח /16
                     if (parts[2] === '0' && parts[3] === '0') {
                         const mask = (0xFFFFFFFF << 16) >>> 0;
                         const network = ipLong & mask;
                         const broadcast = network | (~mask >>> 0);
                         ranges.push({ start: network, end: broadcast });
-                    }
-                    // אם מסתיים ב-0 (רק האוקטט האחרון הוא 0) - טווח /24
-                    else if (parts[3] === '0') {
+                    } else if (parts[3] === '0') {
                         const mask = (0xFFFFFFFF << 8) >>> 0;
                         const network = ipLong & mask;
                         const broadcast = network | (~mask >>> 0);
                         ranges.push({ start: network, end: broadcast });
-                    }
-                    // אחרת - IP בודד
-                    else {
+                    } else {
                         ranges.push({ start: ipLong, end: ipLong });
                     }
                 }
@@ -1215,7 +1432,15 @@ Large networks can be split into smaller subnets`;
         }
 
         function resetFields(inputId, outputId) {
-            document.getElementById(inputId).value = '';
+            const mode = document.querySelector('input[name="conversionMode"]:checked')?.value;
+            
+            if (mode === 'subtractRanges') {
+                document.getElementById('ipRangesOriginal').value = '';
+                document.getElementById('ipRangesToRemove').value = '';
+            } else {
+                document.getElementById(inputId).value = '';
+            }
+            
             document.getElementById(outputId).value = '';
             
             const statusMap = {
