@@ -484,6 +484,7 @@
         <div class="tabs-container">
             <div class="tabs-wrapper">
                 <div id="ipTabBtn" class="tab active" onclick="openTab('ipTab')">המרת IP ↔ CIDR</div>
+                <div id="compareTabBtn" class="tab" onclick="openTab('compareTab')">השוואת טווחים</div>
                 <div id="numberTabBtn" class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
                 <div id="campaignTabBtn" class="tab" onclick="openTab('campaignTab')">חילוץ ID מקמפיינים</div>
             </div>
@@ -606,6 +607,53 @@
                 </div>
             </div>
             
+            <!-- Compare Ranges Tab -->
+            <div id="compareTab" class="tab-content hidden">
+                <div class="title-box">השוואת טווחים 🔍</div>
+                <div class="inner-content">
+                    <div class="two-column-input">
+                        <div class="input-column">
+                            <label for="rangeA" id="rangeALabel">טווח A (רשימה ראשונה):</label>
+                            <textarea id="rangeA" class="h-48" placeholder="הכנס טווחים/CIDR:
+109.40.240.0/23
+47.64.48.0/22
+88.97.114.0 – 88.97.114.255
+80.187.64.0/21"></textarea>
+                        </div>
+                        <div class="input-column">
+                            <label for="rangeB" id="rangeBLabel">טווח B (רשימה שנייה):</label>
+                            <textarea id="rangeB" class="h-48" placeholder="הכנס טווחים/CIDR:
+109.40.240.0/23
+80.187.65.0/23
+88.97.115.0 – 88.97.115.255
+176.3.36.0/24"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-grid">
+                        <button id="compareBtn" onclick="compareRanges()" class="action-btn btn-convert">
+                            השווה טווחים 🔍
+                        </button>
+                        <button id="copyCompareBtn" onclick="copyCompareResults()" class="action-btn btn-copy">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetCompareBtn" onclick="resetCompare()" class="action-btn btn-reset">
+                            איפוס 🔄
+                        </button>
+                        <button id="exportCompareBtn" onclick="exportCompareResults()" class="action-btn btn-export">
+                            יצוא תוצאות 💾
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="compareResults" id="compareResultsLabel">תוצאות ההשוואה:</label>
+                        <textarea id="compareResults" readonly class="h-48" style="font-family: monospace;"></textarea>
+                    </div>
+                    
+                    <div class="status-text" id="compareStatus">Ready</div>
+                </div>
+            </div>
+            
             <!-- Number Formatter Tab -->
             <div id="numberTab" class="tab-content hidden">
                 <div class="title-box">עיצוב מספרים 🔢</div>
@@ -700,6 +748,7 @@
                 mainTitle: 'כלי עיצוב וניהול מידע 📊',
                 mainDesc: 'כלים חכמים לעיבוד וניהול מידע בצורה מהירה ויעילה',
                 ipTabBtn: 'המרת IP ↔ CIDR',
+                compareTabBtn: 'השוואת טווחים',
                 numberTabBtn: 'עיצוב מספרים',
                 campaignTabBtn: 'חילוץ ID',
                 ipConversionMode: 'בחר סוג המרה:',
@@ -717,13 +766,18 @@
                 exportBtn: 'יצוא 💾',
                 formatLabel: 'פורמט:',
                 mergeRangesLabel: 'איחוד טווחים חופפים',
-                mergeRangesCidrLabel: 'איחוד טווחים לאחר המרה'
+                mergeRangesCidrLabel: 'איחוד טווחים לאחר המרה',
+                compareBtn: 'השווה טווחים 🔍',
+                rangeALabel: 'טווח A (רשימה ראשונה):',
+                rangeBLabel: 'טווח B (רשימה שנייה):',
+                compareResultsLabel: 'תוצאות ההשוואה:'
             },
             en: {
                 langToggle: '🌐 עברית',
                 mainTitle: 'Data Management Tools 📊',
                 mainDesc: 'Smart tools for quick and efficient data processing',
                 ipTabBtn: 'IP ↔ CIDR',
+                compareTabBtn: 'Compare Ranges',
                 numberTabBtn: 'Number Format',
                 campaignTabBtn: 'Campaign IDs',
                 ipConversionMode: 'Select conversion:',
@@ -741,7 +795,11 @@
                 exportBtn: 'Export 💾',
                 formatLabel: 'Format:',
                 mergeRangesLabel: 'Merge overlapping ranges',
-                mergeRangesCidrLabel: 'Merge ranges after conversion'
+                mergeRangesCidrLabel: 'Merge ranges after conversion',
+                compareBtn: 'Compare Ranges 🔍',
+                rangeALabel: 'Range A (First List):',
+                rangeBLabel: 'Range B (Second List):',
+                compareResultsLabel: 'Comparison Results:'
             }
         };
 
@@ -757,6 +815,7 @@
             document.getElementById('mainTitle').textContent = t.mainTitle;
             document.getElementById('mainDesc').textContent = t.mainDesc;
             document.getElementById('ipTabBtn').textContent = t.ipTabBtn;
+            document.getElementById('compareTabBtn').textContent = t.compareTabBtn;
             document.getElementById('numberTabBtn').textContent = t.numberTabBtn;
             document.getElementById('campaignTabBtn').textContent = t.campaignTabBtn;
             
@@ -769,6 +828,11 @@
             document.getElementById('maxCidrLabel').textContent = t.maxCidrLabel;
             document.getElementById('mergeRangesLabel').textContent = t.mergeRangesLabel;
             document.getElementById('mergeRangesCidrLabel').textContent = t.mergeRangesCidrLabel;
+            
+            // Compare tab translations
+            document.getElementById('rangeALabel').textContent = t.rangeALabel;
+            document.getElementById('rangeBLabel').textContent = t.rangeBLabel;
+            document.getElementById('compareResultsLabel').textContent = t.compareResultsLabel;
             
             const convertBtnText = document.getElementById('convertBtnText');
             if (convertBtnText) {
@@ -1173,6 +1237,229 @@ Large networks can be split into smaller subnets`;
             if (invalidRemove > 0) statusMessage += ` | ${invalidRemove} שורות לא תקינות בהסרה`;
             
             document.getElementById('ipStatus').textContent = statusMessage;
+        }
+
+        function compareRanges() {
+            document.getElementById('compareStatus').textContent = 'מבצע השוואה...';
+            
+            const rangeAInput = document.getElementById('rangeA').value.trim();
+            const rangeBInput = document.getElementById('rangeB').value.trim();
+            
+            if (!rangeAInput || !rangeBInput) {
+                document.getElementById('compareResults').value = '';
+                document.getElementById('compareStatus').textContent = 'נא להזין גם טווח A וגם טווח B';
+                return;
+            }
+            
+            const linesA = rangeAInput.split('\n');
+            const linesB = rangeBInput.split('\n');
+            
+            let rangesA = [];
+            let rangesB = [];
+            let invalidA = 0;
+            let invalidB = 0;
+            
+            // Parse range A
+            for (let line of linesA) {
+                const range = parseCIDROrRange(line);
+                if (range) rangesA.push(range);
+                else if (line.trim()) invalidA++;
+            }
+            
+            // Parse range B
+            for (let line of linesB) {
+                const range = parseCIDROrRange(line);
+                if (range) rangesB.push(range);
+                else if (line.trim()) invalidB++;
+            }
+            
+            if (rangesA.length === 0 || rangesB.length === 0) {
+                document.getElementById('compareResults').value = '';
+                document.getElementById('compareStatus').textContent = 'אחד הטווחים ריק או לא תקין';
+                return;
+            }
+            
+            // Merge ranges
+            const mergedA = mergeRanges(rangesA);
+            const mergedB = mergeRanges(rangesB);
+            
+            // Calculate statistics
+            const totalIPsA = mergedA.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const totalIPsB = mergedB.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            
+            // Find differences and intersections
+            const onlyInA = subtractRangesList(mergedA, mergedB);
+            const onlyInB = subtractRangesList(mergedB, mergedA);
+            const intersection = findIntersection(mergedA, mergedB);
+            const union = mergeRanges([...mergedA, ...mergedB]);
+            
+            // Calculate IPs for each category
+            const ipsOnlyA = onlyInA.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const ipsOnlyB = onlyInB.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const ipsIntersection = intersection.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const ipsUnion = union.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            
+            // Convert to CIDR
+            const cidrOnlyA = rangesToCIDRs(onlyInA);
+            const cidrOnlyB = rangesToCIDRs(onlyInB);
+            const cidrIntersection = rangesToCIDRs(intersection);
+            const cidrUnion = rangesToCIDRs(union);
+            
+            // Build results
+            let results = '';
+            results += '═══════════════════════════════════════════════════════\n';
+            results += '                   📊 סיכום סטטיסטי\n';
+            results += '═══════════════════════════════════════════════════════\n\n';
+            results += `🔵 טווח A: ${totalIPsA.toLocaleString()} IPs (${mergedA.length} רשתות)\n`;
+            results += `🟢 טווח B: ${totalIPsB.toLocaleString()} IPs (${mergedB.length} רשתות)\n`;
+            results += `🟣 משותף: ${ipsIntersection.toLocaleString()} IPs (${((ipsIntersection/Math.max(totalIPsA,totalIPsB))*100).toFixed(1)}%)\n`;
+            results += `🔶 מאוחד: ${ipsUnion.toLocaleString()} IPs (${union.length} רשתות)\n\n`;
+            
+            results += '═══════════════════════════════════════════════════════\n';
+            results += '          🔵 רק בטווח A (חסר ב-B) - ' + ipsOnlyA.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            if (cidrOnlyA.length > 0) {
+                results += cidrOnlyA.join('\n') + '\n';
+            } else {
+                results += '✅ אין - כל ה-IPs של A נמצאים גם ב-B\n';
+            }
+            
+            results += '\n═══════════════════════════════════════════════════════\n';
+            results += '          🟢 רק בטווח B (חסר ב-A) - ' + ipsOnlyB.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            if (cidrOnlyB.length > 0) {
+                results += cidrOnlyB.join('\n') + '\n';
+            } else {
+                results += '✅ אין - כל ה-IPs של B נמצאים גם ב-A\n';
+            }
+            
+            results += '\n═══════════════════════════════════════════════════════\n';
+            results += '               🟣 משותף לשניהם - ' + ipsIntersection.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            if (cidrIntersection.length > 0) {
+                results += cidrIntersection.join('\n') + '\n';
+            } else {
+                results += '❌ אין חפיפה - הטווחים נפרדים לגמרי\n';
+            }
+            
+            results += '\n═══════════════════════════════════════════════════════\n';
+            results += '           🔶 טווח מאוחד (A ∪ B) - ' + ipsUnion.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            results += cidrUnion.join('\n') + '\n';
+            
+            document.getElementById('compareResults').value = results;
+            
+            let statusMessage = `השוואה הושלמה ✅ | A: ${mergedA.length} טווחים | B: ${mergedB.length} טווחים`;
+            if (invalidA > 0) statusMessage += ` | ${invalidA} שורות לא תקינות ב-A`;
+            if (invalidB > 0) statusMessage += ` | ${invalidB} שורות לא תקינות ב-B`;
+            
+            document.getElementById('compareStatus').textContent = statusMessage;
+        }
+
+        function subtractRangesList(rangesA, rangesB) {
+            let result = [];
+            
+            for (let rangeA of rangesA) {
+                let current = [rangeA];
+                
+                for (let rangeB of rangesB) {
+                    let newCurrent = [];
+                    
+                    for (let c of current) {
+                        if (rangeB.end < c.start || rangeB.start > c.end) {
+                            newCurrent.push(c);
+                        } else if (rangeB.start <= c.start && rangeB.end >= c.end) {
+                            // Entire range removed
+                        } else if (rangeB.start > c.start && rangeB.end < c.end) {
+                            newCurrent.push({ start: c.start, end: rangeB.start - 1 });
+                            newCurrent.push({ start: rangeB.end + 1, end: c.end });
+                        } else if (rangeB.start <= c.start) {
+                            newCurrent.push({ start: rangeB.end + 1, end: c.end });
+                        } else {
+                            newCurrent.push({ start: c.start, end: rangeB.start - 1 });
+                        }
+                    }
+                    
+                    current = newCurrent;
+                }
+                
+                result = result.concat(current);
+            }
+            
+            return result;
+        }
+
+        function findIntersection(rangesA, rangesB) {
+            let result = [];
+            
+            for (let rangeA of rangesA) {
+                for (let rangeB of rangesB) {
+                    const start = Math.max(rangeA.start, rangeB.start);
+                    const end = Math.min(rangeA.end, rangeB.end);
+                    
+                    if (start <= end) {
+                        result.push({ start, end });
+                    }
+                }
+            }
+            
+            return mergeRanges(result);
+        }
+
+        function rangesToCIDRs(ranges) {
+            let result = [];
+            for (let range of ranges) {
+                result = result.concat(rangeToOptimalCIDRs(range.start, range.end));
+            }
+            return result;
+        }
+
+        function copyCompareResults() {
+            const element = document.getElementById('compareResults');
+            element.select();
+            document.execCommand('copy');
+            
+            const originalText = document.getElementById('compareStatus').textContent;
+            document.getElementById('compareStatus').textContent = 'הועתק ללוח! 📋';
+            setTimeout(() => {
+                document.getElementById('compareStatus').textContent = originalText;
+            }, 2000);
+        }
+
+        function resetCompare() {
+            document.getElementById('rangeA').value = '';
+            document.getElementById('rangeB').value = '';
+            document.getElementById('compareResults').value = '';
+            
+            const originalText = document.getElementById('compareStatus').textContent;
+            document.getElementById('compareStatus').textContent = 'אופס! 🔄';
+            setTimeout(() => {
+                document.getElementById('compareStatus').textContent = 'Ready';
+            }, 2000);
+        }
+
+        function exportCompareResults() {
+            const content = document.getElementById('compareResults').value;
+            if (!content) {
+                document.getElementById('compareStatus').textContent = 'אין תוכן לייצוא ❌';
+                return;
+            }
+            
+            const fileName = 'IP_Comparison_' + new Date().toISOString().slice(0,10) + '.txt';
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            const originalText = document.getElementById('compareStatus').textContent;
+            document.getElementById('compareStatus').textContent = `הקובץ יוצא! 💾 (${fileName})`;
+            setTimeout(() => {
+                document.getElementById('compareStatus').textContent = originalText;
+            }, 3000);
         }
 
         function performConversion() {
