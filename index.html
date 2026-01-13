@@ -3,1071 +3,1017 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V33 - Sweetspot + CIDR Engine</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <title>כלי עיצוב וניהול מידע 📊</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Assistant', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 100vh; overflow: hidden; color: #1e293b; font-size: 14px; }
-        .num-font { font-family: 'Inter', sans-serif; }
-        
-        .main-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 0.5rem; }
-        .glass-header { background: white; border-radius: 10px; padding: 0 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; height: 64px; shrink: 0; }
-        .dash-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05); display: flex; overflow: hidden; border: 1px solid #e2e8f0; }
-        .dash-sidebar { width: 370px; background: #ffffff; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
-        .dash-content { flex: 1; background: #f8fafc; display: flex; flex-direction: column; overflow: hidden; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        .control-box { border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid; }
-        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; row-gap: 0.5rem; }
-        .control-item { display: flex; flex-direction: column; }
-        .lbl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-        .lbl-sm { font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap; }
+        body { 
+            font-family: 'Heebo', 'Rubik', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            position: relative;
+        }
         
-        input[type=range] { height: 5px; border-radius: 2px; background: rgba(0,0,0,0.1); outline: none; appearance: none; cursor: pointer; width: 100%; display: block; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: currentColor; border: 2px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .dash-input { width: 46px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px; background: white; height: 24px; }
+        .main-container {
+            max-width: 75%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
         
-        .filter-item { margin-bottom: 8px; position: relative; }
-        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 2px; }
-        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .filter-btn:hover { border-color: #94a3b8; }
-        .filter-popup { position: absolute; top: 100%; left: 0; width: 270px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
-        .filter-popup.show { display: flex; }
-        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; margin-bottom: 6px; }
-        .filter-list { max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; border: 1px solid #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; }
-        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 3px; }
-        .filter-opt:hover { background: #f8fafc; }
-        .filter-actions { display: flex; justify-content: space-between; }
-        .btn-tiny { font-size: 11px; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-weight: 600; }
-        .btn-apply { background: #3b82f6; color: white; }
-        .btn-cancel { background: #f1f5f9; color: #64748b; }
+        @media (max-width: 1200px) {
+            .main-container { max-width: 85%; }
+        }
 
-        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; overflow: visible; transition: transform 0.2s; display: flex; flex-direction: column; padding: 0.75rem; height: 100%; }
-        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1); }
-        .stat-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 1px; }
-        .stat-val { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #334155; line-height: 1.1; }
-        .g-item { text-align: center; border-left: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 8px; }
-        .g-item:last-child { border: none; }
-        .g-lbl { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        .g-val { font-size: 15px; font-weight: 700; color: #334155; font-family: 'Inter', sans-serif; }
+        @media (max-width: 768px) {
+            .main-container { max-width: 90%; }
+        }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        .chk-input { width: 15px; height: 15px; accent-color: #1e293b; cursor: pointer; border-radius: 3px; }
-        th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700; background: #f8fafc; position: sticky; top: 0; z-index: 10; padding: 9px 11px; }
-        td { font-size: 12px; border-bottom: 1px solid #f1f5f9; padding: 7px 11px; }
-        tr:hover td { background-color: #f8fafc; }
+        /* Header */
+        .glass-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            gap: 1rem;
+        }
+
+        .tabs-wrapper {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
         
-        .row-summary { background: linear-gradient(90deg, #fef3c7 0%, #fefce8 100%); }
-        .row-summary td { font-weight: 700; border-bottom: 2px solid #fcd34d; }
-        .level-badge { font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; }
-        .level-1 { background: #fee2e2; color: #991b1b; }
-        .level-2 { background: #fef3c7; color: #92400e; }
-        .level-3 { background: #d1fae5; color: #065f46; }
+        .tab {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
         
-        .btn-upload { background: #e0e7ff; color: #4338ca; border: 1px dashed #a5b4fc; padding: 0.85rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .btn-upload:hover { background: #c7d2fe; border-color: #6366f1; }
+        .tab:hover {
+            color: #495057;
+            background: #f8f9fa;
+        }
         
-        .hierarchy-info { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; }
-        .hierarchy-levels { display: flex; gap: 4px; flex-wrap: wrap; }
-        .hierarchy-levels .lvl { font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 700; }
-        
-        /* IP Layer Badge */
-        .ip-layer-badge { 
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
-            border: 1px solid #3b82f6; 
-            border-radius: 6px; 
-            padding: 4px 10px; 
-            font-size: 11px; 
-            font-weight: 800; 
-            color: #1e40af;
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .lang-toggle {
+            padding: 0.75rem 1.25rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .lang-toggle:hover {
+            background: #5a6268;
+        }
+
+        /* Content boxes */
+        .content-box {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .title-box {
+            position: absolute;
+            top: -0.625rem;
+            right: 1.5rem;
+            background: #3b82f6;
+            padding: 0.3rem 0.875rem;
+            border-radius: 6px;
+            font-weight: 600;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .inner-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .mode-selector {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: white;
+            color: #495057;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            font-family: 'Heebo', sans-serif;
+        }
+
+        textarea::placeholder {
+            color: #adb5bd;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Buttons with varied colors */
+        .action-btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-convert {
+            background: #3b82f6;
+        }
+
+        .btn-convert:hover {
+            background: #2563eb;
+        }
+
+        .btn-copy {
+            background: #10b981;
+        }
+
+        .btn-copy:hover {
+            background: #059669;
+        }
+
+        .btn-reset {
+            background: #f59e0b;
+        }
+
+        .btn-reset:hover {
+            background: #d97706;
+        }
+
+        .btn-export {
+            background: #8b5cf6;
+        }
+
+        .btn-export:hover {
+            background: #7c3aed;
+        }
+
+        /* Labels and text */
+        label {
+            display: block;
+            margin-bottom: 0.375rem;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.875rem;
+        }
+
+        /* Status indicators */
+        .status-text {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Checkboxes and radios */
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        /* Button grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Utility classes */
+        .text-white { color: #495057; }
+        .text-sm { font-size: 0.8rem; }
+        .font-bold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .mb-2 { margin-bottom: 0.375rem; }
+        .mb-3 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 0.75rem; }
+        .mt-2 { margin-top: 0.375rem; }
+        .mt-3 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 0.75rem; }
+        .mt-6 { margin-top: 1rem; }
+        .p-1 { padding: 0.25rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+
+        .w-full { width: 100%; }
+        .h-48 { height: 9rem; }
+        .h-40 { height: 8rem; }
+
+        .rounded-lg { border-radius: 8px; }
+        .cursor-pointer { cursor: pointer; }
+
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+
+        /* Export format selector */
+        .export-format {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            padding: 0.625rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 0.75rem;
             white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        .ip-layer-badge i { width: 12px; height: 12px; }
-        
-        /* Zero Cost Gold Indicator */
-        .zero-cost-gold { 
-            background: linear-gradient(135deg, #fef9c3 0%, #fde047 100%) !important; 
-            border-left: 3px solid #eab308 !important;
+
+        .export-format label {
+            margin-bottom: 0;
+            font-size: 0.8rem;
         }
-        .zero-cost-badge {
-            font-size: 8px;
-            background: #fbbf24;
-            color: #78350f;
-            padding: 1px 4px;
-            border-radius: 3px;
-            font-weight: 800;
-            margin-right: 4px;
+
+        /* Mode controls */
+        .mode-controls {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
         }
-        /* Sweetspot Active Indicator */
-        .sweetspot-active {
-            position: relative;
-            box-shadow: 0 0 0 2px #f59e0b, 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+
+        .radio-group {
+            display: flex;
+            gap: 1.25rem;
+            flex-wrap: wrap;
         }
-        .sweetspot-active::before {
-            content: '🎯';
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            font-size: 14px;
-            z-index: 10;
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #495057;
         }
-        .sweetspot-badge {
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-            color: white;
-            font-size: 8px;
-            font-weight: 800;
-            padding: 2px 6px;
+
+        .split-options {
+            display: flex;
+            gap: 1.25rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .split-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Two column layout for subtract mode */
+        .two-column-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .input-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 1.25rem;
+            }
+
+            .content-box {
+                padding: 1.25rem;
+            }
+
+            .inner-content {
+                padding: 1rem;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tabs-wrapper {
+                width: 100%;
+            }
+
+            .tab {
+                flex: 1;
+                text-align: center;
+                padding: 0.625rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .two-column-input {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tab transitions */
+        .tab-content {
+            animation: tabFade 0.3s ease-in-out;
+        }
+
+        @keyframes tabFade {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f3f5;
             border-radius: 4px;
-            white-space: nowrap;
-            z-index: 10;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #868e96;
+        }
+
+        select option {
+            background: white;
+            color: #495057;
+        }
+
+        .textarea-mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        /* File input styling */
+        input[type="file"] {
+            color: #495057;
+            font-size: 0.8rem;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 1rem;
+            font-size: 0.8rem;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #2563eb;
         }
     </style>
 </head>
 <body>
-
-    <div class="main-wrapper">
+    <div class="main-container py-4 px-4">        
+        <!-- Header Section -->
         <div class="glass-header">
-            <div class="flex items-center gap-3 shrink-0 w-52">
-                <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="layers" class="w-5 h-5"></i></div>
-                <div><h1 class="text-sm font-bold text-slate-800 leading-tight">ListLab</h1><div class="text-[11px] text-indigo-500 font-bold">V33 Sweetspot</div></div>
-            </div>
-            
-            <!-- Sweetspot Button -->
-            <div class="shrink-0 relative" id="sweetspot-container">
-                <button onclick="toggleSweetspotMenu()" id="btn-sweetspot" class="hidden flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md hover:shadow-lg transition-all">
-                    <i data-lucide="target" class="w-4 h-4"></i>
-                    <span>Sweetspot</span>
-                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
-                </button>
-                <div id="sweetspot-menu" class="hidden absolute top-full left-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-xl z-50 w-64 overflow-hidden">
-                    <div class="p-2 bg-slate-50 border-b border-slate-100">
-                        <div class="text-[10px] font-bold text-slate-500 uppercase">בחר אלגוריתם חישוב</div>
-                    </div>
-                    <div class="p-1">
-                        <button onclick="applySweetspot('roi')" class="w-full text-right px-3 py-2 hover:bg-amber-50 rounded flex items-center gap-2 transition">
-                            <div class="w-7 h-7 rounded bg-green-100 text-green-600 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
-                            <div><div class="text-xs font-bold text-slate-700">ROI Sweetspot</div><div class="text-[10px] text-slate-400">Pareto 80/20 - מקסום רווחיות</div></div>
-                        </button>
-                        <button onclick="applySweetspot('cr')" class="w-full text-right px-3 py-2 hover:bg-blue-50 rounded flex items-center gap-2 transition">
-                            <div class="w-7 h-7 rounded bg-blue-100 text-blue-600 flex items-center justify-center"><i data-lucide="percent" class="w-4 h-4"></i></div>
-                            <div><div class="text-xs font-bold text-slate-700">CR Sweetspot</div><div class="text-[10px] text-slate-400">IQR Q3 - סינון איכות</div></div>
-                        </button>
-                        <button onclick="applySweetspot('revenue')" class="w-full text-right px-3 py-2 hover:bg-purple-50 rounded flex items-center gap-2 transition">
-                            <div class="w-7 h-7 rounded bg-purple-100 text-purple-600 flex items-center justify-center"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
-                            <div><div class="text-xs font-bold text-slate-700">Revenue Sweetspot</div><div class="text-[10px] text-slate-400">Lorenz Knee - ווליום גבוה</div></div>
-                        </button>
-                        <button onclick="applySweetspot('combined')" class="w-full text-right px-3 py-2 hover:bg-amber-50 rounded flex items-center gap-2 transition border-t border-slate-100 mt-1 pt-2">
-                            <div class="w-7 h-7 rounded bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                            <div><div class="text-xs font-bold text-slate-700">Combined Sweetspot</div><div class="text-[10px] text-slate-400">ציון משוקלל - אופטימיזציה כוללת</div></div>
-                        </button>
-                    </div>
-                    <div id="sweetspot-result" class="hidden p-2 bg-gradient-to-r from-amber-50 to-orange-50 border-t border-amber-200">
-                        <div class="text-[10px] font-bold text-amber-700 mb-1">תוצאה:</div>
-                        <div id="sweetspot-values" class="text-[11px] text-amber-800 font-mono"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="global-stats" class="flex-1 flex justify-between px-2 h-full"><span class="text-sm text-slate-400 w-full text-center self-center">טען קובץ להתחלה...</span></div>
-            <div id="ip-layer-indicator" class="shrink-0 hidden">
-                <div class="ip-layer-badge"><i data-lucide="network" class="w-3 h-3"></i><span id="ip-layer-text">IP/24</span></div>
-            </div>
+            <h1 id="mainTitle" class="main-title">כלי עיצוב וניהול מידע 📊</h1>
+            <p id="mainDesc" class="text-sm text-center" style="color: #6c757d;">
+                כלים חכמים לעיבוד וניהול מידע בצורה מהירה ויעילה
+            </p>
         </div>
 
-        <div class="dash-container">
-            <aside class="dash-sidebar custom-scrollbar">
-                
-                <div class="btn-upload mb-3 group" id="drop-zone">
-                    <input type="file" id="file-input" class="hidden" accept=".xlsx, .csv">
-                    <div class="flex items-center justify-center gap-2 mb-1 text-indigo-700"><i data-lucide="upload-cloud" class="w-4 h-4"></i><span class="text-xs font-bold">טען קובץ</span></div>
-                    <div id="filename" class="text-[9px] text-indigo-400 truncate">תומך CSV / XLSX</div>
-                </div>
-
-                <div id="hierarchy-box" class="hierarchy-info hidden">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 text-amber-700">
-                            <i data-lucide="git-branch" class="w-3 h-3"></i>
-                            <span class="text-[11px] font-bold">היררכיה</span>
-                        </div>
-                        <div class="hierarchy-levels flex gap-1" id="level-badges"></div>
-                    </div>
-                </div>
-
-                <div id="ip-selector-box" class="hidden mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div class="text-[10px] font-bold text-blue-800 mb-1">עמודת IP ראשית:</div>
-                    <select id="ip-col-select" class="w-full text-[11px] border border-blue-300 rounded p-1 bg-white" onchange="reprocessData()"></select>
-                </div>
-
-                <div class="control-box border-slate-300 bg-slate-50 shadow-sm relative">
-                    <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-200">
-                        <div class="flex items-center gap-2 text-slate-700"><i data-lucide="filter" class="w-3 h-3"></i><span class="text-xs font-bold uppercase">סינון מתקדם</span></div>
-                    </div>
-                    <div id="filters-list" class="space-y-2"></div>
-                    <button onclick="showAddFilterMenu()" id="btn-add-filter" class="hidden w-full mt-2 border border-dashed border-indigo-300 text-indigo-600 rounded p-1.5 text-[10px] font-bold hover:bg-indigo-50 flex items-center justify-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> הוסף מסנן</button>
-                    <select id="col-selector" class="hidden w-full mt-1 text-[10px] border border-slate-300 rounded p-1" onchange="createNewFilter(this.value)"><option value="">בחר עמודה...</option></select>
-                    <div id="filter-msg" class="text-[10px] text-slate-400 text-center py-2 italic">טען קובץ כדי להתחיל</div>
-                </div>
-
-                <!-- Dynamic Zero Cost Gold Alert -->
-                <div id="zero-cost-alert" class="hidden bg-gradient-to-r from-yellow-50 to-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-amber-700 text-[11px] font-bold">
-                            <i data-lucide="sparkles" class="w-3 h-3"></i>
-                            <span>טווחי זהב</span>
-                        </div>
-                        <span id="zero-cost-count" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">0</span>
-                    </div>
-                    <div class="text-[9px] text-amber-600 mt-1">Profit+ & Cost=0 - מוגנים מסינון ROI</div>
-                </div>
-
-                <div class="control-box border-indigo-100 bg-indigo-50/30">
-                    <div class="flex items-center gap-2 mb-2 text-indigo-700 border-b border-indigo-100 pb-1"><i data-lucide="list-filter" class="w-3 h-3"></i><span class="text-xs font-bold uppercase">Custom List</span></div>
-                    <div class="control-grid">
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min Conv</span><input type="number" id="num-cust-min" value="1" class="dash-input text-indigo-600 border-indigo-200"></div><input type="range" id="rng-cust-min" min="1" max="20" value="1" class="text-indigo-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Target %</span><input type="number" id="num-cust-pct" value="100" class="dash-input text-indigo-600 border-indigo-200"></div><input type="range" id="rng-cust-pct" min="0" max="100" value="100" class="text-indigo-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min ROI</span><input type="number" id="num-cust-roi" value="0" class="dash-input text-indigo-600 border-indigo-200"></div><input type="range" id="rng-cust-roi" min="-100" max="100" value="0" class="text-indigo-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min CR %</span><input type="number" id="num-cust-mcr" value="0" step="0.1" class="dash-input text-indigo-600 border-indigo-200"></div><input type="range" id="rng-cust-mcr" min="0" max="20" step="0.1" value="0" class="text-indigo-500"></div>
-                    </div>
-                </div>
-
-                <div class="control-box border-emerald-100 bg-emerald-50/20">
-                    <div class="flex items-center gap-2 mb-2 text-emerald-700 border-b border-emerald-100 pb-1"><i data-lucide="gem" class="w-3 h-3"></i><span class="text-xs font-bold uppercase">Pure List</span></div>
-                    <div class="control-grid">
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min Conv</span><input type="number" id="num-pure-min" value="5" class="dash-input text-emerald-600 border-emerald-200"></div><input type="range" id="rng-pure-min" min="1" max="50" value="5" class="text-emerald-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Target %</span><input type="number" id="num-pure-pct" value="10" class="dash-input text-emerald-600 border-emerald-200"></div><input type="range" id="rng-pure-pct" min="0" max="100" value="10" class="text-emerald-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min ROI</span><input type="number" id="num-pure-roi" value="0" class="dash-input text-emerald-600 border-emerald-200"></div><input type="range" id="rng-pure-roi" min="-100" max="100" value="0" class="text-emerald-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min CR %</span><input type="number" id="num-pure-mcr" value="0" step="0.1" class="dash-input text-emerald-600 border-emerald-200"></div><input type="range" id="rng-pure-mcr" min="0" max="20" step="0.1" value="0" class="text-emerald-500"></div>
-                    </div>
-                </div>
-
-                <div class="control-box border-amber-100 bg-amber-50/20">
-                    <div class="flex items-center gap-2 mb-2 text-amber-700 border-b border-amber-100 pb-1"><i data-lucide="award" class="w-3 h-3"></i><span class="text-xs font-bold uppercase">Gold List</span></div>
-                    <div class="control-grid">
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min Conv</span><input type="number" id="num-gold-min" value="3" class="dash-input text-amber-600 border-amber-200"></div><input type="range" id="rng-gold-min" min="1" max="30" value="3" class="text-amber-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Target %</span><input type="number" id="num-gold-pct" value="40" class="dash-input text-amber-600 border-amber-200"></div><input type="range" id="rng-gold-pct" min="0" max="100" value="40" class="text-amber-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min ROI</span><input type="number" id="num-gold-roi" value="0" class="dash-input text-amber-600 border-amber-200"></div><input type="range" id="rng-gold-roi" min="-100" max="100" value="0" class="text-amber-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min CR %</span><input type="number" id="num-gold-mcr" value="0" step="0.1" class="dash-input text-amber-600 border-amber-200"></div><input type="range" id="rng-gold-mcr" min="0" max="20" step="0.1" value="0" class="text-amber-500"></div>
-                    </div>
-                </div>
-
-                <div class="control-box border-red-100 bg-red-50/20">
-                    <div class="flex items-center gap-2 mb-2 text-red-700 border-b border-red-100 pb-1"><i data-lucide="ban" class="w-3 h-3"></i><span class="text-xs font-bold uppercase">Blacklist</span></div>
-                    <div class="control-grid">
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Max ROI</span><input type="number" id="num-bl-roi" value="0" class="dash-input text-red-600 border-red-200"></div><input type="range" id="rng-bl-roi" min="-100" max="20" value="0" class="text-red-500"></div>
-                        <div class="control-item"><div class="lbl-row"><span class="lbl-sm">Min Clicks</span><input type="number" id="num-bl-clicks" value="0" class="dash-input text-slate-600 border-slate-200"></div><input type="range" id="rng-bl-clicks" min="0" max="500" value="0" class="text-slate-400"></div>
-                    </div>
-                </div>
-
-                <div id="other-alert" class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-center mb-3">
-                    <div class="text-[10px] text-yellow-700 font-bold flex items-center justify-center gap-1"><i data-lucide="alert-triangle" class="w-3 h-3"></i><span id="other-count">0</span> טווחים ללא סיווג</div>
-                </div>
-
-                <div class="mt-auto border-t pt-3">
-                    <div class="grid grid-cols-3 gap-2 mb-2 text-[10px] font-medium text-slate-600">
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-pure" checked class="chk-input"> Pure</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-gold" checked class="chk-input"> Gold</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cust" checked class="chk-input"> Custom</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-bl" class="chk-input"> Blacklist</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-other" class="chk-input"> Other</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR /24</label>
-                    </div>
-                    <button onclick="exportData()" class="w-full bg-slate-900 text-white py-2 rounded-md text-xs font-bold hover:bg-slate-800 transition flex items-center justify-center gap-2 shadow"><i data-lucide="download" class="w-3 h-3"></i> ייצוא נבחרים</button>
-                </div>
-            </aside>
-
-            <main class="dash-content">
-                <div class="p-3 bg-white border-b border-slate-100 shrink-0"><div id="kpi-cards-container" class="grid grid-cols-4 gap-3 w-full"></div></div>
-                <div class="flex-1 p-3 min-h-0 flex flex-col bg-slate-50">
-                    <div class="bg-white rounded-xl border border-slate-200 flex-1 flex flex-col overflow-hidden shadow-sm">
-                        <div class="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center shrink-0">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase">תצוגה:</span>
-                                    <select id="filter-view" class="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium focus:outline-none w-28">
-                                        <option value="all">הכל</option>
-                                        <option value="custom">Custom</option>
-                                        <option value="gold">Gold</option>
-                                        <option value="pure">Pure</option>
-                                        <option value="other">Other</option>
-                                        <option value="blacklist">Blacklist</option>
-                                    </select>
+        <!-- Tabs Navigation with Language Toggle -->
+        <div class="tabs-container">
+            <div class="tabs-wrapper">
+                <div id="ipTabBtn" class="tab active" onclick="openTab('ipTab')">המרת IP ↔ CIDR</div>
+                <div id="compareTabBtn" class="tab" onclick="openTab('compareTab')">השוואת טווחים</div>
+                <div id="numberTabBtn" class="tab" onclick="openTab('numberTab')">עיצוב מספרים</div>
+                <div id="campaignTabBtn" class="tab" onclick="openTab('campaignTab')">חילוץ ID מקמפיינים</div>
+            </div>
+            <button id="langToggle" onclick="toggleLanguage()" class="lang-toggle">
+                🌐 English
+            </button>
+        </div>
+        
+        <!-- Main Content Box -->
+        <div class="content-box">
+            <!-- IP Converter Tab -->
+            <div id="ipTab" class="tab-content active">
+                <div class="title-box">המרת כתובות IP 🔄</div>
+                <div class="inner-content">
+                    <!-- Mode Selector -->
+                    <div class="mode-selector">
+                        <div class="text-sm font-bold mb-2" style="color: #495057;" id="conversionModeLabel">בחר סוג המרה:</div>
+                        <div class="mode-controls">
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="ipToCidr" name="conversionMode" value="ipToCidr" checked onchange="updateConversionMode()">
+                                    <label for="ipToCidr" class="text-sm" id="ipToCidrLabel" style="margin-bottom: 0;">טווחי IP → CIDR</label>
                                 </div>
-                                
-                                <div class="flex items-center gap-2" id="level-filter-box" style="display:none;">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase">שכבה:</span>
-                                    <select id="level-view" class="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium focus:outline-none w-36">
-                                        <option value="detail">פירוט בלבד</option>
-                                        <option value="all">הכל (כולל סיכומים)</option>
-                                    </select>
+                                <div class="radio-option">
+                                    <input type="radio" id="cidrToIp" name="conversionMode" value="cidrToIp" onchange="updateConversionMode()">
+                                    <label for="cidrToIp" class="text-sm" id="cidrToIpLabel" style="margin-bottom: 0;">CIDR → טווחי IP</label>
                                 </div>
-                                
-                                <div class="flex items-center gap-2 mr-3 border-r border-slate-200 pr-3">
-                                    <label class="flex items-center gap-1 text-[10px] text-slate-500 font-bold cursor-pointer select-none">
-                                        <input type="checkbox" id="chk-copy-cidr" checked class="chk-input accent-indigo-600">
-                                        CIDR
-                                    </label>
-                                    <button onclick="copyIPs()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[10px] font-bold transition-all">
-                                        <i data-lucide="copy" class="w-3 h-3"></i>
-                                        <span>העתק</span>
-                                    </button>
+                                <div class="radio-option">
+                                    <input type="radio" id="subtractRanges" name="conversionMode" value="subtractRanges" onchange="updateConversionMode()">
+                                    <label for="subtractRanges" class="text-sm" id="subtractRangesLabel" style="margin-bottom: 0;">הורדת טווחים</label>
                                 </div>
                             </div>
-                            <div class="text-[10px] text-slate-400 font-medium">סה"כ: <span id="disp-count" class="font-bold text-slate-800 num-font text-sm">0</span></div>
+                            
+                            <div class="split-options" id="splitOptionsInline" style="display: none;">
+                                <div class="text-sm font-bold" style="color: #495057;" id="splitOptionsLabel">אפשרויות פיצול:</div>
+                                <div class="split-controls">
+                                    <div class="radio-option">
+                                        <input type="checkbox" id="enableSplit" onchange="toggleSplitControls()">
+                                        <label for="enableSplit" class="text-sm" id="enableSplitLabel" style="margin-bottom: 0;">פצל רשתות גדולות</label>
+                                    </div>
+                                    <div id="splitControls" style="display: none;">
+                                        <label for="maxCidr" class="text-sm" style="display: inline; margin-left: 0.5rem; color: #495057; margin-bottom: 0;" id="maxCidrLabel">מקסימום CIDR:</label>
+                                        <select id="maxCidr" class="p-1" style="width: auto; display: inline-block;">
+                                            <option value="16">16 (65,536 IP)</option>
+                                            <option value="20" selected>20 (4,096 IP)</option>
+                                            <option value="22">22 (1,024 IP)</option>
+                                            <option value="24">24 (256 IP)</option>
+                                            <option value="26">26 (64 IP)</option>
+                                            <option value="28">28 (16 IP)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex-1 overflow-auto custom-scrollbar bg-white">
-                            <table class="w-full text-xs text-left relative">
-                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase sticky top-0 z-10 shadow-sm">
-                                    <tr>
-                                        <th class="text-center w-12">Lvl</th>
-                                        <th class="pl-4 text-left">Identifier</th>
-                                        <th class="text-right">Clicks</th>
-                                        <th class="text-right">Conv</th>
-                                        <th class="text-right">Rev</th>
-                                        <th class="text-right">Cost</th>
-                                        <th class="text-right">Profit</th>
-                                        <th class="text-right">CR %</th>
-                                        <th class="text-right">ROI %</th>
-                                        <th class="text-center">Tag</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body" class="divide-y divide-slate-100 text-slate-600 num-font"></tbody>
-                            </table>
+                        
+                        <!-- Merge Options -->
+                        <div class="flex items-center mt-3" id="mergeOption">
+                            <input type="checkbox" id="mergeRanges" checked>
+                            <label for="mergeRanges" class="text-sm" style="margin-right: 0.5rem; margin-bottom: 0; color: #495057;" id="mergeRangesLabel">איחוד טווחי IP חופפים וסמוכים</label>
                         </div>
-                        <div class="p-1 border-t border-slate-100 bg-white flex justify-center gap-4 items-center shrink-0">
-                            <button onclick="changePage(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                            <span id="page-num" class="text-[10px] font-bold text-slate-400">1</span>
-                            <button onclick="changePage(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+
+                        <div class="flex items-center mt-2" id="mergeOptionCidr" style="display: none;">
+                            <input type="checkbox" id="mergeRangesCidr">
+                            <label for="mergeRangesCidr" class="text-sm" style="margin-right: 0.5rem; margin-bottom: 0; color: #495057;" id="mergeRangesCidrLabel">איחוד טווחי IP חופפים וסמוכים לאחר ההמרה</label>
                         </div>
                     </div>
+
+                    <!-- Single input mode -->
+                    <div id="singleInputMode">
+                        <label for="ipRanges" id="inputLabel">הכנס טווחי IP:</label>
+                        <textarea id="ipRanges" class="h-48"></textarea>
+                    </div>
+
+                    <!-- Two column input mode for subtract -->
+                    <div id="twoColumnInputMode" class="two-column-input" style="display: none;">
+                        <div class="input-column">
+                            <label for="ipRangesOriginal" id="inputLabelOriginal">רשימה מקורית:</label>
+                            <textarea id="ipRangesOriginal" class="h-48"></textarea>
+                        </div>
+                        <div class="input-column">
+                            <label for="ipRangesToRemove" id="inputLabelRemove">טווחים להסרה:</label>
+                            <textarea id="ipRangesToRemove" class="h-48"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-grid">
+                        <button id="convertBtn" onclick="performConversion()" class="action-btn btn-convert">
+                            <span id="convertBtnText">המר וצמצם ל-CIDR 🔄</span>
+                        </button>
+                        <button id="copyBtn" onclick="copyToClipboard('cidrResults')" class="action-btn btn-copy">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetBtn" onclick="resetFields('ipRanges','cidrResults')" class="action-btn btn-reset">
+                            איפוס 🔄
+                        </button>
+                        <div class="relative">
+                            <button id="exportBtn" onclick="exportToFile('cidrResults')" class="action-btn btn-export w-full">
+                                יצוא לקובץ 💾
+                            </button>
+                            <div class="export-format">
+                                <span class="text-white text-sm">פורמט:</span>
+                                <label class="radio-option">
+                                    <input type="radio" id="downloadTxt" name="downloadFormat" value="txt" checked>
+                                    <span class="text-sm">TXT</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" id="downloadCsv" name="downloadFormat" value="csv">
+                                    <span class="text-sm">CSV</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="cidrResults" id="outputLabel">תוצאות CIDR:</label>
+                        <textarea id="cidrResults" readonly class="h-48"></textarea>
+                    </div>
+                    
+                    <div class="status-text" id="ipStatus">Ready</div>
                 </div>
-            </main>
+            </div>
+            
+            <!-- Compare Ranges Tab -->
+            <div id="compareTab" class="tab-content hidden">
+                <div class="title-box">השוואת טווחים 🔍</div>
+                <div class="inner-content">
+                    <div class="two-column-input">
+                        <div class="input-column">
+                            <label for="rangeA" id="rangeALabel">טווח A (רשימה ראשונה):</label>
+                            <textarea id="rangeA" class="h-48" placeholder="הכנס טווחים/CIDR:
+109.40.240.0/23
+47.64.48.0/22
+88.97.114.0 – 88.97.114.255
+80.187.64.0/21"></textarea>
+                        </div>
+                        <div class="input-column">
+                            <label for="rangeB" id="rangeBLabel">טווח B (רשימה שנייה):</label>
+                            <textarea id="rangeB" class="h-48" placeholder="הכנס טווחים/CIDR:
+109.40.240.0/23
+80.187.65.0/23
+88.97.115.0 – 88.97.115.255
+176.3.36.0/24"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-grid">
+                        <button id="compareBtn" onclick="compareRanges()" class="action-btn btn-convert">
+                            השווה טווחים 🔍
+                        </button>
+                        <button id="copyCompareBtn" onclick="copyCompareResults()" class="action-btn btn-copy">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetCompareBtn" onclick="resetCompare()" class="action-btn btn-reset">
+                            איפוס 🔄
+                        </button>
+                        <button id="exportCompareBtn" onclick="exportCompareResults()" class="action-btn btn-export">
+                            יצוא תוצאות 💾
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="compareResults" id="compareResultsLabel">תוצאות ההשוואה:</label>
+                        <textarea id="compareResults" readonly class="h-48" style="font-family: monospace;"></textarea>
+                    </div>
+                    
+                    <div class="status-text" id="compareStatus">Ready</div>
+                </div>
+            </div>
+            
+            <!-- Number Formatter Tab -->
+            <div id="numberTab" class="tab-content hidden">
+                <div class="title-box">עיצוב מספרים 🔢</div>
+                <div class="inner-content">
+                    <div class="flex justify-between items-center mb-3">
+                        <label for="numberInput">הכנס מספרים:</label>
+                        <div class="flex items-center gap-2">
+                            <label for="separatorSelect" class="text-sm font-bold text-white" style="margin-bottom: 0;">בחר מפריד:</label>
+                            <select id="separatorSelect" class="p-1" style="width: auto;">
+                                <option value="," selected>,</option>
+                                <option value="/">/</option>
+                                <option value=";">;</option>
+                                <option value="|">|</option>
+                                <option value=" ">רווח</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <textarea id="numberInput" placeholder="הכנס מספרים כאן, כל מספר בשורה נפרדת או מופרדים ברווחים:
+65456
+245872
+9878
+65467
+או:
+65456 245872 9878 65467" class="h-48"></textarea>
+                    
+                    <div class="button-grid">
+                        <button id="formatBtn" onclick="formatNumbers()" class="action-btn btn-convert">
+                            עצב מספרים 🔢
+                        </button>
+                        <button id="copyFormatBtn" onclick="copyToClipboard('formattedResults')" class="action-btn btn-copy">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetFormatBtn" onclick="resetFields('numberInput','formattedResults')" class="action-btn btn-reset">
+                            איפוס 🔄
+                        </button>
+                        <button id="exportFormatBtn" onclick="exportToFile('formattedResults', 'FormattedNumbers.txt')" class="action-btn btn-export">
+                            יצוא לקובץ 💾
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="formattedResults">תוצאות מעוצבות:</label>
+                        <textarea id="formattedResults" readonly placeholder="מספרים מעוצבים יופיעו כאן" class="h-48"></textarea>
+                    </div>
+                    
+                    <div class="status-text" id="numberStatus">Ready</div>
+                </div>
+            </div>
+
+            <!-- Campaign ID Extractor Tab -->
+            <div id="campaignTab" class="tab-content hidden">
+                <div class="title-box">חילוץ ID מקמפיינים 🎯</div>
+                <div class="inner-content">
+                    <label for="campaignInput">הדבק מידע מהמערכת:</label>
+                    <textarea id="campaignInput" placeholder="הדבק כאן את המידע שהועתק מהמערכת שלך...
+המערכת תחלץ אוטומטית מזהי קמפיינים (4-8 ספרות) מהטקסט" class="h-48"></textarea>
+                    
+                    <div class="button-grid">
+                        <button id="extractBtn" onclick="extractCampaignIDs()" class="action-btn btn-convert">
+                            חלץ מזהים 🎯
+                        </button>
+                        <button id="copyCampaignBtn" onclick="copyToClipboard('campaignResults')" class="action-btn btn-copy">
+                            העתק תוצאות 📋
+                        </button>
+                        <button id="resetCampaignBtn" onclick="resetFields('campaignInput','campaignResults')" class="action-btn btn-reset">
+                            איפוס 🔄
+                        </button>
+                        <button id="exportCampaignBtn" onclick="exportToFile('campaignResults','CampaignIDs.txt')" class="action-btn btn-export">
+                            יצוא לקובץ 💾
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="campaignResults">מזהי קמפיינים שנמצאו:</label>
+                        <textarea id="campaignResults" readonly placeholder="מזהי קמפיינים יופיעו כאן" class="h-48"></textarea>
+                    </div>
+                    
+                    <div class="status-text" id="campaignStatus">Ready</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
-
-        // ═══════════════════════════════════════════════════════════════
-        // ROBUST NUMBER PARSER
-        // ═══════════════════════════════════════════════════════════════
-        const parseNum = (v) => {
-            if (typeof v === 'number') return v;
-            if (!v) return 0;
-            const clean = String(v).replace(/[, \$\€\£%]/g, '');
-            const num = parseFloat(clean);
-            return isNaN(num) ? 0 : num;
-        };
-
-        // ═══════════════════════════════════════════════════════════════
-        // STATE
-        // ═══════════════════════════════════════════════════════════════
-        const state = { 
-            allRows: [],           // All parsed rows
-            detailRows: [],        // Only lowest level rows (for aggregation)
-            aggregatedData: [],    // Grouped by IP (from detail only)
-            processed: [],         // Classified
-            display: [],           // Table view
-            page: 1, 
-            pageSize: 100, 
-            thresholds: { pure: 0, gold: 0, cust: 0 },
-            dimensions: {}, 
-            activeFilters: [],
-            ipColumn: '',
-            hasHierarchy: false,
-            levelColumn: null,
-            maxLevel: 1,
-            headers: [],
-            activeSweetspot: null  // Track active sweetspot type
-        };
-
-        const getEl = (id) => document.getElementById(id);
+        // Language toggle functionality
+        let currentLang = 'he';
         
-        // ═══════════════════════════════════════════════════════════════
-        // DOM ELEMENTS
-        // ═══════════════════════════════════════════════════════════════
-        const dom = {
-            pure: { min: getEl('rng-pure-min'), pct: getEl('rng-pure-pct'), roi: getEl('rng-pure-roi'), mcr: getEl('rng-pure-mcr'), numMin: getEl('num-pure-min'), numPct: getEl('num-pure-pct'), numRoi: getEl('num-pure-roi'), numMcr: getEl('num-pure-mcr') },
-            gold: { min: getEl('rng-gold-min'), pct: getEl('rng-gold-pct'), roi: getEl('rng-gold-roi'), mcr: getEl('rng-gold-mcr'), numMin: getEl('num-gold-min'), numPct: getEl('num-gold-pct'), numRoi: getEl('num-gold-roi'), numMcr: getEl('num-gold-mcr') },
-            cust: { min: getEl('rng-cust-min'), pct: getEl('rng-cust-pct'), roi: getEl('rng-cust-roi'), mcr: getEl('rng-cust-mcr'), numMin: getEl('num-cust-min'), numPct: getEl('num-cust-pct'), numRoi: getEl('num-cust-roi'), numMcr: getEl('num-cust-mcr') },
-            bl: { roi: getEl('rng-bl-roi'), numRoi: getEl('num-bl-roi'), clicks: getEl('rng-bl-clicks'), numClicks: getEl('num-bl-clicks') },
-            filterView: getEl('filter-view'), 
-            levelView: getEl('level-view'),
-            otherAlert: getEl('other-alert'), 
-            otherCount: getEl('other-count'),
-            zeroCostAlert: getEl('zero-cost-alert'),
-            zeroCostCount: getEl('zero-cost-count'),
-            filtersList: getEl('filters-list'), 
-            btnAddFilter: getEl('btn-add-filter'), 
-            colSelector: getEl('col-selector'), 
-            filterMsg: getEl('filter-msg'),
-            ipSelect: getEl('ip-col-select'), 
-            ipBox: getEl('ip-selector-box'),
-            hierarchyBox: getEl('hierarchy-box'),
-            levelBadges: getEl('level-badges'),
-            levelFilterBox: getEl('level-filter-box')
+        const translations = {
+            he: {
+                langToggle: '🌐 English',
+                mainTitle: 'כלי עיצוב וניהול מידע 📊',
+                mainDesc: 'כלים חכמים לעיבוד וניהול מידע בצורה מהירה ויעילה',
+                ipTabBtn: 'המרת IP ↔ CIDR',
+                compareTabBtn: 'השוואת טווחים',
+                numberTabBtn: 'עיצוב מספרים',
+                campaignTabBtn: 'חילוץ ID',
+                ipConversionMode: 'בחר סוג המרה:',
+                ipToCidrLabel: 'טווחי IP → CIDR',
+                cidrToIpLabel: 'CIDR → טווחי IP',
+                subtractRangesLabel: 'הורדת טווחים',
+                splitOptionsLabel: 'אפשרויות פיצול:',
+                enableSplitLabel: 'פצל רשתות גדולות',
+                maxCidrLabel: 'מקסימום CIDR:',
+                convertBtn: 'המר ל-CIDR 🔄',
+                convertBtnCidr: 'המר ל-IP 🔄',
+                convertBtnSubtract: 'הסר טווחים ➖',
+                copyBtn: 'העתק 📋',
+                resetBtn: 'איפוס 🔄',
+                exportBtn: 'יצוא 💾',
+                formatLabel: 'פורמט:',
+                mergeRangesLabel: 'איחוד טווחים חופפים',
+                mergeRangesCidrLabel: 'איחוד טווחים לאחר המרה',
+                compareBtn: 'השווה טווחים 🔍',
+                rangeALabel: 'טווח A (רשימה ראשונה):',
+                rangeBLabel: 'טווח B (רשימה שנייה):',
+                compareResultsLabel: 'תוצאות ההשוואה:'
+            },
+            en: {
+                langToggle: '🌐 עברית',
+                mainTitle: 'Data Management Tools 📊',
+                mainDesc: 'Smart tools for quick and efficient data processing',
+                ipTabBtn: 'IP ↔ CIDR',
+                compareTabBtn: 'Compare Ranges',
+                numberTabBtn: 'Number Format',
+                campaignTabBtn: 'Campaign IDs',
+                ipConversionMode: 'Select conversion:',
+                ipToCidrLabel: 'IP Ranges → CIDR',
+                cidrToIpLabel: 'CIDR → IP Ranges',
+                subtractRangesLabel: 'Subtract Ranges',
+                splitOptionsLabel: 'Split options:',
+                enableSplitLabel: 'Split large networks',
+                maxCidrLabel: 'Max CIDR:',
+                convertBtn: 'Convert to CIDR 🔄',
+                convertBtnCidr: 'Convert to IP 🔄',
+                convertBtnSubtract: 'Remove Ranges ➖',
+                copyBtn: 'Copy 📋',
+                resetBtn: 'Reset 🔄',
+                exportBtn: 'Export 💾',
+                formatLabel: 'Format:',
+                mergeRangesLabel: 'Merge overlapping ranges',
+                mergeRangesCidrLabel: 'Merge ranges after conversion',
+                compareBtn: 'Compare Ranges 🔍',
+                rangeALabel: 'Range A (First List):',
+                rangeBLabel: 'Range B (Second List):',
+                compareResultsLabel: 'Comparison Results:'
+            }
         };
 
-        // ═══════════════════════════════════════════════════════════════
-        // SYNC CONTROLS
-        // ═══════════════════════════════════════════════════════════════
-        const sync = (range, number, resetSweetspot = false) => {
-            range.addEventListener('input', () => { 
-                number.value = range.value; 
-                if (resetSweetspot) state.activeSweetspot = null;
-                runEngine(); 
-            });
-            number.addEventListener('input', () => { 
-                range.value = number.value; 
-                if (resetSweetspot) state.activeSweetspot = null;
-                runEngine(); 
-            });
-        };
-        const initSync = (g, reset = false) => { 
-            sync(g.min, g.numMin, reset); 
-            sync(g.pct, g.numPct, reset); 
-            sync(g.roi, g.numRoi, reset); 
-            sync(g.mcr, g.numMcr, reset); 
-        };
-        initSync(dom.pure); 
-        initSync(dom.gold); 
-        initSync(dom.cust, true); // Reset sweetspot when custom is changed manually
-        sync(dom.bl.roi, dom.bl.numRoi); 
-        sync(dom.bl.clicks, dom.bl.numClicks);
-        dom.filterView.addEventListener('change', () => { state.page = 1; renderTable(); });
-        dom.levelView.addEventListener('change', () => { state.page = 1; renderTable(); });
+        function toggleLanguage() {
+            currentLang = currentLang === 'he' ? 'en' : 'he';
+            const isHebrew = currentLang === 'he';
+            
+            document.documentElement.setAttribute('dir', isHebrew ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
+            
+            const t = translations[currentLang];
+            document.getElementById('langToggle').textContent = t.langToggle;
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('mainDesc').textContent = t.mainDesc;
+            document.getElementById('ipTabBtn').textContent = t.ipTabBtn;
+            document.getElementById('compareTabBtn').textContent = t.compareTabBtn;
+            document.getElementById('numberTabBtn').textContent = t.numberTabBtn;
+            document.getElementById('campaignTabBtn').textContent = t.campaignTabBtn;
+            
+            document.getElementById('conversionModeLabel').textContent = t.ipConversionMode;
+            document.getElementById('ipToCidrLabel').textContent = t.ipToCidrLabel;
+            document.getElementById('cidrToIpLabel').textContent = t.cidrToIpLabel;
+            document.getElementById('subtractRangesLabel').textContent = t.subtractRangesLabel;
+            document.getElementById('splitOptionsLabel').textContent = t.splitOptionsLabel;
+            document.getElementById('enableSplitLabel').textContent = t.enableSplitLabel;
+            document.getElementById('maxCidrLabel').textContent = t.maxCidrLabel;
+            document.getElementById('mergeRangesLabel').textContent = t.mergeRangesLabel;
+            document.getElementById('mergeRangesCidrLabel').textContent = t.mergeRangesCidrLabel;
+            
+            // Compare tab translations
+            document.getElementById('rangeALabel').textContent = t.rangeALabel;
+            document.getElementById('rangeBLabel').textContent = t.rangeBLabel;
+            document.getElementById('compareResultsLabel').textContent = t.compareResultsLabel;
+            
+            const convertBtnText = document.getElementById('convertBtnText');
+            if (convertBtnText) {
+                const mode = document.querySelector('input[name="conversionMode"]:checked')?.value;
+                if (mode === 'ipToCidr') convertBtnText.textContent = t.convertBtn;
+                else if (mode === 'cidrToIp') convertBtnText.textContent = t.convertBtnCidr;
+                else if (mode === 'subtractRanges') convertBtnText.textContent = t.convertBtnSubtract;
+            }
+            
+            updateConversionMode();
+        }
 
-        // ═══════════════════════════════════════════════════════════════
-        // FILE HANDLING
-        // ═══════════════════════════════════════════════════════════════
-        const dz = getEl('drop-zone'); 
-        const fi = getEl('file-input');
-        dz.addEventListener('click', () => fi.click());
-        fi.addEventListener('change', e => loadFile(e.target.files[0]));
-        dz.addEventListener('dragover', e => e.preventDefault());
-        dz.addEventListener('drop', e => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+        function toggleSplitControls() {
+            const enableSplit = document.getElementById('enableSplit').checked;
+            const splitControls = document.getElementById('splitControls');
+            splitControls.style.display = enableSplit ? 'flex' : 'none';
+        }
 
-        function loadFile(file) {
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                const wb = XLSX.read(e.target.result, { type: 'array' });
-                const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
-                if(json.length < 2) return alert("Empty File");
+        function updateConversionMode() {
+            const mode = document.querySelector('input[name="conversionMode"]:checked').value;
+            const inputLabel = document.getElementById('inputLabel');
+            const outputLabel = document.getElementById('outputLabel');
+            const convertBtnText = document.getElementById('convertBtnText');
+            const textarea = document.getElementById('ipRanges');
+            const mergeOption = document.getElementById('mergeOption');
+            const splitOptionsInline = document.getElementById('splitOptionsInline');
+            const mergeOptionCidr = document.getElementById('mergeOptionCidr');
+            const singleInputMode = document.getElementById('singleInputMode');
+            const twoColumnInputMode = document.getElementById('twoColumnInputMode');
+            
+            const t = translations[currentLang];
+            
+            if (mode === 'ipToCidr') {
+                singleInputMode.style.display = 'block';
+                twoColumnInputMode.style.display = 'none';
+                inputLabel.textContent = currentLang === 'he' ? 'הכנס טווחי IP:' : 'Enter IP Ranges:';
+                outputLabel.textContent = currentLang === 'he' ? 'תוצאות CIDR:' : 'CIDR Results:';
+                convertBtnText.textContent = t.convertBtn;
+                textarea.placeholder = currentLang === 'he' ? 
+                    `הכנס טווחי IP כאן, כל טווח בשורה נפרדת:
+88.97.114.0 – 88.97.114.255
+88.97.115.0 – 88.97.115.255
 
-                const headers = json[0].map(h => String(h).trim());
-                state.headers = headers;
-                const hLower = headers.map(h => h.toLowerCase());
+או IP בודדים:
+12.75.36.0 (יזוהה אוטומטית כרשת /24)
+12.75.0.0 (יזוהה אוטומטית כרשת /16)
+192.168.1.5 (IP בודד)
 
-                // ─── DETECT HIERARCHY COLUMN ───
-                const levelIdx = hLower.findIndex(x => x === 'level' || x === 'lvl' || x === 'depth');
-                state.levelColumn = levelIdx !== -1 ? headers[levelIdx] : null;
-                state.hasHierarchy = levelIdx !== -1;
+המערכת תסנן אוטומטית שורות טקסט וכתובות לא תקינות` :
+                    `Enter IP ranges here, each range on a separate line:
+88.97.114.0 – 88.97.114.255
+88.97.115.0 – 88.97.115.255
 
-                // ─── FIND METRIC COLUMNS ───
-                const map = {
-                    clk: hLower.findIndex(x => x.includes('click') || x === 'impressions' || x === 'imp'),
-                    conv: hLower.findIndex(x => x.includes('conv') || x.includes('sale')),
-                    rev: hLower.findIndex(x => x.includes('rev') || x.includes('pay') || x === 'total'),
-                    roi: hLower.findIndex(x => x === 'roi' || x.includes('roi%')),
-                    cost: hLower.findIndex(x => x.includes('cost') || x.includes('spend')),
-                    cr: hLower.findIndex(x => x === 'cr' || x === 'cvr' || x.includes('cr%'))
-                };
+Or single IPs:
+12.75.36.0 (auto-detected as /24 network)
+12.75.0.0 (auto-detected as /16 network)
+192.168.1.5 (single IP)
 
-                // ─── FIND IP COLUMN ───
-                const ipCandidates = headers.filter(h => {
-                    const l = h.toLowerCase();
-                    return l.includes('ip') || l.includes('range') || l.includes('subnet');
-                });
+The system will automatically filter text lines and invalid addresses`;
+                mergeOption.style.display = 'flex';
+                splitOptionsInline.style.display = 'none';
+                mergeOptionCidr.style.display = 'none';
+            } else if (mode === 'cidrToIp') {
+                singleInputMode.style.display = 'block';
+                twoColumnInputMode.style.display = 'none';
+                inputLabel.textContent = currentLang === 'he' ? 'הכנס CIDR:' : 'Enter CIDR:';
+                outputLabel.textContent = currentLang === 'he' ? 'תוצאות טווחי IP:' : 'IP Range Results:';
+                convertBtnText.textContent = t.convertBtnCidr;
+                textarea.placeholder = currentLang === 'he' ?
+                    `הכנס CIDR כאן, כל CIDR בשורה נפרדת:
+192.168.1.0/24
+10.0.0.0/16
+172.16.0.0/12
+88.97.114.0/24
+
+המערכת תמיר כל CIDR לטווח IP עם מקף
+רשתות גדולות יכולות להתפצל לתת-רשתות קטנות יותר` :
+                    `Enter CIDR here, each CIDR on a separate line:
+192.168.1.0/24
+10.0.0.0/16
+172.16.0.0/12
+88.97.114.0/24
+
+The system will convert each CIDR to IP range with dash
+Large networks can be split into smaller subnets`;
+                mergeOption.style.display = 'none';
+                splitOptionsInline.style.display = 'flex';
+                mergeOptionCidr.style.display = 'flex';
+            } else if (mode === 'subtractRanges') {
+                singleInputMode.style.display = 'none';
+                twoColumnInputMode.style.display = 'grid';
+                outputLabel.textContent = currentLang === 'he' ? 'רשימה נקייה:' : 'Clean List:';
+                convertBtnText.textContent = t.convertBtnSubtract;
                 
-                dom.ipSelect.innerHTML = '';
-                if(ipCandidates.length > 0) {
-                    ipCandidates.forEach(c => dom.ipSelect.innerHTML += `<option value="${c}">${c}</option>`);
-                    dom.ipBox.classList.remove('hidden');
-                    state.ipColumn = ipCandidates[0];
-                } else {
-                    dom.ipSelect.innerHTML = `<option value="${headers[0]}">${headers[0]} (Default)</option>`;
-                    dom.ipBox.classList.remove('hidden');
-                    state.ipColumn = headers[0];
-                }
-
-                // ─── PARSE ALL ROWS ───
-                let maxLevel = 1;
-                state.allRows = json.slice(1).map(row => {
-                    const r = {};
-                    headers.forEach((h, i) => r[h] = row[i]);
-                    
-                    // Level detection
-                    let level = 1;
-                    if (state.levelColumn) {
-                        level = parseNum(r[state.levelColumn]) || 1;
-                        if (level > maxLevel) maxLevel = level;
-                    }
-
-                    // Parse metrics
-                    const clicks = parseNum(row[map.clk]);
-                    const conv = parseNum(row[map.conv]);
-                    const rev = map.rev !== -1 ? parseNum(row[map.rev]) : 0;
-                    let cost = 0, roi = 0, cr = 0;
-
-                    if (map.cost !== -1) cost = parseNum(row[map.cost]);
-                    if (map.roi !== -1) roi = parseNum(String(row[map.roi]||'').replace('%',''));
-                    if (map.cr !== -1) cr = parseNum(String(row[map.cr]||'').replace('%','')) / 100;
-
-                    // Fallback calculations
-                    if (cost === 0 && rev > 0 && roi > -100 && roi !== 0) {
-                        cost = rev / (1 + (roi / 100));
-                    }
-                    const profit = rev - cost;
-                    if (cost > 0 && roi === 0) roi = (profit / cost) * 100;
-                    if (clicks > 0 && cr === 0) cr = conv / clicks;
-
-                    // Build identifier for display
-                    let identifier = r[state.ipColumn] || '';
-                    
-                    return { 
-                        raw: r, 
-                        level,
-                        identifier,
-                        clicks, conv, rev, cost, profit, roi, cr
-                    };
-                });
-
-                state.maxLevel = maxLevel;
-
-                // ─── SHOW HIERARCHY INFO ───
-                if (state.hasHierarchy && maxLevel > 1) {
-                    dom.hierarchyBox.classList.remove('hidden');
-                    dom.levelFilterBox.style.display = 'flex';
-                    
-                    let badges = '';
-                    for (let i = 1; i <= maxLevel; i++) {
-                        const cnt = state.allRows.filter(r => r.level === i).length;
-                        const cls = i === maxLevel ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
-                        badges += `<span class="lvl ${cls}">L${i}:${cnt > 1000 ? Math.round(cnt/1000)+'K' : cnt}</span>`;
-                    }
-                    dom.levelBadges.innerHTML = badges;
-                } else {
-                    dom.hierarchyBox.classList.add('hidden');
-                    dom.levelFilterBox.style.display = 'none';
-                }
-
-                // ─── SETUP DIMENSION FILTERS ───
-                state.dimensions = {};
-                headers.forEach((h, idx) => {
-                    const isMetric = Object.values(map).includes(idx) || h === state.levelColumn;
-                    if (!isMetric && h !== state.ipColumn) {
-                        const uniques = new Set();
-                        for(let i=1; i<json.length && uniques.size < 500; i++) {
-                            const val = json[i][idx];
-                            if(val !== undefined && val !== '' && val !== null) uniques.add(String(val));
-                        }
-                        if(uniques.size > 0 && uniques.size < 500) {
-                            state.dimensions[h] = Array.from(uniques).sort();
-                        }
-                    }
-                });
-
-                dom.filterMsg.classList.add('hidden');
-                dom.btnAddFilter.classList.remove('hidden');
-                dom.colSelector.innerHTML = '<option value="">בחר עמודה...</option>' + 
-                    Object.keys(state.dimensions).map((c, i) => `<option value="${c}">${c}</option>`).join('');
+                const originalLabel = document.getElementById('inputLabelOriginal');
+                const removeLabel = document.getElementById('inputLabelRemove');
+                const originalTextarea = document.getElementById('ipRangesOriginal');
+                const removeTextarea = document.getElementById('ipRangesToRemove');
                 
-                dom.filtersList.innerHTML = '';
-                state.activeFilters = [];
-
-                getEl('filename').innerText = file.name;
-                getEl('btn-sweetspot').classList.remove('hidden');
-                state.activeSweetspot = null; // Reset sweetspot
-                reprocessData();
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // REPROCESS DATA (CORE LOGIC - HIERARCHY AWARE)
-        // ═══════════════════════════════════════════════════════════════
-        function reprocessData() {
-            state.ipColumn = dom.ipSelect.value;
-
-            // Update identifier based on selected IP column
-            state.allRows.forEach(r => {
-                r.identifier = r.raw[state.ipColumn] || buildIdentifier(r);
-            });
-
-            // ─── DETECT IP LAYER TYPE ───
-            updateIPLayerIndicator();
-
-            // ─── FILTER BY ACTIVE FILTERS ───
-            let filtered = state.allRows.filter(r => {
-                for(const f of state.activeFilters) {
-                    if(f.values.length > 0) {
-                        const val = String(r.raw[f.col] || '');
-                        if(!f.values.includes(val)) return false;
-                    }
-                }
-                return true;
-            });
-
-            // ─── SEPARATE DETAIL ROWS (LOWEST LEVEL ONLY) ───
-            if (state.hasHierarchy) {
-                state.detailRows = filtered.filter(r => r.level === state.maxLevel);
-            } else {
-                // No hierarchy - use heuristic: rows with actual IP/value in IP column
-                state.detailRows = filtered.filter(r => {
-                    const ip = r.raw[state.ipColumn];
-                    return ip && String(ip).trim() !== '';
-                });
-            }
-
-            // ─── AGGREGATE BY IP (FROM DETAIL ONLY!) ───
-            const grouped = {};
-            state.detailRows.forEach(r => {
-                const key = r.identifier || 'Unknown';
-                if(!grouped[key]) {
-                    grouped[key] = { 
-                        identifier: key, 
-                        level: r.level,
-                        clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0,
-                        raw: r.raw,
-                        isSummary: false
-                    };
-                }
-                const g = grouped[key];
-                g.clicks += r.clicks;
-                g.conv += r.conv;
-                g.rev += r.rev;
-                g.cost += r.cost;
-                g.profit += r.profit;
-            });
-
-            // Finalize aggregated data
-            state.aggregatedData = Object.values(grouped).map(g => {
-                const cr = g.clicks > 0 ? (g.conv / g.clicks) : 0;
-                const roi = g.cost > 0 ? (g.profit / g.cost) * 100 : 0;
-                return { ...g, cr, roi };
-            });
-
-            // Also prepare summary rows for display (not for aggregation)
-            state.summaryRows = filtered.filter(r => r.level < state.maxLevel).map(r => ({
-                ...r,
-                identifier: buildIdentifier(r),
-                isSummary: true
-            }));
-
-            updateGlobalStats(state.aggregatedData);
-            runEngine();
-        }
-
-        // ─── IP LAYER DETECTION ───
-        function updateIPLayerIndicator() {
-            const indicator = getEl('ip-layer-indicator');
-            const text = getEl('ip-layer-text');
-            const colName = state.ipColumn.toLowerCase();
-            
-            // Try to detect from column name first
-            let layerType = 'IP';
-            if (colName.includes('/24') || colName.includes('24')) {
-                layerType = 'IP/24';
-            } else if (colName.includes('/32') || colName.includes('32')) {
-                layerType = 'IP/32';
-            } else if (colName.includes('/16') || colName.includes('16')) {
-                layerType = 'IP/16';
-            } else if (colName.includes('/8') || colName.includes('8')) {
-                layerType = 'IP/8';
-            } else if (colName.includes('range')) {
-                // Detect from actual data
-                const sample = state.detailRows.slice(0, 100);
-                let has24 = 0, has32 = 0;
-                sample.forEach(r => {
-                    const ip = String(r.identifier || '');
-                    if (ip.includes('/24')) has24++;
-                    else if (ip.includes('/32')) has32++;
-                    else if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.0$/.test(ip)) has24++;
-                    else if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) has32++;
-                });
-                if (has24 > has32) layerType = 'IP/24';
-                else if (has32 > 0) layerType = 'IP/32';
-                else layerType = 'IP Range';
+                originalLabel.textContent = currentLang === 'he' ? 'רשימה מקורית:' : 'Original List:';
+                removeLabel.textContent = currentLang === 'he' ? 'טווחים להסרה:' : 'Ranges to Remove:';
+                
+                originalTextarea.placeholder = currentLang === 'he' ?
+                    `הכנס את הרשימה המקורית שלך:
+109.40.240.0/23
+109.40.243.0/24
+47.64.48.0/22
+80.187.64.0/21
+...` :
+                    `Enter your original list:
+109.40.240.0/23
+109.40.243.0/24
+47.64.48.0/22
+80.187.64.0/21
+...`;
+                
+                removeTextarea.placeholder = currentLang === 'he' ?
+                    `הכנס את הטווחים להסרה:
+47.64.48.0/24
+80.187.65.0/23
+80.187.72.0/23
+...` :
+                    `Enter ranges to remove:
+47.64.48.0/24
+80.187.65.0/23
+80.187.72.0/23
+...`;
+                
+                mergeOption.style.display = 'none';
+                splitOptionsInline.style.display = 'none';
+                mergeOptionCidr.style.display = 'none';
             }
             
-            text.innerText = layerType;
-            indicator.classList.remove('hidden');
-            lucide.createIcons();
+            resetFields('ipRanges', 'cidrResults');
         }
 
-        function buildIdentifier(row) {
-            // Build a meaningful identifier from non-empty dimension columns
-            const parts = [];
-            const skip = ['Level', 'Clicks', 'Conversions', 'Revenue', 'Cost', 'Profit', 'ROI', 'CR', 'CPC', 'EPC'];
-            for (const h of state.headers) {
-                if (skip.some(s => h.toLowerCase().includes(s.toLowerCase()))) continue;
-                const val = row.raw[h];
-                if (val && String(val).trim() !== '') {
-                    parts.push(String(val).trim());
-                }
-            }
-            return parts.join(' | ') || 'Unknown';
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // FILTER UI
-        // ═══════════════════════════════════════════════════════════════
-        function showAddFilterMenu() {
-            if (state.activeFilters.length >= 4) return alert("Maximum 4 filters");
-            dom.btnAddFilter.classList.add('hidden');
-            dom.colSelector.classList.remove('hidden');
-            dom.colSelector.value = "";
-        }
-
-        function createNewFilter(col) {
-            if(!col) { 
-                dom.colSelector.classList.add('hidden'); 
-                dom.btnAddFilter.classList.remove('hidden'); 
-                return; 
-            }
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
             
-            const fid = Date.now();
-            const div = document.createElement('div');
-            div.className = 'filter-item';
-            div.id = `f-${fid}`;
-            div.innerHTML = `
-                <div class="filter-header"><span>${col}</span><i data-lucide="x" class="w-3 h-3 cursor-pointer text-red-400 hover:text-red-600" onclick="removeFilter(${fid})"></i></div>
-                <div class="filter-btn" onclick="togglePopup(${fid})"><span id="l-${fid}">(הכל)</span><i data-lucide="chevron-down" class="w-3 h-3"></i></div>
-                <div class="filter-popup" id="p-${fid}">
-                    <input type="text" class="filter-search" placeholder="חפש..." oninput="filterOpts(${fid}, this.value)">
-                    <div class="filter-list custom-scrollbar" id="lst-${fid}"></div>
-                    <div class="filter-actions mt-2">
-                        <div class="btn-tiny btn-cancel" onclick="togglePopup(${fid})">סגור</div>
-                        <div class="btn-tiny btn-apply" onclick="applyFilter(${fid})">החל</div>
-                    </div>
-                </div>
-            `;
-            dom.filtersList.appendChild(div);
-            lucide.createIcons();
-
-            const lst = document.getElementById(`lst-${fid}`);
-            (state.dimensions[col] || []).forEach(v => {
-                lst.innerHTML += `<div class="filter-opt"><input type="checkbox" class="chk-input" value="${v}"> <span>${v}</span></div>`;
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('active');
             });
-
-            state.activeFilters.push({ id: fid, col, values: [] });
-            dom.colSelector.classList.add('hidden');
-            if(state.activeFilters.length < 4) dom.btnAddFilter.classList.remove('hidden');
-        }
-
-        function removeFilter(fid) { 
-            document.getElementById(`f-${fid}`).remove(); 
-            state.activeFilters = state.activeFilters.filter(f => f.id !== fid); 
-            dom.btnAddFilter.classList.remove('hidden'); 
-            reprocessData(); 
+            
+            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+            const selectedTab = document.getElementById(tabName);
+            selectedTab.classList.remove('hidden');
+            selectedTab.classList.add('active');
         }
         
-        function togglePopup(fid) { 
-            const el = document.getElementById(`p-${fid}`);
-            const isOpen = el.classList.contains('show'); 
-            document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show')); 
-            if(!isOpen) el.classList.add('show'); 
+        function isValidIP(ip) {
+            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            if (ip.startsWith('0.0.0.')) return false;
+            return ipRegex.test(ip);
         }
 
-        function filterOpts(fid, txt) { 
-            const term = txt.toLowerCase();
-            const opts = document.getElementById(`lst-${fid}`).children;
-            for(let o of opts) o.style.display = o.innerText.toLowerCase().includes(term) ? 'flex' : 'none';
+        function isValidCIDR(cidr) {
+            const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}\/([0-9]|[1-2][0-9]|3[0-2])$/;
+            if (!cidrRegex.test(cidr)) return false;
+            const [ip, mask] = cidr.split('/');
+            const maskNum = parseInt(mask);
+            return isValidIP(ip) && maskNum >= 0 && maskNum <= 32;
         }
 
-        function applyFilter(fid) {
-            const lst = document.getElementById(`lst-${fid}`);
-            const vals = Array.from(lst.querySelectorAll('input:checked')).map(c => c.value);
-            const f = state.activeFilters.find(x => x.id === fid);
-            f.values = vals;
-            const lbl = document.getElementById(`l-${fid}`);
-            lbl.innerText = vals.length ? `${vals.length} נבחרו` : '(הכל)';
-            lbl.className = vals.length ? 'text-blue-600 font-bold' : '';
-            togglePopup(fid);
-            reprocessData();
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // GLOBAL STATS (FROM DETAIL ONLY!)
-        // ═══════════════════════════════════════════════════════════════
-        function updateGlobalStats(d) {
-            const sum = (k) => d.reduce((a, b) => a + b[k], 0);
-            const clicks = sum('clicks'), cost = sum('cost'), rev = sum('rev'), prof = sum('profit'), convs = sum('conv');
+        function isIPLine(line) {
+            line = line.trim();
+            if (!line) return false;
+            if (/[a-zA-Z&]/.test(line.replace(/[0-9.\-–\s]/g, ''))) return false;
             
-            const withClicks = d.filter(r => r.clicks > 0);
-            const avgCr = withClicks.length ? (withClicks.reduce((a, b) => a + b.cr, 0) / withClicks.length) : 0;
-            const medCr = withClicks.length ? median(withClicks.map(r => r.cr)) : 0;
-            
-            const withConv = d.filter(r => r.conv > 0);
-            const avgRoi = withConv.length ? (withConv.reduce((a, b) => a + b.roi, 0) / withConv.length) : 0;
-            const medRoi = withConv.length ? median(withConv.map(r => r.roi)) : 0;
-
-            const pill = (l, v, c) => `<div class="g-item"><span class="g-lbl">${l}</span><span class="g-val ${c}">${v}</span></div>`;
-            getEl('global-stats').innerHTML = 
-                pill('RANGES', d.length.toLocaleString(), 'text-slate-700') +
-                pill('CLICKS', clicks.toLocaleString(), 'text-blue-600') +
-                pill('CONV', convs.toLocaleString(), 'text-green-600') +
-                pill('COST', '$' + cost.toLocaleString(undefined, {maximumFractionDigits: 0}), 'text-slate-500') +
-                pill('REVENUE', '$' + rev.toLocaleString(undefined, {maximumFractionDigits: 0}), 'text-green-600') +
-                pill('PROFIT', '$' + prof.toLocaleString(undefined, {maximumFractionDigits: 0}), prof >= 0 ? 'text-green-600' : 'text-red-500') +
-                pill('AVG ROI', avgRoi.toFixed(0) + '%', 'text-slate-700') +
-                pill('MED ROI', medRoi.toFixed(0) + '%', 'text-slate-700') +
-                pill('AVG CR', (avgCr * 100).toFixed(2) + '%', 'text-blue-600');
-        }
-
-        function median(arr) {
-            if (!arr.length) return 0;
-            const sorted = [...arr].sort((a, b) => a - b);
-            const mid = Math.floor(sorted.length / 2);
-            return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-        }
-
-        function getPercentile(d, pct) {
-            const arr = d.filter(r => r.conv > 0).map(r => r.cr).sort((a, b) => a - b);
-            if(!arr.length) return 0;
-            const i = Math.floor(arr.length * (1 - (pct / 100)));
-            return arr[Math.max(0, Math.min(i, arr.length - 1))];
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // CLASSIFICATION ENGINE (WITH ZERO-COST GOLD PROTECTION)
-        // ═══════════════════════════════════════════════════════════════
-        function runEngine() {
-            state.thresholds.pure = getPercentile(state.aggregatedData, dom.pure.numPct.value);
-            state.thresholds.gold = getPercentile(state.aggregatedData, dom.gold.numPct.value);
-            state.thresholds.cust = getPercentile(state.aggregatedData, dom.cust.numPct.value);
-
-            const getP = (g) => ({ 
-                c: parseInt(g.numMin.value), 
-                r: parseFloat(g.numRoi.value), 
-                mcr: parseFloat(g.numMcr.value) / 100 
-            });
-            const p = getP(dom.pure), g = getP(dom.gold), c = getP(dom.cust);
-            const blR = parseFloat(dom.bl.numRoi.value), blC = parseInt(dom.bl.numClicks.value);
-
-            let oCount = 0;
-            state.processed = state.aggregatedData.map(r => {
-                let status = 'Other', rank = 0;
-                
-                // ─── ZERO-COST GOLD DETECTION ───
-                // If cost is 0 and profit > 0, this is a "golden range" that should NOT be filtered by ROI
-                const isZeroCostGold = r.cost === 0 && r.profit > 0;
-                
-                // Blacklist check (zero-cost gold ranges are NEVER blacklisted if profitable)
-                const isBl = !isZeroCostGold && r.clicks >= blC && (r.conv === 0 || (r.conv > 0 && r.roi < blR));
-                
-                // For positive lists: if ROI filter > 0 but this is zero-cost-gold, bypass ROI check
-                const roiCheckPure = isZeroCostGold ? true : (r.roi >= p.r);
-                const roiCheckGold = isZeroCostGold ? true : (r.roi >= g.r);
-                const roiCheckCust = isZeroCostGold ? true : (r.roi >= c.r);
-                
-                const isPure = !isBl && r.conv >= p.c && roiCheckPure && r.cr >= state.thresholds.pure && r.cr >= p.mcr;
-                const isGold = !isBl && r.conv >= g.c && roiCheckGold && r.cr >= state.thresholds.gold && r.cr >= g.mcr;
-                const isCust = !isBl && r.conv >= c.c && roiCheckCust && r.cr >= state.thresholds.cust && r.cr >= c.mcr;
-
-                if (isBl) { status = 'Blacklist'; rank = -1; }
-                else if (isPure) { status = 'Pure'; rank = 4; }
-                else if (isGold) { status = 'Gold'; rank = 3; }
-                else if (isCust) { status = 'Custom'; rank = 2; }
-                else if (r.conv > 0) { status = 'Other'; rank = 1; oCount++; }
-
-                return { ...r, isBl, isPure, isGold, isCust, status, rank, isZeroCostGold };
-            });
-
-            dom.otherCount.innerText = oCount;
-            dom.otherAlert.classList.toggle('hidden', oCount === 0);
-            
-            // Count and show zero-cost gold ranges
-            const zeroCostGoldCount = state.processed.filter(r => r.isZeroCostGold && (r.isPure || r.isGold || r.isCust)).length;
-            dom.zeroCostCount.innerText = zeroCostGoldCount;
-            dom.zeroCostAlert.classList.toggle('hidden', zeroCostGoldCount === 0);
-            
-            renderCards();
-            renderTable();
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // KPI CARDS (ENHANCED)
-        // ═══════════════════════════════════════════════════════════════
-        function renderCards() {
-            const groups = {
-                'Blacklist': { c: 'red', i: 'ban', f: r => r.isBl, key: 'bl' },
-                'Custom List': { c: 'indigo', i: 'list-filter', f: r => r.isCust, key: 'cust' },
-                'Gold List': { c: 'amber', i: 'award', f: r => r.isGold, key: 'gold' },
-                'Pure List': { c: 'emerald', i: 'gem', f: r => r.isPure, key: 'pure' }
-            };
-            
-            const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
-            let h = '';
-            
-            // Sweetspot type labels
-            const sweetspotLabels = {
-                'roi': 'ROI',
-                'cr': 'CR',
-                'revenue': 'Revenue',
-                'combined': 'Combined'
-            };
-            
-            for(const [t, d] of Object.entries(groups)) {
-                const rows = state.processed.filter(d.f);
-                const count = rows.length;
-                const clicks = rows.reduce((s, r) => s + r.clicks, 0);
-                const conv = rows.reduce((s, r) => s + r.conv, 0);
-                const cost = rows.reduce((s, r) => s + r.cost, 0);
-                const rev = rows.reduce((s, r) => s + r.rev, 0);
-                const profit = rows.reduce((s, r) => s + r.profit, 0);
-                const share = totalClicks ? (clicks / totalClicks * 100).toFixed(1) + '%' : '0%';
-                
-                const crs = rows.map(r => r.cr).sort((a, b) => a - b);
-                const medCr = crs.length ? median(crs) : 0;
-                const roiRows = rows.filter(r => r.conv > 0);
-                const avgRoi = roiRows.length ? roiRows.reduce((a, b) => a + b.roi, 0) / roiRows.length : 0;
-
-                // Check if this is Custom and sweetspot is active
-                const isSweetspotActive = d.key === 'cust' && state.activeSweetspot;
-                const sweetspotClass = isSweetspotActive ? 'sweetspot-active' : '';
-                const sweetspotBadge = isSweetspotActive ? `<div class="sweetspot-badge">${sweetspotLabels[state.activeSweetspot]} Sweetspot</div>` : '';
-
-                h += `
-                <div class="kpi-card hover:border-${d.c}-300 border-t-4 border-t-${d.c}-500 ${sweetspotClass}">
-                    ${sweetspotBadge}
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1 rounded bg-${d.c}-50 text-${d.c}-600 border border-${d.c}-100">
-                                <i data-lucide="${d.i}" class="w-3 h-3"></i>
-                            </div>
-                            <span class="text-xs font-black text-${d.c}-700 uppercase tracking-wide">${t}</span>
-                        </div>
-                        <div class="text-2xl font-black text-slate-800 num-font leading-none">${count.toLocaleString()}</div>
-                    </div>
-                    
-                    <div class="bg-slate-50 border border-slate-100 rounded px-2 py-1 flex justify-between items-center mb-2">
-                        <div class="flex gap-1 items-baseline"><span class="stat-val text-xs">${share}</span><span class="stat-lbl text-[8px]">Share</span></div>
-                        <div class="flex gap-1 items-baseline"><span class="stat-val text-xs">${clicks.toLocaleString()}</span><span class="stat-lbl text-[8px]">Clicks</span></div>
-                    </div>
-                    
-                    <!-- ROW 1: COST, REVENUE, PROFIT -->
-                    <div class="grid grid-cols-3 gap-1 mb-2 text-center border-b border-slate-100 pb-2">
-                        <div><span class="stat-lbl block">COST</span><span class="stat-val text-xs text-slate-500">$${cost.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-                        <div><span class="stat-lbl block">REVENUE</span><span class="stat-val text-xs text-green-600">$${rev.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-                        <div><span class="stat-lbl block">PROFIT</span><span class="stat-val text-xs ${profit >= 0 ? 'text-green-600' : 'text-red-500'}">$${profit.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-                    </div>
-                    
-                    <!-- ROW 2: AVG ROI, MEDIAN CR, CONVERSIONS -->
-                    <div class="grid grid-cols-3 gap-1 text-center">
-                        <div><span class="stat-lbl block">AVG ROI</span><span class="stat-val text-xs text-slate-700">${avgRoi.toFixed(0)}%</span></div>
-                        <div><span class="stat-lbl block">MED CR</span><span class="stat-val text-xs text-blue-600">${(medCr * 100).toFixed(2)}%</span></div>
-                        <div><span class="stat-lbl block">CONV</span><span class="stat-val text-xs text-slate-700">${conv.toLocaleString()}</span></div>
-                    </div>
-                </div>`;
+            if (line.includes('–') || line.includes('-')) {
+                const parts = line.split(/[–\-]/).map(s => s.trim());
+                if (parts.length === 2) {
+                    return isValidIP(parts[0]) && isValidIP(parts[1]);
+                }
+                return false;
             }
-            getEl('kpi-cards-container').innerHTML = h;
-            lucide.createIcons();
+            if (line.includes('/')) return isValidCIDR(line);
+            return isValidIP(line);
         }
-
-        // ═══════════════════════════════════════════════════════════════
-        // TABLE RENDERING
-        // ═══════════════════════════════════════════════════════════════
-        function renderTable() {
-            const statusFilter = dom.filterView.value;
-            const levelFilter = dom.levelView.value;
-            
-            let lst = [...state.processed];
-            
-            // Add summary rows if requested
-            if (levelFilter === 'all' && state.hasHierarchy) {
-                // Classify summary rows too (for display purposes)
-                const classifiedSummaries = state.summaryRows.map(r => ({
-                    ...r,
-                    status: 'Summary',
-                    rank: 10,
-                    isBl: false, isPure: false, isGold: false, isCust: false,
-                    isZeroCostGold: false
-                }));
-                lst = [...lst, ...classifiedSummaries];
-            }
-
-            // Filter by status
-            if (statusFilter === 'custom') lst = lst.filter(r => r.isCust);
-            else if (statusFilter === 'gold') lst = lst.filter(r => r.isGold);
-            else if (statusFilter === 'pure') lst = lst.filter(r => r.isPure);
-            else if (statusFilter === 'blacklist') lst = lst.filter(r => r.isBl);
-            else if (statusFilter === 'other') lst = lst.filter(r => r.status === 'Other');
-
-            // Sort: summaries first (by level), then by rank/conv
-            lst.sort((a, b) => {
-                if (a.isSummary && !b.isSummary) return -1;
-                if (!a.isSummary && b.isSummary) return 1;
-                if (a.isSummary && b.isSummary) return a.level - b.level;
-                return b.rank - a.rank || b.conv - a.conv;
-            });
-
-            state.display = lst;
-            getEl('disp-count').innerText = lst.length.toLocaleString();
-
-            const start = (state.page - 1) * state.pageSize;
-            const chunk = lst.slice(start, start + state.pageSize);
-            const tb = getEl('table-body');
-            tb.innerHTML = '';
-
-            const statusColors = { 
-                'Pure': 'bg-emerald-100 text-emerald-700', 
-                'Gold': 'bg-amber-100 text-amber-700', 
-                'Custom': 'bg-indigo-100 text-indigo-700', 
-                'Blacklist': 'bg-red-50 text-red-600', 
-                'Other': 'bg-slate-100 text-slate-400',
-                'Summary': 'bg-yellow-100 text-yellow-700'
-            };
-
-            chunk.forEach(r => {
-                const tr = document.createElement('tr');
-                if (r.isSummary) tr.className = 'row-summary';
-                else if (r.isZeroCostGold) tr.className = 'zero-cost-gold';
-                
-                const levelClass = r.level === 1 ? 'level-1' : (r.level === 2 ? 'level-2' : 'level-3');
-                const zeroCostBadge = r.isZeroCostGold ? '<span class="zero-cost-badge">$0</span>' : '';
-                
-                tr.innerHTML = `
-                    <td class="text-center"><span class="level-badge ${levelClass}">${r.level}</span></td>
-                    <td class="pl-4 font-mono text-slate-600 ${r.isSummary ? 'font-bold text-amber-800' : ''} text-[12px] truncate max-w-xs" title="${r.identifier}">${zeroCostBadge}${r.identifier}</td>
-                    <td class="text-right">${r.clicks.toLocaleString()}</td>
-                    <td class="text-right font-bold text-slate-700">${r.conv}</td>
-                    <td class="text-right text-green-600">$${r.rev.toFixed(0)}</td>
-                    <td class="text-right text-slate-400">$${r.cost.toFixed(0)}</td>
-                    <td class="text-right ${r.profit >= 0 ? 'text-green-600' : 'text-red-500'} font-bold">$${r.profit.toFixed(0)}</td>
-                    <td class="text-right text-blue-600 font-bold">${(r.cr * 100).toFixed(2)}%</td>
-                    <td class="text-right">${r.roi.toFixed(0)}%</td>
-                    <td class="text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusColors[r.status] || statusColors['Other']}">${r.status}</span></td>
-                `;
-                tb.appendChild(tr);
-            });
-            getEl('page-num').innerText = state.page;
-        }
-
-        function changePage(d) {
-            const max = Math.ceil(state.display.length / state.pageSize);
-            if(state.page + d > 0 && state.page + d <= max) { 
-                state.page += d; 
-                renderTable(); 
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // CIDR CONVERSION ENGINE (MATCHING IP TOOL)
-        // ═══════════════════════════════════════════════════════════════
         
         function ipToLong(ip) {
             return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
@@ -1082,109 +1028,116 @@
             ].join('.');
         }
 
-        function isValidIP(ip) {
-            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-            if (ip.startsWith('0.0.0.')) return false;
-            return ipRegex.test(ip);
+        function calculateCIDR(start, end) {
+            let size = end - start + 1;
+            let maxPow = 32 - Math.floor(Math.log2(size));
+            return longToIp(start) + '/' + maxPow;
         }
 
-        function isValidCIDR(cidr) {
-            const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}\/([0-9]|[1-2][0-9]|3[0-2])$/;
-            if (!cidrRegex.test(cidr)) return false;
-            const [ip, mask] = cidr.split('/');
-            return isValidIP(ip) && parseInt(mask) >= 0 && parseInt(mask) <= 32;
-        }
-
-        function cidrToRangeLong(cidrString) {
+        function cidrToRange(cidrString) {
             const [ip, mask] = cidrString.split('/');
             const maskBits = parseInt(mask);
             const ipLong = ipToLong(ip.trim());
             const netMask = (0xFFFFFFFF << (32 - maskBits)) >>> 0;
             const networkLong = ipLong & netMask;
             const broadcastLong = networkLong | (~netMask >>> 0);
-            return { start: networkLong, end: broadcastLong };
+            return {
+                start: longToIp(networkLong),
+                end: longToIp(broadcastLong),
+                startLong: networkLong,
+                endLong: broadcastLong
+            };
         }
 
-        function mergeIPRangesForCIDR(ranges) {
+        function splitCIDR(cidrString, maxCidr) {
+            const [ip, mask] = cidrString.split('/');
+            const maskBits = parseInt(mask);
+            const maxMaskBits = parseInt(maxCidr);
+            if (maskBits >= maxMaskBits) {
+                const range = cidrToRange(cidrString);
+                return [`${range.start} – ${range.end}`];
+            }
+            const results = [];
+            const ipLong = ipToLong(ip.trim());
+            const netMask = (0xFFFFFFFF << (32 - maskBits)) >>> 0;
+            const networkLong = ipLong & netMask;
+            const subnetSize = Math.pow(2, 32 - maxMaskBits);
+            const totalSize = Math.pow(2, 32 - maskBits);
+            const numSubnets = totalSize / subnetSize;
+            for (let i = 0; i < numSubnets; i++) {
+                const subnetStart = networkLong + (i * subnetSize);
+                const subnetEnd = subnetStart + subnetSize - 1;
+                results.push(`${longToIp(subnetStart)} – ${longToIp(subnetEnd)}`);
+            }
+            return results;
+        }
+
+        function mergeRanges(ranges) {
             if (ranges.length === 0) return [];
             ranges.sort((a, b) => a.start - b.start);
-            let merged = [{ ...ranges[0] }];
+            let merged = [ranges[0]];
             for (let i = 1; i < ranges.length; i++) {
                 let last = merged[merged.length - 1];
                 if (ranges[i].start <= last.end + 1) {
                     last.end = Math.max(last.end, ranges[i].end);
                 } else {
-                    merged.push({ ...ranges[i] });
+                    merged.push(ranges[i]);
                 }
             }
             return merged;
         }
 
-        // Proper CIDR calculation with alignment check
-        function rangeToOptimalCIDRs(startLong, endLong) {
+        function mergeIPRanges(rangeStrings) {
+            const ranges = rangeStrings.map(rangeStr => {
+                const [start, end] = rangeStr.split(' – ');
+                return { start: ipToLong(start), end: ipToLong(end) };
+            });
+            const merged = mergeRanges(ranges);
+            return merged.map(range => `${longToIp(range.start)} – ${longToIp(range.end)}`);
+        }
+
+        function rangeToOptimalCIDRs(start, end) {
             let result = [];
-            let current = startLong;
-            
-            while (current <= endLong) {
-                let remainingSize = endLong - current + 1;
-                let bestBits = 32; // Start with /32 (single IP)
-                
-                // Find largest aligned block that fits
-                // NOTE: Stop at 31 because 1 << 32 wraps to 0 in JavaScript
-                for (let bits = 0; bits <= 31; bits++) {
-                    let blockSize = 1 << bits;
-                    // Check alignment: current must be divisible by blockSize
-                    if ((current % blockSize) !== 0) continue;
-                    // Check if block fits
-                    if (blockSize <= remainingSize) {
-                        bestBits = 32 - bits;
-                    }
-                }
-                
-                let blockSize = 1 << (32 - bestBits);
-                result.push(longToIp(current) + '/' + bestBits);
-                current += blockSize;
+            while (start <= end) {
+                let size = end - start + 1;
+                let maxPow = Math.floor(Math.log2(size));
+                let maxSize = 1 << maxPow;
+                result.push(calculateCIDR(start, start + maxSize - 1));
+                start += maxSize;
             }
-            
             return result;
         }
 
-        // Parse any IP format to range
-        function parseIPToRange(line) {
-            line = String(line).trim();
+        function parseCIDROrRange(line) {
+            line = line.trim();
             if (!line) return null;
             
             try {
-                // Already CIDR
                 if (line.includes('/')) {
                     if (!isValidCIDR(line)) return null;
-                    return cidrToRangeLong(line);
-                }
-                
-                // IP Range with dash
-                if (line.includes('–') || line.includes('-')) {
+                    const range = cidrToRange(line);
+                    return { start: range.startLong, end: range.endLong };
+                } else if (line.includes('–') || line.includes('-')) {
                     const [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
                     if (!isValidIP(start) || !isValidIP(end)) return null;
                     return { start: ipToLong(start), end: ipToLong(end) };
-                }
-                
-                // Single IP - detect network type
-                if (isValidIP(line)) {
+                } else if (isValidIP(line)) {
                     const parts = line.split('.');
                     let ipLong = ipToLong(line);
                     
-                    // x.x.0.0 → /16
                     if (parts[2] === '0' && parts[3] === '0') {
                         const mask = (0xFFFFFFFF << 16) >>> 0;
-                        return { start: ipLong & mask, end: (ipLong & mask) | (~mask >>> 0) };
-                    }
-                    // x.x.x.0 → /24
-                    if (parts[3] === '0') {
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        return { start: network, end: broadcast };
+                    } else if (parts[3] === '0') {
                         const mask = (0xFFFFFFFF << 8) >>> 0;
-                        return { start: ipLong & mask, end: (ipLong & mask) | (~mask >>> 0) };
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        return { start: network, end: broadcast };
+                    } else {
+                        return { start: ipLong, end: ipLong };
                     }
-                    // Single IP → /32
-                    return { start: ipLong, end: ipLong };
                 }
             } catch (e) {
                 return null;
@@ -1192,380 +1145,608 @@
             return null;
         }
 
-        // Convert list of IPs to optimized CIDR list
-        function convertToCIDRList(ipList, shouldMerge = true) {
-            let ranges = [];
-            let invalidCount = 0;
+        function subtractIPRanges() {
+            document.getElementById('ipStatus').textContent = 'מעבד החסרת טווחים...';
             
-            for (const ip of ipList) {
-                const range = parseIPToRange(ip);
-                if (range) {
-                    ranges.push(range);
-                } else if (String(ip).trim()) {
-                    invalidCount++;
+            const originalInput = document.getElementById('ipRangesOriginal').value.trim();
+            const removeInput = document.getElementById('ipRangesToRemove').value.trim();
+            
+            if (!originalInput || !removeInput) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'נא להזין גם רשימה מקורית וגם טווחים להסרה';
+                return;
+            }
+            
+            const originalLines = originalInput.split('\n');
+            const removeLines = removeInput.split('\n');
+            
+            let originalRanges = [];
+            let removeRanges = [];
+            let invalidOriginal = 0;
+            let invalidRemove = 0;
+            
+            for (let line of originalLines) {
+                const range = parseCIDROrRange(line);
+                if (range) originalRanges.push(range);
+                else if (line.trim()) invalidOriginal++;
+            }
+            
+            for (let line of removeLines) {
+                const range = parseCIDROrRange(line);
+                if (range) removeRanges.push(range);
+                else if (line.trim()) invalidRemove++;
+            }
+            
+            if (originalRanges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו טווחים תקינים ברשימה המקורית';
+                return;
+            }
+            
+            if (removeRanges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו טווחים תקינים להסרה';
+                return;
+            }
+            
+            const mergedOriginal = mergeRanges(originalRanges);
+            let resultRanges = [];
+            
+            for (let origRange of mergedOriginal) {
+                let currentRanges = [origRange];
+                
+                for (let removeRange of removeRanges) {
+                    let newRanges = [];
+                    
+                    for (let currentRange of currentRanges) {
+                        if (removeRange.end < currentRange.start || removeRange.start > currentRange.end) {
+                            newRanges.push(currentRange);
+                        } else if (removeRange.start <= currentRange.start && removeRange.end >= currentRange.end) {
+                            // הטווח הנוכחי נמחק לגמרי
+                        } else if (removeRange.start > currentRange.start && removeRange.end < currentRange.end) {
+                            newRanges.push({ start: currentRange.start, end: removeRange.start - 1 });
+                            newRanges.push({ start: removeRange.end + 1, end: currentRange.end });
+                        } else if (removeRange.start <= currentRange.start) {
+                            newRanges.push({ start: removeRange.end + 1, end: currentRange.end });
+                        } else {
+                            newRanges.push({ start: currentRange.start, end: removeRange.start - 1 });
+                        }
+                    }
+                    
+                    currentRanges = newRanges;
                 }
+                
+                resultRanges = resultRanges.concat(currentRanges);
             }
             
-            if (ranges.length === 0) return { cidrs: [], invalidCount };
-            
-            // Merge overlapping/adjacent ranges
-            const processedRanges = shouldMerge ? mergeIPRangesForCIDR(ranges) : ranges;
-            
-            // Convert to optimal CIDRs
-            let cidrs = [];
-            for (const range of processedRanges) {
-                cidrs = cidrs.concat(rangeToOptimalCIDRs(range.start, range.end));
+            if (resultRanges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'כל הטווחים הוסרו - אין תוצאות';
+                return;
             }
             
-            return { cidrs, invalidCount, originalCount: ranges.length, mergedCount: processedRanges.length };
+            let results = [];
+            for (let range of resultRanges) {
+                results = results.concat(rangeToOptimalCIDRs(range.start, range.end));
+            }
+            
+            document.getElementById('cidrResults').value = results.join('\n');
+            
+            let statusMessage = `החסרה הושלמה ✅ | ${mergedOriginal.length} טווחים מקוריים | ${removeRanges.length} טווחים הוסרו | ${resultRanges.length} טווחים בתוצאה`;
+            if (invalidOriginal > 0) statusMessage += ` | ${invalidOriginal} שורות לא תקינות במקור`;
+            if (invalidRemove > 0) statusMessage += ` | ${invalidRemove} שורות לא תקינות בהסרה`;
+            
+            document.getElementById('ipStatus').textContent = statusMessage;
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // EXPORT (WITH FULL CIDR SUPPORT)
-        // ═══════════════════════════════════════════════════════════════
-        function exportData() {
-            const wb = XLSX.utils.book_new();
-            const useCidr = getEl('chk-cidr').checked;
+        function compareRanges() {
+            document.getElementById('compareStatus').textContent = 'מבצע השוואה...';
             
-            const chks = [
-                { id: 'chk-pure', n: 'Pure List', f: r => r.isPure },
-                { id: 'chk-gold', n: 'Gold List', f: r => r.isGold },
-                { id: 'chk-cust', n: 'Custom List', f: r => r.isCust },
-                { id: 'chk-other', n: 'Other Active', f: r => r.status === 'Other' },
-                { id: 'chk-bl', n: 'Blacklist', f: r => r.isBl }
-            ];
+            const rangeAInput = document.getElementById('rangeA').value.trim();
+            const rangeBInput = document.getElementById('rangeB').value.trim();
+            
+            if (!rangeAInput || !rangeBInput) {
+                document.getElementById('compareResults').value = '';
+                document.getElementById('compareStatus').textContent = 'נא להזין גם טווח A וגם טווח B';
+                return;
+            }
+            
+            const linesA = rangeAInput.split('\n');
+            const linesB = rangeBInput.split('\n');
+            
+            let rangesA = [];
+            let rangesB = [];
+            let invalidA = 0;
+            let invalidB = 0;
+            
+            // Parse range A
+            for (let line of linesA) {
+                const range = parseCIDROrRange(line);
+                if (range) rangesA.push(range);
+                else if (line.trim()) invalidA++;
+            }
+            
+            // Parse range B
+            for (let line of linesB) {
+                const range = parseCIDROrRange(line);
+                if (range) rangesB.push(range);
+                else if (line.trim()) invalidB++;
+            }
+            
+            if (rangesA.length === 0 || rangesB.length === 0) {
+                document.getElementById('compareResults').value = '';
+                document.getElementById('compareStatus').textContent = 'אחד הטווחים ריק או לא תקין';
+                return;
+            }
+            
+            // Merge ranges
+            const mergedA = mergeRanges(rangesA);
+            const mergedB = mergeRanges(rangesB);
+            
+            // Calculate statistics
+            const totalIPsA = mergedA.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const totalIPsB = mergedB.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            
+            // Find differences and intersections
+            const onlyInA = subtractRangesList(mergedA, mergedB);
+            const onlyInB = subtractRangesList(mergedB, mergedA);
+            const intersection = findIntersection(mergedA, mergedB);
+            const union = mergeRanges([...mergedA, ...mergedB]);
+            
+            // Calculate IPs for each category
+            const ipsOnlyA = onlyInA.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const ipsOnlyB = onlyInB.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const ipsIntersection = intersection.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            const ipsUnion = union.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+            
+            // Convert to CIDR
+            const cidrOnlyA = rangesToCIDRs(onlyInA);
+            const cidrOnlyB = rangesToCIDRs(onlyInB);
+            const cidrIntersection = rangesToCIDRs(intersection);
+            const cidrUnion = rangesToCIDRs(union);
+            
+            // Build results
+            let results = '';
+            results += '═══════════════════════════════════════════════════════\n';
+            results += '                   📊 סיכום סטטיסטי\n';
+            results += '═══════════════════════════════════════════════════════\n\n';
+            results += `🔵 טווח A: ${totalIPsA.toLocaleString()} IPs (${mergedA.length} רשתות)\n`;
+            results += `🟢 טווח B: ${totalIPsB.toLocaleString()} IPs (${mergedB.length} רשתות)\n`;
+            results += `🟣 משותף: ${ipsIntersection.toLocaleString()} IPs (${((ipsIntersection/Math.max(totalIPsA,totalIPsB))*100).toFixed(1)}%)\n`;
+            results += `🔶 מאוחד: ${ipsUnion.toLocaleString()} IPs (${union.length} רשתות)\n\n`;
+            
+            results += '═══════════════════════════════════════════════════════\n';
+            results += '          🔵 רק בטווח A (חסר ב-B) - ' + ipsOnlyA.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            if (cidrOnlyA.length > 0) {
+                results += cidrOnlyA.join('\n') + '\n';
+            } else {
+                results += '✅ אין - כל ה-IPs של A נמצאים גם ב-B\n';
+            }
+            
+            results += '\n═══════════════════════════════════════════════════════\n';
+            results += '          🟢 רק בטווח B (חסר ב-A) - ' + ipsOnlyB.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            if (cidrOnlyB.length > 0) {
+                results += cidrOnlyB.join('\n') + '\n';
+            } else {
+                results += '✅ אין - כל ה-IPs של B נמצאים גם ב-A\n';
+            }
+            
+            results += '\n═══════════════════════════════════════════════════════\n';
+            results += '               🟣 משותף לשניהם - ' + ipsIntersection.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            if (cidrIntersection.length > 0) {
+                results += cidrIntersection.join('\n') + '\n';
+            } else {
+                results += '❌ אין חפיפה - הטווחים נפרדים לגמרי\n';
+            }
+            
+            results += '\n═══════════════════════════════════════════════════════\n';
+            results += '           🔶 טווח מאוחד (A ∪ B) - ' + ipsUnion.toLocaleString() + ' IPs\n';
+            results += '═══════════════════════════════════════════════════════\n';
+            results += cidrUnion.join('\n') + '\n';
+            
+            document.getElementById('compareResults').value = results;
+            
+            let statusMessage = `השוואה הושלמה ✅ | A: ${mergedA.length} טווחים | B: ${mergedB.length} טווחים`;
+            if (invalidA > 0) statusMessage += ` | ${invalidA} שורות לא תקינות ב-A`;
+            if (invalidB > 0) statusMessage += ` | ${invalidB} שורות לא תקינות ב-B`;
+            
+            document.getElementById('compareStatus').textContent = statusMessage;
+        }
 
-            let cnt = 0;
-            chks.forEach(c => {
-                if(getEl(c.id).checked) {
-                    const rows = state.processed.filter(c.f);
-                    if(rows.length) {
-                        let data;
-                        
-                        if (useCidr) {
-                            // Use full CIDR conversion engine
-                            const ipStrings = rows.map(r => String(r.identifier).trim());
-                            const result = convertToCIDRList(ipStrings, true);
-                            
-                            // Stats for summary
-                            const totalClicks = rows.reduce((s, r) => s + r.clicks, 0);
-                            const totalConv = rows.reduce((s, r) => s + r.conv, 0);
-                            const totalProfit = rows.reduce((s, r) => s + r.profit, 0);
-                            
-                            data = result.cidrs.map((cidr, i) => ({ CIDR: cidr, '#': i + 1 }));
-                            
-                            // Add summary
-                            data.push({ 
-                                CIDR: '--- SUMMARY ---', 
-                                '#': `${result.cidrs.length} CIDRs | ${rows.length} ranges | ${result.mergedCount} merged | Conv: ${totalConv} | Profit: $${totalProfit.toFixed(0)}`
-                            });
-                            
-                            console.log(`${c.n}: ${rows.length} IPs → ${result.mergedCount} merged → ${result.cidrs.length} CIDRs`);
+        function subtractRangesList(rangesA, rangesB) {
+            let result = [];
+            
+            for (let rangeA of rangesA) {
+                let current = [rangeA];
+                
+                for (let rangeB of rangesB) {
+                    let newCurrent = [];
+                    
+                    for (let c of current) {
+                        if (rangeB.end < c.start || rangeB.start > c.end) {
+                            newCurrent.push(c);
+                        } else if (rangeB.start <= c.start && rangeB.end >= c.end) {
+                            // Entire range removed
+                        } else if (rangeB.start > c.start && rangeB.end < c.end) {
+                            newCurrent.push({ start: c.start, end: rangeB.start - 1 });
+                            newCurrent.push({ start: rangeB.end + 1, end: c.end });
+                        } else if (rangeB.start <= c.start) {
+                            newCurrent.push({ start: rangeB.end + 1, end: c.end });
                         } else {
-                            data = rows.map(r => ({
-                                Identifier: r.identifier,
-                                Clicks: r.clicks,
-                                Conversions: r.conv,
-                                Revenue: r.rev,
-                                Cost: r.cost,
-                                Profit: r.profit,
-                                'CR%': (r.cr * 100).toFixed(2),
-                                'ROI%': r.roi.toFixed(0),
-                                Tag: r.status
-                            }));
+                            newCurrent.push({ start: c.start, end: rangeB.start - 1 });
                         }
-                        
-                        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), c.n);
-                        cnt++;
+                    }
+                    
+                    current = newCurrent;
+                }
+                
+                result = result.concat(current);
+            }
+            
+            return result;
+        }
+
+        function findIntersection(rangesA, rangesB) {
+            let result = [];
+            
+            for (let rangeA of rangesA) {
+                for (let rangeB of rangesB) {
+                    const start = Math.max(rangeA.start, rangeB.start);
+                    const end = Math.min(rangeA.end, rangeB.end);
+                    
+                    if (start <= end) {
+                        result.push({ start, end });
                     }
                 }
-            });
-
-            if(cnt) {
-                const filename = useCidr ? "IP_CIDR_Export.xlsx" : "IP_Analysis_Export.xlsx";
-                XLSX.writeFile(wb, filename);
-            } else {
-                alert("בחר לפחות רשימה אחת לייצוא");
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // COPY TO CLIPBOARD (WITH FULL CIDR SUPPORT)
-        // ═══════════════════════════════════════════════════════════════
-        function copyIPs() {
-            // Only copy detail rows (not summaries)
-            const list = state.display.filter(r => !r.isSummary);
-            if(!list.length) return alert("אין נתונים להעתקה");
-
-            const useCidr = document.getElementById('chk-copy-cidr').checked;
-            
-            let text, resultInfo;
-            if (useCidr) {
-                // Use full CIDR conversion engine (same as the attached IP tool)
-                const ipStrings = list.map(r => String(r.identifier).trim());
-                const result = convertToCIDRList(ipStrings, true);
-                text = result.cidrs.join('\n');
-                resultInfo = `✓ ${result.cidrs.length} CIDRs`;
-                console.log(`Copy CIDR: ${result.originalCount} IPs → ${result.mergedCount} merged → ${result.cidrs.length} CIDRs`);
-            } else {
-                text = list.map(r => String(r.identifier).trim()).join('\n');
-                resultInfo = "✓";
-            }
-
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.getElementById('btn-copy');
-                const span = btn.querySelector('span');
-                const orig = span.innerText;
-                span.innerText = resultInfo;
-                btn.classList.add('text-green-600', 'border-green-300');
-                setTimeout(() => {
-                    span.innerText = orig;
-                    btn.classList.remove('text-green-600', 'border-green-300');
-                }, 2000);
-            }).catch(err => {
-                console.error(err);
-                alert("שגיאה בהעתקה");
-            });
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // SWEETSPOT CALCULATIONS
-        // ═══════════════════════════════════════════════════════════════
-        
-        function toggleSweetspotMenu() {
-            const menu = getEl('sweetspot-menu');
-            menu.classList.toggle('hidden');
-        }
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            const container = getEl('sweetspot-container');
-            const menu = getEl('sweetspot-menu');
-            if (container && !container.contains(e.target)) {
-                menu.classList.add('hidden');
-            }
-        });
-        
-        function percentile(arr, p) {
-            if (!arr.length) return 0;
-            const sorted = [...arr].sort((a, b) => a - b);
-            const idx = Math.floor(sorted.length * p / 100);
-            return sorted[Math.min(idx, sorted.length - 1)];
-        }
-        
-        function mean(arr) {
-            return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-        }
-        
-        function sum(arr) {
-            return arr.reduce((a, b) => a + b, 0);
-        }
-        
-        // ─── ROI SWEETSPOT: Pareto 80/20 ───
-        function calcROISweetspot(data) {
-            const profitable = data.filter(r => r.conv > 0 && r.profit > 0);
-            if (!profitable.length) return { roi: 0, minConv: 1 };
-            
-            const sorted = [...profitable].sort((a, b) => b.roi - a.roi);
-            const totalProfit = sum(sorted.map(r => r.profit));
-            
-            let cumProfit = 0;
-            let threshold = 0;
-            for (const r of sorted) {
-                cumProfit += r.profit;
-                if (cumProfit >= totalProfit * 0.8) {
-                    threshold = r.roi;
-                    break;
-                }
             }
             
-            // Find appropriate min conversions (median of qualifying ranges)
-            const qualifying = profitable.filter(r => r.roi >= threshold);
-            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
-            
-            return { roi: Math.round(threshold), minConv, coverage: qualifying.length };
+            return mergeRanges(result);
         }
-        
-        // ─── CR SWEETSPOT: IQR Q3 ───
-        function calcCRSweetspot(data) {
-            // Only ranges with meaningful sample size
-            const minClicks = Math.max(50, percentile(data.map(r => r.clicks), 25));
-            const significant = data.filter(r => r.clicks >= minClicks && r.conv > 0);
-            if (!significant.length) return { cr: 0, minConv: 1 };
-            
-            const crs = significant.map(r => r.cr * 100);
-            const q3 = percentile(crs, 75);
-            
-            // Find appropriate min conversions
-            const qualifying = significant.filter(r => r.cr * 100 >= q3);
-            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
-            
-            return { cr: parseFloat(q3.toFixed(2)), minConv, coverage: qualifying.length };
-        }
-        
-        // ─── REVENUE SWEETSPOT: Lorenz Knee ───
-        function calcRevenueSweetspot(data) {
-            const withRev = data.filter(r => r.rev > 0);
-            if (!withRev.length) return { minRev: 0, minConv: 1 };
-            
-            const sorted = [...withRev].sort((a, b) => b.rev - a.rev);
-            const totalRev = sum(sorted.map(r => r.rev));
-            const n = sorted.length;
-            
-            // Find knee point (max distance from diagonal)
-            let cumRev = 0;
-            let maxDist = 0;
-            let kneeIdx = 0;
-            
-            sorted.forEach((r, i) => {
-                cumRev += r.rev;
-                const xPct = (i + 1) / n;
-                const yPct = cumRev / totalRev;
-                const dist = yPct - xPct;
-                if (dist > maxDist) {
-                    maxDist = dist;
-                    kneeIdx = i;
-                }
-            });
-            
-            const kneeRev = sorted[kneeIdx].rev;
-            const qualifying = sorted.slice(0, kneeIdx + 1);
-            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
-            
-            return { minRev: Math.round(kneeRev), minConv, coverage: qualifying.length };
-        }
-        
-        // ─── COMBINED SWEETSPOT: Weighted Composite ───
-        function calcCombinedSweetspot(data) {
-            const withConv = data.filter(r => r.conv > 0);
-            if (!withConv.length) return { roi: 0, cr: 0, minConv: 1 };
-            
-            // Normalize each metric
-            const normalize = (arr, key) => {
-                const vals = arr.map(r => r[key]);
-                const min = Math.min(...vals);
-                const max = Math.max(...vals);
-                const range = max - min || 1;
-                return arr.map(r => ({ ...r, [key + '_n']: (r[key] - min) / range * 100 }));
-            };
-            
-            let scored = withConv;
-            scored = normalize(scored, 'roi');
-            scored = normalize(scored, 'cr');
-            scored = normalize(scored, 'profit');
-            scored = normalize(scored, 'conv');
-            
-            // Dynamic weights based on campaign characteristics
-            const avgROI = mean(withConv.map(r => r.roi));
-            const avgCR = mean(withConv.map(r => r.cr));
-            
-            const roiWeight = avgROI < 50 ? 0.35 : 0.25;
-            const crWeight = avgCR < 0.01 ? 0.30 : 0.20;
-            const profitWeight = 0.30;
-            const convWeight = 1 - roiWeight - crWeight - profitWeight;
-            
-            scored = scored.map(r => ({
-                ...r,
-                score: r.roi_n * roiWeight + r.cr_n * crWeight + r.profit_n * profitWeight + r.conv_n * convWeight
-            }));
-            
-            // Custom threshold = top 50% by score
-            const scores = scored.map(r => r.score).sort((a, b) => a - b);
-            const threshold = percentile(scores, 50);
-            
-            const qualifying = scored.filter(r => r.score >= threshold);
-            
-            // Extract thresholds from qualifying ranges
-            const roiThreshold = Math.max(0, Math.floor(percentile(qualifying.map(r => r.roi), 25)));
-            const crThreshold = percentile(qualifying.map(r => r.cr * 100), 25);
-            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
-            
-            return { 
-                roi: roiThreshold, 
-                cr: parseFloat(crThreshold.toFixed(2)), 
-                minConv,
-                coverage: qualifying.length,
-                weights: { roi: roiWeight, cr: crWeight, profit: profitWeight, conv: convWeight }
-            };
-        }
-        
-        // ─── APPLY SWEETSPOT ───
-        function applySweetspot(type) {
-            const data = state.aggregatedData;
-            if (!data.length) return alert('אין נתונים לניתוח');
-            
-            let result, displayText;
-            state.activeSweetspot = type;
-            
-            switch(type) {
-                case 'roi':
-                    result = calcROISweetspot(data);
-                    dom.cust.numMin.value = result.minConv;
-                    dom.cust.min.value = result.minConv;
-                    dom.cust.numRoi.value = result.roi;
-                    dom.cust.roi.value = result.roi;
-                    dom.cust.numMcr.value = 0;
-                    dom.cust.mcr.value = 0;
-                    displayText = `ROI ≥ ${result.roi}% | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
-                    break;
-                    
-                case 'cr':
-                    result = calcCRSweetspot(data);
-                    dom.cust.numMin.value = result.minConv;
-                    dom.cust.min.value = result.minConv;
-                    dom.cust.numMcr.value = result.cr;
-                    dom.cust.mcr.value = result.cr;
-                    dom.cust.numRoi.value = 0;
-                    dom.cust.roi.value = 0;
-                    displayText = `CR ≥ ${result.cr}% | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
-                    break;
-                    
-                case 'revenue':
-                    result = calcRevenueSweetspot(data);
-                    dom.cust.numMin.value = result.minConv;
-                    dom.cust.min.value = result.minConv;
-                    dom.cust.numRoi.value = 0;
-                    dom.cust.roi.value = 0;
-                    dom.cust.numMcr.value = 0;
-                    dom.cust.mcr.value = 0;
-                    displayText = `Rev ≥ $${result.minRev} | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
-                    break;
-                    
-                case 'combined':
-                    result = calcCombinedSweetspot(data);
-                    dom.cust.numMin.value = result.minConv;
-                    dom.cust.min.value = result.minConv;
-                    dom.cust.numRoi.value = result.roi;
-                    dom.cust.roi.value = result.roi;
-                    dom.cust.numMcr.value = result.cr;
-                    dom.cust.mcr.value = result.cr;
-                    displayText = `ROI ≥ ${result.roi}% | CR ≥ ${result.cr}% | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
-                    break;
+
+        function rangesToCIDRs(ranges) {
+            let result = [];
+            for (let range of ranges) {
+                result = result.concat(rangeToOptimalCIDRs(range.start, range.end));
             }
+            return result;
+        }
+
+        function copyCompareResults() {
+            const element = document.getElementById('compareResults');
+            element.select();
+            document.execCommand('copy');
             
-            // Show result
-            const resultBox = getEl('sweetspot-result');
-            const valuesEl = getEl('sweetspot-values');
-            resultBox.classList.remove('hidden');
-            valuesEl.innerText = displayText;
-            
-            // Close menu after short delay
+            const originalText = document.getElementById('compareStatus').textContent;
+            document.getElementById('compareStatus').textContent = 'הועתק ללוח! 📋';
             setTimeout(() => {
-                getEl('sweetspot-menu').classList.add('hidden');
-            }, 1500);
-            
-            // Run engine to apply new thresholds
-            runEngine();
-            
-            // Switch view to Custom
-            dom.filterView.value = 'custom';
-            renderTable();
+                document.getElementById('compareStatus').textContent = originalText;
+            }, 2000);
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // INIT
-        // ═══════════════════════════════════════════════════════════════
-        document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+        function resetCompare() {
+            document.getElementById('rangeA').value = '';
+            document.getElementById('rangeB').value = '';
+            document.getElementById('compareResults').value = '';
+            
+            const originalText = document.getElementById('compareStatus').textContent;
+            document.getElementById('compareStatus').textContent = 'אופס! 🔄';
+            setTimeout(() => {
+                document.getElementById('compareStatus').textContent = 'Ready';
+            }, 2000);
+        }
+
+        function exportCompareResults() {
+            const content = document.getElementById('compareResults').value;
+            if (!content) {
+                document.getElementById('compareStatus').textContent = 'אין תוכן לייצוא ❌';
+                return;
+            }
+            
+            const fileName = 'IP_Comparison_' + new Date().toISOString().slice(0,10) + '.txt';
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            const originalText = document.getElementById('compareStatus').textContent;
+            document.getElementById('compareStatus').textContent = `הקובץ יוצא! 💾 (${fileName})`;
+            setTimeout(() => {
+                document.getElementById('compareStatus').textContent = originalText;
+            }, 3000);
+        }
+
+        function performConversion() {
+            const mode = document.querySelector('input[name="conversionMode"]:checked').value;
+            if (mode === 'ipToCidr') convertIPToCIDR();
+            else if (mode === 'cidrToIp') convertCIDRToIP();
+            else if (mode === 'subtractRanges') subtractIPRanges();
+        }
+
+        function convertIPToCIDR() {
+            document.getElementById('ipStatus').textContent = 'מעבד...';
+            let ipRanges = document.getElementById('ipRanges').value.trim();
+            let shouldMerge = document.getElementById('mergeRanges').checked;
+            let lines = ipRanges.split('\n');
+            let ranges = [];
+            let invalidLines = [];
+            let processedCount = 0;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!isIPLine(line)) {
+                    if (line) invalidLines.push(line);
+                    continue;
+                }
+                processedCount++;
+                if (line.includes('–') || line.includes('-')) {
+                    let [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
+                    ranges.push({ start: ipToLong(start), end: ipToLong(end) });
+                } else if (line.includes('/')) {
+                    const [ip, cidrStr] = line.split('/');
+                    const cidr = parseInt(cidrStr);
+                    const ipLong = ipToLong(ip.trim());
+                    const mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
+                    const network = ipLong & mask;
+                    const broadcast = network | (~mask >>> 0);
+                    ranges.push({ start: network, end: broadcast });
+                } else {
+                    const parts = line.split('.');
+                    let ipLong = ipToLong(line);
+                    
+                    if (parts[2] === '0' && parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 16) >>> 0;
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        ranges.push({ start: network, end: broadcast });
+                    } else if (parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 8) >>> 0;
+                        const network = ipLong & mask;
+                        const broadcast = network | (~mask >>> 0);
+                        ranges.push({ start: network, end: broadcast });
+                    } else {
+                        ranges.push({ start: ipLong, end: ipLong });
+                    }
+                }
+            }
+
+            if (ranges.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו כתובות IP תקינות';
+                return;
+            }
+
+            let originalRangeCount = ranges.length;
+            let processedRanges = shouldMerge ? mergeRanges(ranges) : ranges;
+            let mergedRangeCount = processedRanges.length;
+            let results = [];
+
+            for (let range of processedRanges) {
+                results = results.concat(rangeToOptimalCIDRs(range.start, range.end));
+            }
+
+            document.getElementById('cidrResults').value = results.join('\n');
+            
+            let statusMessage = `המרה הושלמה ✅ | ${processedCount} טווחים עובדו | ${invalidLines.length} שורות סוננו`;
+            if (shouldMerge && originalRangeCount > mergedRangeCount) {
+                let reducedCount = originalRangeCount - mergedRangeCount;
+                statusMessage += ` | צומצמו ${reducedCount} טווחים (${originalRangeCount}→${mergedRangeCount})`;
+            } else if (shouldMerge) {
+                statusMessage += ` | לא נמצאו טווחים לאיחוד`;
+            } else {
+                statusMessage += ` | ללא איחוד טווחים`;
+            }
+            document.getElementById('ipStatus').textContent = statusMessage;
+        }
+
+        function convertCIDRToIP() {
+            document.getElementById('ipStatus').textContent = 'מעבד...';
+            let cidrInput = document.getElementById('ipRanges').value.trim();
+            let lines = cidrInput.split('\n');
+            let results = [];
+            let invalidLines = [];
+            let processedCount = 0;
+            let splitCount = 0;
+
+            const enableSplit = document.getElementById('enableSplit').checked;
+            const maxCidr = document.getElementById('maxCidr').value;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                if (!isValidCIDR(line)) {
+                    invalidLines.push(line);
+                    continue;
+                }
+                try {
+                    if (enableSplit) {
+                        const splitResults = splitCIDR(line, maxCidr);
+                        results = results.concat(splitResults);
+                        if (splitResults.length > 1) splitCount++;
+                    } else {
+                        const range = cidrToRange(line);
+                        results.push(`${range.start} – ${range.end}`);
+                    }
+                    processedCount++;
+                } catch {
+                    invalidLines.push(line);
+                }
+            }
+
+            if (results.length === 0) {
+                document.getElementById('cidrResults').value = '';
+                document.getElementById('ipStatus').textContent = 'לא נמצאו CIDR תקינים';
+                return;
+            }
+
+            const shouldMergeCidr = document.getElementById('mergeRangesCidr').checked;
+            let finalResults = results;
+            let mergedCount = 0;
+
+            if (shouldMergeCidr) {
+                const originalCount = results.length;
+                finalResults = mergeIPRanges(results);
+                mergedCount = originalCount - finalResults.length;
+            }
+
+            document.getElementById('cidrResults').value = finalResults.join('\n');
+            
+            let statusMessage = `המרה הושלמה ✅ | ${processedCount} CIDR הומרו`;
+            if (enableSplit && splitCount > 0) statusMessage += ` | ${splitCount} רשתות גדולות פוצלו`;
+            if (shouldMergeCidr && mergedCount > 0) statusMessage += ` | ${mergedCount} טווחים אוחדו`;
+            statusMessage += ` | ${invalidLines.length} שורות לא תקינות סוננו`;
+            document.getElementById('ipStatus').textContent = statusMessage;
+        }
+
+        function formatNumbers() {
+            document.getElementById('numberStatus').textContent = 'מעבד...';
+            let numberInput = document.getElementById('numberInput').value.trim();
+            let selectedSeparator = document.getElementById('separatorSelect').value;
+            numberInput = numberInput.replace(/\n/g, ' ');
+            let numbers = numberInput.replace(/\s+/g, ' ').split(' ');
+            numbers = numbers.filter(num => num.trim() !== '');
+            let formatted = numbers.join(selectedSeparator);
+            document.getElementById('formattedResults').value = formatted;
+            document.getElementById('numberStatus').textContent = 'עיצוב הושלם ✅';
+        }
+
+        function extractCampaignIDs() {
+            document.getElementById('campaignStatus').textContent = 'מחלץ מזהים...';
+            const inputText = document.getElementById("campaignInput").value;
+            const lines = inputText.split("\n");
+            const idPattern = /^\d{4,8}$/;
+            const ids = lines.filter(line => idPattern.test(line.trim()));
+            if (ids.length > 0) {
+                document.getElementById("campaignResults").value = ids.join("\n");
+                document.getElementById('campaignStatus').textContent = `נמצאו ${ids.length} מזהי קמפיינים ✅`;
+            } else {
+                document.getElementById("campaignResults").value = "";
+                document.getElementById('campaignStatus').textContent = 'לא נמצאו מזהי קמפיינים (4-8 ספרות) ❌';
+            }
+        }
+
+        function exportToFile(elementId, defaultFileName = null) {            
+            let content = document.getElementById(elementId).value;
+            if (!content) {
+                showExportStatus(elementId, 'אין תוכן לייצוא ❌');
+                return;
+            }
+
+            let fileName, blob;
+            if (elementId === 'cidrResults') {
+                const downloadFormatElement = document.querySelector('input[name="downloadFormat"]:checked');
+                const downloadFormat = downloadFormatElement ? downloadFormatElement.value : 'txt';
+                if (downloadFormat === 'csv') {
+                    const csvContent = convertToCSV(content);
+                    fileName = 'IPRanges.csv';
+                    blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+                } else {
+                    fileName = 'IPBL.txt';
+                    blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                }
+            } else {
+                fileName = defaultFileName || 'export.txt';
+                blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            }
+            
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showExportStatus(elementId, `הקובץ יוצא! 💾 (${fileName})`);
+        }
+
+        function showExportStatus(elementId, message) {
+            const statusMap = {
+                'cidrResults': 'ipStatus',
+                'formattedResults': 'numberStatus',
+                'campaignResults': 'campaignStatus'
+            };
+            const status = statusMap[elementId];
+            if (!status) return;
+            const statusElement = document.getElementById(status);
+            const originalText = statusElement.textContent;
+            statusElement.textContent = message;
+            setTimeout(() => { statusElement.textContent = originalText; }, 3000);
+        }
+
+        function convertToCSV(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            let csvRows = [];
+            for (let line of lines) {
+                line = line.trim();
+                if (line.includes('/')) {
+                    try {
+                        const range = cidrToRange(line);
+                        csvRows.push(`${range.start},${range.end}`);
+                    } catch {}
+                } else if (line.includes('–') || line.includes('-')) {
+                    const [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
+                    if (isValidIP(start) && isValidIP(end)) csvRows.push(`${start},${end}`);
+                } else if (isValidIP(line)) {
+                    csvRows.push(`${line},${line}`);
+                }
+            }
+            return csvRows.join('\n');
+        }
+
+        function copyToClipboard(elementId) {
+            let element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            const statusMap = {
+                'cidrResults': 'ipStatus',
+                'formattedResults': 'numberStatus',
+                'campaignResults': 'campaignStatus'
+            };
+            
+            const status = statusMap[elementId];
+            const originalText = document.getElementById(status).textContent;
+            document.getElementById(status).textContent = 'הועתק ללוח! 📋';
+            setTimeout(() => {
+                document.getElementById(status).textContent = originalText;
+            }, 2000);
+        }
+
+        function resetFields(inputId, outputId) {
+            const mode = document.querySelector('input[name="conversionMode"]:checked')?.value;
+            
+            if (mode === 'subtractRanges') {
+                document.getElementById('ipRangesOriginal').value = '';
+                document.getElementById('ipRangesToRemove').value = '';
+            } else {
+                document.getElementById(inputId).value = '';
+            }
+            
+            document.getElementById(outputId).value = '';
+            
+            const statusMap = {
+                'ipRanges': 'ipStatus',
+                'numberInput': 'numberStatus',
+                'campaignInput': 'campaignStatus'
+            };
+            
+            const status = statusMap[inputId];
+            const originalText = document.getElementById(status).textContent;
+            document.getElementById(status).textContent = 'אופס! 🔄';
+            setTimeout(() => {
+                document.getElementById(status).textContent = 'Ready';
+            }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateConversionMode();
+        });
     </script>
 </body>
 </html>
